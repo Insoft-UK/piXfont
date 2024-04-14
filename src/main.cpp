@@ -66,46 +66,46 @@ std::ostream& operator<<(std::ostream& os, MessageType type) {
 
 void usage(void)
 {
-    std::cout << "Copyright (c) 2023 Insoft. All rights reserved\n";
-    std::cout << "Adafruit GFX Pixel Font Creator\n";
-    std::cout << "Usage: pixfont filename -n name [-w width] [-h height]\n";
-    std::cout << " -o, --out         file\n";
+    std::cout << "Copyright (C) 2024 Insoft. All rights reserved.\n";
+    std::cout << "Adafruit GFX Pixel Font Creator.\n\n";
+    std::cout << "Usage: pixfont file [-options] -n name -w width -h height [-v {fg}]\n";
+    std::cout << "\n";
     
     // TODO: Add verbose
-//    std::cout << " -v, --verbose     display detailed processing information\n";
-//    std::cout << " verbose :- flags\n";
-//    std::cout << "            f font\n";
-//    std::cout << "            g glyphs\n\n";
+//    std::cout << " -v display detailed processing information\n";
+//    std::cout << "\tflags:\n";
+//    std::cout << "\t\tf font\n";
+//    std::cout << "\t\tg glyphs\n\n";
     
-    
-    std::cout << " -a                auto left-align glyphs.\n";
-    std::cout << " -d, --distance    distance to advance cursor in the x-axis from the right edge of the glyph, default is 1.\n";
-    std::cout << " -f, --first       first ASCII value of your first character.\n";
-    std::cout << " -l, --last        last ASCII value of your last character.\n";
-    std::cout << " -n, --name        font name.\n";
-    std::cout << " -w, --width       max width of the bitmap in pixels.\n";
-    std::cout << " -h, --height      font height in pixels.\n";
-    std::cout << " -hs,              horizontal spacing in pixels between each glyph.\n";
-    std::cout << " -vs,              vertical spacing in pixels between each glyph.\n";
-    std::cout << " -x, --fixed       fixed char width.\n";
+    std::cout << " -a\tAuto left-align glyphs.\n";
+    std::cout << " -d\tDistance to advance cursor in the x-axis from\n\tthe right edge of the glyph, default is 1.\n";
+    std::cout << " -f\tFirst ASCII value of your first character.\n";
+    std::cout << " -l\tLast ASCII value of your last character.\n";
+    std::cout << " -n\tFont name.\n";
+    std::cout << " -w\tMax width of the bitmap in pixels.\n";
+    std::cout << " -h\tFont height in pixels.\n";
+    std::cout << " -H\tHorizontal spacing in pixels between each glyph.\n";
+    std::cout << " -V\tvertical spacing in pixels between each glyph.\n";
+    std::cout << " -F\tFixed char width.\n";
     std::cout << "\n";
-    std::cout << " --version         displays the full version number.\n";
+    std::cout << "Usage: pixfont {-version | -help}\n";
 }
 
 void error(void)
 {
-    std::cout << "piXfont: try 'pixfont --help' for more information\n";
+    std::cout << "piXfont: try 'pixfont -help' for more information\n";
     exit(0);
 }
 
 void version(void) {
     std::cout
-    << "piXfont v"
+    << "Version: piXfont "
     << (unsigned)__BUILD_NUMBER / 100000 << "."
     << (unsigned)__BUILD_NUMBER / 10000 % 10 << "."
     << (unsigned)__BUILD_NUMBER / 1000 % 10 << "."
     << std::setfill('0') << std::setw(3) << (unsigned)__BUILD_NUMBER % 1000
     << "\n";
+    std::cout << "Copyright: (C) 2024 Insoft. All rights reserved.\n";
 }
 
 GFXglyph autoGFXglyphSettings(Image *image)
@@ -357,55 +357,55 @@ int main(int argc, const char * argv[])
         if (*argv[n] == '-') {
             std::string args(argv[n]);
             
-            if (args == "-d" || args == "--distance") {
+            if (args == "-d") {
                 if (++n > argc) error();
                 distance = atoi(argv[n]);
                 continue;
             }
             
-            if (args == "-n" || args == "--name") {
+            if (args == "-n") {
                 if (++n > argc) error();
                 name = argv[n];
                 continue;
             }
             
-            if (args == "-h" || args == "--height") {
+            if (args == "-h") {
                 if (++n > argc) error();
                 gfxFont.yAdvance = atoi(argv[n]);
                 continue;
             }
             
-            if (args == "-w" || args == "--width") {
+            if (args == "-w") {
                 if (++n > argc) error();
                 width = atoi(argv[n]);
                 continue;
             }
             
-            if (args == "-f" || args == "--first") {
+            if (args == "-f") {
                 if (++n > argc) error();
                 gfxFont.first = atoi(argv[n]);
                 continue;
             }
             
-            if (args == "-l" || args == "--last") {
+            if (args == "-l") {
                 if (++n > argc) error();
                 gfxFont.last = atoi(argv[n]);
                 continue;
             }
             
-            if (args == "-vs") {
+            if (args == "-V") {
                 if (++n > argc) error();
                 vs = atoi(argv[n]);
                 continue;
             }
             
-            if (args == "-hs") {
+            if (args == "-H") {
                 if (++n > argc) error();
                 hs = atoi(argv[n]);
                 continue;
             }
             
-            if (args == "-x" || args == "--fixed") {
+            if (args == "-F") {
                 fixed = true;
                 continue;
             }
@@ -415,14 +415,14 @@ int main(int argc, const char * argv[])
                 continue;
             }
             
-            if (args == "--help") {
+            if (args == "-help") {
                 usage();
                 return 0;
             }
             
-            if (args == "--version") {
+            if (args == "-version") {
                 version();
-                continue;
+                return 0;
             }
             
             error();
