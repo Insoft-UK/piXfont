@@ -68,7 +68,7 @@ void usage(void)
 {
     std::cout << "Copyright (c) 2023 Insoft. All rights reserved\n";
     std::cout << "Adafruit GFX Pixel Font Creator\n";
-    std::cout << "Usage: pixfont in-file -w [width] -h [height] [-o out-file]\n";
+    std::cout << "Usage: pixfont filename -n name [-w width] [-h height]\n";
     std::cout << " -o, --out         file\n";
     
     // TODO: Add verbose
@@ -77,15 +77,17 @@ void usage(void)
 //    std::cout << "            f font\n";
 //    std::cout << "            g glyphs\n\n";
     
-    std::cout << " -d, --distance    distance to advance cursor in the x-axis, default is 1.\n";
+    
+    std::cout << " -a                auto left-align glyphs.\n";
+    std::cout << " -d, --distance    distance to advance cursor in the x-axis from the right edge of the glyph, default is 1.\n";
     std::cout << " -f, --first       first ASCII value of your first character.\n";
     std::cout << " -l, --last        last ASCII value of your last character.\n";
-    std::cout << " -w, --width       width of the bitmap in pixels.\n";
-    std::cout << " -h, --height      width of the bitmap in pixels.\n";
+    std::cout << " -n, --name        font name.\n";
+    std::cout << " -w, --width       max width of the bitmap in pixels.\n";
+    std::cout << " -h, --height      font height in pixels.\n";
     std::cout << " -hs,              horizontal spacing in pixels between each glyph.\n";
     std::cout << " -vs,              vertical spacing in pixels between each glyph.\n";
     std::cout << " -x, --fixed       fixed char width.\n";
-    std::cout << " -la               left-align glyphs.\n";
     std::cout << "\n";
     std::cout << " --version         displays the full version number.\n";
 }
@@ -93,6 +95,7 @@ void usage(void)
 void error(void)
 {
     std::cout << "piXfont: try 'pixfont --help' for more information\n";
+    exit(0);
 }
 
 void version(void) {
@@ -144,18 +147,6 @@ GFXglyph autoGFXglyphSettings(Image *image)
     return gfxGlyph;
 }
 
-bool containsActualImage(const Image *image)
-{
-    if (!image || !image->data) return false;
-    
-    uint8_t *p = (uint8_t *)image->data;
-    for (int l=0; image->width * image->height; l++) {
-        if (p[l]) return true;
-    }
-    
-    return false;
-}
-
 void concatenateImageData(Image *image, std::vector<uint8_t> &data)
 {
     uint8_t *p = (uint8_t *)image->data;
@@ -200,7 +191,46 @@ std::string addCharacter(uint16_t character, GFXglyph &glyph, GFXfont &font)
     return s;
 }
 
-void processAndCreateFile(std::string &filename, GFXfont &gfxFont, std::vector<uint8_t> &data, std::ostringstream &osGlyph,  std::string &name) {
+void indexToXY(const int index, int &x, int &y, const int w, const int h, const int cw, const int ch)
+{
+    x = index % (w / cw) * cw;
+    y = index / (w / cw) * ch;
+}
+
+int asciiExtents(const Image *pixmap, int width, GFXfont &font, int hs, int vs)
+{
+    if (!pixmap || !pixmap->data) return 0;
+    int x,y;
+    int prevFirst = (int)font.first;
+    
+    for (uint16_t n = 0; n < 256; n++) {
+        indexToXY(n, x, y, pixmap->width, pixmap->height, width + hs, font.yAdvance + vs);
+        if (containsImage(pixmap, x, y, width, font.yAdvance)) {
+            if (font.first == 0) font.first = n;
+            font.last = n;
+        }
+    }
+    return (int)font.first - prevFirst;
+}
+
+void createFile(std::string &filename, std::ostringstream &os, std::string &name)
+{
+    std::ofstream outfile;
+    std::string path;
+    
+    size_t pos = filename.rfind("/");
+    path = filename.substr(0, pos + 1);
+    
+    
+    outfile.open(path + name + ".h", std::ios::out | std::ios::binary);
+    if (outfile.is_open()) {
+        outfile.write(os.str().c_str(), os.str().length());
+        outfile.close();
+    }
+}
+
+void processAndCreateFile(std::string &filename, GFXfont &gfxFont, std::vector<uint8_t> &data, std::ostringstream &osGlyph,  std::string &name)
+{
     std::ostringstream os;
     
     os << "\
@@ -224,22 +254,10 @@ const uint8_t " << name << "_Bitmaps[] PROGMEM = {\n  \
     os << "const GFXglyph " << name << "_Glyphs[] PROGMEM = {\n";
     
     os << osGlyph.str() << std::dec << "\n\
-const GFXfont " << name << " PROGMEM = {(uint8_t *) " << name << "_Bitmaps, (GFXglyph *) " << name << "_Glyphs, " << gfxFont.first << ", " << gfxFont.last << ", " << (int)gfxFont.yAdvance << "};\n\n\
+const GFXfont " << name << " PROGMEM = {(uint8_t *) " << name << "_Bitmaps, (GFXglyph *) " << name << "_Glyphs, " << (int)gfxFont.first << ", " << (int)gfxFont.last << ", " << (int)gfxFont.yAdvance << "};\n\n\
 #endif /* " << name << "_h */\n";
     
-    
-    std::ofstream outfile;
-    std::string path;
-    
-    size_t pos = filename.rfind("/");
-    path = filename.substr(0, pos + 1);
-    
-    
-    outfile.open(path + name + ".h", std::ios::out | std::ios::binary);
-    if (outfile.is_open()) {
-        outfile.write(os.str().c_str(), os.str().length());
-        outfile.close();
-    }
+    createFile(filename, os, name);
 }
 
 // TODO: Add extended support for none monochrome glyphs.
@@ -277,11 +295,10 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &gfxFont, i
     uint16_t offset = 0;
     
     Image *image = createPixmap(width, gfxFont.yAdvance);
-
-    for (uint16_t n = 0; n < gfxFont.last - gfxFont.first + 1; n++) {
-        int col = pixmap->width / (width + hs);
-        int x = (n % col) * (width + hs);
-        int y = (n / col) * (gfxFont.yAdvance + vs);
+    int x, y;
+    int indexOffset = asciiExtents(pixmap, width, gfxFont, hs, vs);
+    for (int index = 0; index < gfxFont.last - gfxFont.first + 1; index++) {
+        indexToXY(index + indexOffset, x, y, pixmap->width, pixmap->height, width + hs, gfxFont.yAdvance + vs);
         copyPixmap(image, 0, 0, pixmap, x, y, image->width, image->height);
         
         GFXglyph gfxGlyph = {
@@ -291,7 +308,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &gfxFont, i
         
         Image *extractedImage = extractImageSection(image);
         if (!extractedImage) {
-            osGlyph << addCharacter(n + gfxFont.first, gfxGlyph, gfxFont);
+            osGlyph << addCharacter(index + gfxFont.first, gfxGlyph, gfxFont);
             continue;
         }
         
@@ -310,7 +327,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &gfxFont, i
         
         gfxGlyph.bitmapOffset = offset;
         offset += (extractedImage->width * extractedImage->height + 7) / 8;
-        osGlyph << addCharacter(n + gfxFont.first, gfxGlyph, gfxFont);
+        osGlyph << addCharacter(index + gfxFont.first, gfxGlyph, gfxFont);
         reset(extractedImage);
     }
     osGlyph << "};\n";
@@ -338,96 +355,72 @@ int main(int argc, const char * argv[])
     
     for( int n = 1; n < argc; n++ ) {
         if (*argv[n] == '-') {
-            if ( strcmp( argv[n], "-d" ) == 0 || strcmp( argv[n], "--distance" ) == 0 ) {
-                if ( ++n >= argc ) {
-                    error();
-                    return 0;
-                }
+            std::string args(argv[n]);
+            
+            if (args == "-d" || args == "--distance") {
+                if (++n > argc) error();
                 distance = atoi(argv[n]);
                 continue;
             }
             
-            if ( strcmp( argv[n], "-n" ) == 0 || strcmp( argv[n], "--name" ) == 0 ) {
-                if ( n + 1 >= argc ) {
-                    error();
-                    exit(100);
-                }
-                name = argv[n + 1];
-                
-                n++;
+            if (args == "-n" || args == "--name") {
+                if (++n > argc) error();
+                name = argv[n];
                 continue;
             }
             
-            if ( strcmp( argv[n], "-w" ) == 0 || strcmp( argv[n], "--width" ) == 0 ) {
-                if ( ++n >= argc ) {
-                    error();
-                    return 0;
-                }
-                width = atoi(argv[n]);
-                continue;
-            }
-            
-            if ( strcmp( argv[n], "-h" ) == 0 || strcmp( argv[n], "--height" ) == 0 ) {
-                if ( ++n >= argc ) {
-                    error();
-                    return 0;
-                }
+            if (args == "-h" || args == "--height") {
+                if (++n > argc) error();
                 gfxFont.yAdvance = atoi(argv[n]);
                 continue;
             }
             
-            if ( strcmp( argv[n], "-f" ) == 0 || strcmp( argv[n], "--first" ) == 0 ) {
-                if ( ++n >= argc ) {
-                    error();
-                    return 0;
-                }
+            if (args == "-w" || args == "--width") {
+                if (++n > argc) error();
+                width = atoi(argv[n]);
+                continue;
+            }
+            
+            if (args == "-f" || args == "--first") {
+                if (++n > argc) error();
                 gfxFont.first = atoi(argv[n]);
                 continue;
             }
             
-            if ( strcmp( argv[n], "-l" ) == 0 || strcmp( argv[n], "--last" ) == 0 ) {
-                if ( ++n >= argc ) {
-                    error();
-                    return 0;
-                }
+            if (args == "-l" || args == "--last") {
+                if (++n > argc) error();
                 gfxFont.last = atoi(argv[n]);
                 continue;
             }
             
-            if ( strcmp( argv[n], "-vs" ) == 0 ) {
-                if ( ++n >= argc ) {
-                    error();
-                    return 0;
-                }
+            if (args == "-vs") {
+                if (++n > argc) error();
                 vs = atoi(argv[n]);
                 continue;
             }
             
-            if ( strcmp( argv[n], "-hs" ) == 0 ) {
-                if ( ++n >= argc ) {
-                    error();
-                    return 0;
-                }
+            if (args == "-hs") {
+                if (++n > argc) error();
                 hs = atoi(argv[n]);
                 continue;
             }
             
-            if ( strcmp( argv[n], "-x" ) == 0 || strcmp( argv[n], "--fixed" ) == 0 ) {
+            if (args == "-x" || args == "--fixed") {
                 fixed = true;
                 continue;
             }
             
-            if ( strcmp( argv[n], "-la" ) == 0 ) {
+            if (args == "-a") {
                 leftAlign = true;
                 continue;
             }
             
-            if ( strcmp( argv[n], "--help" ) == 0 ) {
+            if (args == "--help") {
                 usage();
                 return 0;
             }
             
-            if ( strcmp( argv[n], "--version" ) == 0 ) {
+            if (args == "--version") {
                 version();
                 continue;
             }

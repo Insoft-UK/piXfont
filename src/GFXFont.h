@@ -32,19 +32,18 @@ typedef struct {
 } GFXglyph;
 
 typedef struct {
-    uint8_t   *bitmap;          // Glyphe bitmaps, concatenated.
+    uint8_t   *bitmap;          // Glyph bitmaps, concatenated.
     GFXglyph  *glyph;           // Glyph array.
-    uint16_t   first;           // The first ASCII value of your first character.
-    uint16_t   last;            // The last ASCII value of your last character.
+    uint8_t    first;           // The first ASCII value of your first character.
+    uint8_t    last;            // The last ASCII value of your last character.
     uint8_t    yAdvance;        // Newline distance in the y-axis.
     
     // Extension
     uint8_t    bitCount;        /* 
                                  Bits per pixel for color depth, typically rangingfrom 1 to 4 for
-                                 grayscale, although 8, 24, or 32 are possible for grayscale and true
-                                 color..
+                                 monochrome and grayscale/color.
                                  */
-    uint16_t  *palette;         // R5R6R5 palette for color, or null for grayscale or true color.
+    uint16_t  *palette;         // R5R6R5 palette for color, or null for monochrome or grayscale.
     
 } GFXfont;
 

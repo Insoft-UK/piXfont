@@ -3,10 +3,10 @@
     #define PROGMEM /* None Arduino */
 #endif
 
-#ifndef fxCG50_24x_h
-#define fxCG50_24x_h
+#ifndef fxCG50_24pt_h
+#define fxCG50_24pt_h
 
-const uint8_t fxCG50_24x_Bitmaps[] PROGMEM = {
+const uint8_t fxCG50_24pt_Bitmaps[] PROGMEM = {
   0x03, 0xf0, 0x1f, 0xf8, 0x7f, 0xf8, 0xf9, 0xf3, 0xe3, 0xe7, 0xc3, 0xbf,
   0xf0, 0x7f, 0xe0, 0xff, 0xc0, 0x7c, 0x00, 0xf8, 0x01, 0xf0, 0x03, 0xe0,
   0x07, 0xc0, 0x0f, 0x80, 0x1f, 0x00, 0xff, 0xc1, 0xff, 0x83, 0xff, 0x00,
@@ -328,8 +328,7 @@ const uint8_t fxCG50_24x_Bitmaps[] PROGMEM = {
   
 };
 
-const GFXglyph fxCG50_24x_Glyphs[] PROGMEM = {
-  {     0,   0,   0,   0,   0,   0 },   // 0x00 'none printable'
+const GFXglyph fxCG50_24pt_Glyphs[] PROGMEM = {
   {     0,  15,  19,  18,   2, -23 },   // 0x01 'none printable'
   {    36,  16,  17,  18,   1, -18 },   // 0x02 'none printable'
   {    70,  16,  14,  18,   1, -18 },   // 0x03 'none printable'
@@ -545,48 +544,9 @@ const GFXglyph fxCG50_24x_Glyphs[] PROGMEM = {
   {     0,   0,   0,   0,   0,   0 },   // 0xd5 'Õ'
   {     0,   0,   0,   0,   0,   0 },   // 0xd6 'Ö'
   {     0,   0,   0,   0,   0,   0 },   // 0xd7 '×'
-  {  3776,  16,  20,  18,   1, -23 },   // 0xd8 'Ø'
-  {     0,   0,   0,   0,   0,   0 },   // 0xd9 'Ù'
-  {     0,   0,   0,   0,   0,   0 },   // 0xda 'Ú'
-  {     0,   0,   0,   0,   0,   0 },   // 0xdb 'Û'
-  {     0,   0,   0,   0,   0,   0 },   // 0xdc 'Ü'
-  {     0,   0,   0,   0,   0,   0 },   // 0xdd 'Ý'
-  {     0,   0,   0,   0,   0,   0 },   // 0xde 'Þ'
-  {     0,   0,   0,   0,   0,   0 },   // 0xdf 'ß'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe0 'à'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe1 'á'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe2 'â'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe3 'ã'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe4 'ä'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe5 'å'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe6 'æ'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe7 'ç'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe8 'è'
-  {     0,   0,   0,   0,   0,   0 },   // 0xe9 'é'
-  {     0,   0,   0,   0,   0,   0 },   // 0xea 'ê'
-  {     0,   0,   0,   0,   0,   0 },   // 0xeb 'ë'
-  {     0,   0,   0,   0,   0,   0 },   // 0xec 'ì'
-  {     0,   0,   0,   0,   0,   0 },   // 0xed 'í'
-  {     0,   0,   0,   0,   0,   0 },   // 0xee 'î'
-  {     0,   0,   0,   0,   0,   0 },   // 0xef 'ï'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf0 'ð'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf1 'ñ'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf2 'ò'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf3 'ó'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf4 'ô'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf5 'õ'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf6 'ö'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf7 '÷'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf8 'ø'
-  {     0,   0,   0,   0,   0,   0 },   // 0xf9 'ù'
-  {     0,   0,   0,   0,   0,   0 },   // 0xfa 'ú'
-  {     0,   0,   0,   0,   0,   0 },   // 0xfb 'û'
-  {     0,   0,   0,   0,   0,   0 },   // 0xfc 'ü'
-  {     0,   0,   0,   0,   0,   0 },   // 0xfd 'ý'
-  {     0,   0,   0,   0,   0,   0 },   // 0xfe 'þ'
-  {     0,   0,   0,   0,   0,   0 }    // 0xff 'ÿ'
+  {  3776,  16,  20,  18,   1, -23 }    // 0xd8 'Ø'
 };
 
-const GFXfont fxCG50_24x PROGMEM = {(uint8_t *) fxCG50_24x_Bitmaps, (GFXglyph *) fxCG50_24x_Glyphs, 0, 255, 24};
+const GFXfont fxCG50_24pt PROGMEM = {(uint8_t *) fxCG50_24pt_Bitmaps, (GFXglyph *) fxCG50_24pt_Glyphs, 1, 216, 24};
 
-#endif /* fxCG50_24x_h */
+#endif /* fxCG50_24pt_h */

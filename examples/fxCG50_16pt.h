@@ -3,10 +3,10 @@
     #define PROGMEM /* None Arduino */
 #endif
 
-#ifndef fxCG50_16x_h
-#define fxCG50_16x_h
+#ifndef fxCG50_16pt_h
+#define fxCG50_16pt_h
 
-const uint8_t fxCG50_16x_Bitmaps[] PROGMEM = {
+const uint8_t fxCG50_16pt_Bitmaps[] PROGMEM = {
   0xff, 0xff, 0xf3, 0xc0, 0xde, 0xf6, 0x99, 0x00, 0x6c, 0xd9, 0xb7, 0xff,
   0xed, 0x9b, 0x36, 0xff, 0xfd, 0xb3, 0x66, 0xc0, 0x18, 0x3e, 0x7f, 0xfb,
   0xd8, 0xf8, 0x7c, 0x3e, 0x1f, 0x1b, 0xdf, 0xfe, 0x7c, 0x18, 0x47, 0xce,
@@ -87,40 +87,7 @@ const uint8_t fxCG50_16x_Bitmaps[] PROGMEM = {
   0x7e, 0xfb, 0x1c
 };
 
-const GFXglyph fxCG50_16x_Glyphs[] PROGMEM = {
-  {     0,   0,   0,   0,   0,   0 },   // 0x00 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x01 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x02 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x03 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x04 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x05 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x06 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x07 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x08 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x09 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x0a 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x0b 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x0c 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x0d 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x0e 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x0f 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x10 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x11 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x12 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x13 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x14 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x15 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x16 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x17 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x18 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x19 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x1a 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x1b 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x1c 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x1d 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x1e 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x1f 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x20 ' '
+const GFXglyph fxCG50_16pt_Glyphs[] PROGMEM = {
   {     0,   2,  13,   4,   1, -15 },   // 0x21 '!'
   {     4,   5,   5,   7,   1, -15 },   // 0x22 '"'
   {     8,   7,  13,   8,   0, -15 },   // 0x23 '#'
@@ -217,6 +184,6 @@ const GFXglyph fxCG50_16x_Glyphs[] PROGMEM = {
   {   922,  10,   4,  11,   0, -11 }    // 0x7e '~'
 };
 
-const GFXfont fxCG50_16x PROGMEM = {(uint8_t *) fxCG50_16x_Bitmaps, (GFXglyph *) fxCG50_16x_Glyphs, 0, 126, 16};
+const GFXfont fxCG50_16pt PROGMEM = {(uint8_t *) fxCG50_16pt_Bitmaps, (GFXglyph *) fxCG50_16pt_Glyphs, 33, 126, 16};
 
-#endif /* fxCG50_16x_h */
+#endif /* fxCG50_16pt_h */

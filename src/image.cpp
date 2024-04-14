@@ -171,6 +171,22 @@ void reset(Image *&image)
     }
 }
 
+bool containsImage(const Image *image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+{
+    if (!image || !image->data) return false;
+    if (x + w >= image->width || y + h >= image->height) return false;
+    uint8_t *p = (uint8_t *)image->data;
+    
+    p += x + y * image->width;
+    while (h--) {
+        for (int i=0; i<w; i++) {
+            if (p[i]) return true;
+        }
+        p+=image->width;
+    }
+    return false;
+}
+
 Image *extractImageSection(Image *image)
 {
     Image *extractedImage = nullptr;

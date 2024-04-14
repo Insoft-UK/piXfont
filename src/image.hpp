@@ -68,7 +68,7 @@ Image *createPixmap(int w, int h);
  @param dx The horizontal position where the copied section will be placed within the destination pixmap.
  @param dy The vertical axis position within the destination pixmap where the copied section will be placed.
  @param src The pixmap from which the section will be copied.
- @param x The horizontal position from which the pixmap will be copied.
+ @param x The x-axis from which the pixmap will be copied.
  @param y The y-axis source of the pixmap to be copyed from.
  @param w The width of the pixmap to be copied.
  @param h The height of the pixmap to be copied.
@@ -87,6 +87,16 @@ Image *convertMonochromeBitmapToPixmap(const Image *monochrome);
  @param image The image to be deallocated.
  */
 void reset(Image *&image);
+
+/**
+ @brief Takes an input image and identifies if the image contains an actual image at the specified section.
+ @param image The input image that is to be inspected.
+ @param x The start x-axis position from which the pixmap will be inspected at.
+ @param y The start y-axis position from which the pixmap will be inspected at.
+ @param w The width of the pixmap section to inspect.
+ @param h The height of the pixmap section to inspect.
+ */
+bool containsImage(const Image *image, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 /**
  @brief Takes an input image and identifies and extracts a section of the image that contains an actual image.
