@@ -3,10 +3,10 @@
     #define PROGMEM /* None Arduino */
 #endif
 
-#ifndef fxCG50_18pt_h
-#define fxCG50_18pt_h
+#ifndef fxCG50_18pt0xXX_h
+#define fxCG50_18pt0xXX_h
 
-const uint8_t fxCG50_18pt_Bitmaps[] PROGMEM = {
+const uint8_t fxCG50_18pt0xXX_Bitmaps[] PROGMEM = {
   0x1f, 0x1f, 0xcf, 0x67, 0x8f, 0xff, 0xfc, 0xf0, 0x78, 0x3c, 0x1e, 0x0f,
   0x1f, 0xff, 0xf8, 0xf7, 0x9f, 0xf9, 0xf7, 0xbc, 0x77, 0x8e, 0xf1, 0xdf,
   0x7b, 0xfe, 0x7b, 0x8f, 0x03, 0xf0, 0x7e, 0x00, 0xef, 0xcf, 0xfe, 0x7d,
@@ -163,7 +163,7 @@ const uint8_t fxCG50_18pt_Bitmaps[] PROGMEM = {
   0x06, 0x01, 0x80, 0x60, 0x18, 0x06, 0x01, 0x80, 0x7f, 0xf0
 };
 
-const GFXglyph fxCG50_18pt_Glyphs[] PROGMEM = {
+const GFXglyph fxCG50_18pt0xXX_Glyphs[] PROGMEM = {
   {     0,   9,  13,  11,   1, -17 },   // 0x01 'none printable'
   {    15,  11,  12,  13,   1, -13 },   // 0x02 'none printable'
   {    32,  12,   9,  14,   1, -13 },   // 0x03 'none printable'
@@ -195,7 +195,7 @@ const GFXglyph fxCG50_18pt_Glyphs[] PROGMEM = {
   {   346,  11,  13,  13,   1, -17 },   // 0x1d 'none printable'
   {   364,  11,  13,  13,   1, -17 },   // 0x1e 'none printable'
   {   382,  11,  13,  13,   1, -17 },   // 0x1f 'none printable'
-  {     0,   0,   0,   0,   0,   0 },   // 0x20 ' '
+  {     0,   0,   0,   8,   0,   0 },   // 0x20 ' '
   {   400,   2,  13,   5,   2, -17 },   // 0x21 '!'
   {   404,   9,   6,  11,   1, -18 },   // 0x22 '"'
   {   411,  10,  13,  12,   1, -17 },   // 0x23 '#'
@@ -382,6 +382,6 @@ const GFXglyph fxCG50_18pt_Glyphs[] PROGMEM = {
   {  1828,  10,  14,  12,   1, -17 }    // 0xd8 'Ø'
 };
 
-const GFXfont fxCG50_18pt PROGMEM = {(uint8_t *) fxCG50_18pt_Bitmaps, (GFXglyph *) fxCG50_18pt_Glyphs, 1, 216, 18};
+const GFXfont fxCG50_18pt0xXX PROGMEM = {(uint8_t *) fxCG50_18pt0xXX_Bitmaps, (GFXglyph *) fxCG50_18pt0xXX_Glyphs, 1, 216, 18};
 
-#endif /* fxCG50_18pt_h */
+#endif /* fxCG50_18pt0xXX_h */

@@ -20,8 +20,7 @@
  THE SOFTWARE.
  */
 
-#ifndef image_hpp
-#define image_hpp
+#pragma once
 
 #include <iostream>
 #include <sstream>
@@ -104,4 +103,3 @@ bool containsImage(const Image *image, uint16_t x, uint16_t y, uint16_t w, uint1
  */
 Image *extractImageSection(Image *image);
 
-#endif /* image_hpp */

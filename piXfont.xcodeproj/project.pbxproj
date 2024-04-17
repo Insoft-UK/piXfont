@@ -30,16 +30,9 @@
 		1328C2882BC733B7003C4B3A /* C437.pbm */ = {isa = PBXFileReference; lastKnownFileType = file; path = C437.pbm; sourceTree = "<group>"; };
 		1328C2892BC733BF003C4B3A /* C437.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C437.h; sourceTree = "<group>"; };
 		1328C28B2BC844A4003C4B3A /* build.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = build.txt; sourceTree = "<group>"; };
-		1328C28E2BCABA2F003C4B3A /* fx-CG50-16pt.pbm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fx-CG50-16pt.pbm"; sourceTree = "<group>"; };
-		1328C28F2BCABA2F003C4B3A /* fx-CG50-18pt.pbm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fx-CG50-18pt.pbm"; sourceTree = "<group>"; };
-		1328C2902BCABA2F003C4B3A /* fx-CG50-24pt.pbm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fx-CG50-24pt.pbm"; sourceTree = "<group>"; };
-		1328C2912BCABB33003C4B3A /* fxCG50_24pt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fxCG50_24pt.h; sourceTree = "<group>"; };
-		1328C2922BCABB33003C4B3A /* fxCG50_18pt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fxCG50_18pt.h; sourceTree = "<group>"; };
-		1328C2932BCABB33003C4B3A /* fxCG50_16pt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fxCG50_16pt.h; sourceTree = "<group>"; };
-		1328C2942BCB43F4003C4B3A /* fxCG50_10pt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fxCG50_10pt.h; sourceTree = "<group>"; };
-		1328C2952BCB4459003C4B3A /* fx-CG50-10pt.pbm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fx-CG50-10pt.pbm"; sourceTree = "<group>"; };
 		1328C2962BCB4908003C4B3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1328C2972BCB4910003C4B3A /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		1328C29C2BCCB868003C4B3A /* Font.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Font.h; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* piXfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piXfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,14 +51,6 @@
 		137976362BBF8B000095FC27 /* examples */ = {
 			isa = PBXGroup;
 			children = (
-				1328C2902BCABA2F003C4B3A /* fx-CG50-24pt.pbm */,
-				1328C28F2BCABA2F003C4B3A /* fx-CG50-18pt.pbm */,
-				1328C28E2BCABA2F003C4B3A /* fx-CG50-16pt.pbm */,
-				1328C2952BCB4459003C4B3A /* fx-CG50-10pt.pbm */,
-				1328C2912BCABB33003C4B3A /* fxCG50_24pt.h */,
-				1328C2922BCABB33003C4B3A /* fxCG50_18pt.h */,
-				1328C2932BCABB33003C4B3A /* fxCG50_16pt.h */,
-				1328C2942BCB43F4003C4B3A /* fxCG50_10pt.h */,
 				1328C2882BC733B7003C4B3A /* C437.pbm */,
 				1328C2892BC733BF003C4B3A /* C437.h */,
 			);
@@ -99,6 +84,7 @@
 				1328C2822BC6E355003C4B3A /* image.hpp */,
 				1328C2832BC6E355003C4B3A /* image.cpp */,
 				1328C28B2BC844A4003C4B3A /* build.txt */,
+				1328C29C2BCCB868003C4B3A /* Font.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
