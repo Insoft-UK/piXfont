@@ -22,8 +22,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <iomanip>
-#include <sstream>
 #include <vector>
 #include <regex>
 #include <fstream>
@@ -236,6 +234,7 @@ int asciiExtents(const Image *pixmap, GFXfont &font, int hs, int vs, Direction d
     if (verbose) std::cout << MessageType::Verbose <<
         "ASCII Range :" <<
         " from "<< (int)font.first << " to " << (int)font.last << "\n";
+    
     return (int)font.first - prevFirst;
 }
 
@@ -333,6 +332,8 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         };
         glyph = autoGFXglyphSettings(image);
         
+        
+        
         Image *extractedImage = extractImageSection(image);
         if (!extractedImage) {
             osGlyph << addCharacter(index + font.first, glyph, font);
@@ -380,6 +381,8 @@ int main(int argc, const char * argv[])
     bool leftAlign = false;
     int distance = 1;
     Direction direction = Direction::Horizontal;
+    
+    
     
     for( int n = 1; n < argc; n++ ) {
         if (*argv[n] == '-') {
@@ -494,7 +497,7 @@ int main(int argc, const char * argv[])
         size_t pos = name.rfind("/");
         name = name.substr(pos + 1, name.length() - pos);
     }
- 
+    
     createNewFont(filename, name, font, hs, vs, fixed, leftAlign, distance, direction);
     return 0;
 }
