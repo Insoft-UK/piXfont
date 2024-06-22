@@ -290,7 +290,7 @@ const GFXfont " << name << " PROGMEM = {(uint8_t *) " << name << "_Bitmaps, (GFX
 void createNewFont(std::string &filename, std::string &name, GFXfont &font, int hs, int vs, bool fixed, bool leftAlign, int distance, Direction direction)
 {
     Image *monochrome;
-    monochrome = loadPBGraphicFile(filename);
+    monochrome = loadPBMGraphicFile(filename);
     
     if (!monochrome) {
         std::cout << MessageType::Error << "Failed to load the monochrome bitmap file." << filename << ".\n";
@@ -375,7 +375,7 @@ int main(int argc, const char * argv[])
     
     std::string filename, name, prefix, sufix;
     
-    GFXfont font = { 0, 0, .first=0, .last=0, .yAdvance=8, .bitCount=1, .palette=0, .width=8, .xSpace=8, .xOffset=0, .yOffset=0 };
+    GFXfont font = { 0, 0, .first=0, .last=0, .yAdvance=8, .bitWidth=1, .palette=0, .width=8, .xSpace=8, .xOffset=0, .yOffset=0 };
     int hs = 0, vs = 0;
     bool fixed = false;
     bool leftAlign = false;

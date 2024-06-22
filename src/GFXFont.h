@@ -40,7 +40,7 @@ typedef struct {
     
     
     // Extension
-    uint8_t    bitCount;        /*
+    uint8_t    bitWidth;       /*
                                  Bits per pixel for color depth, typically rangingfrom 1 to 4 for
                                  monochrome and grayscale/color.
                                  */

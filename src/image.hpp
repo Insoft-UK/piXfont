@@ -43,7 +43,7 @@ typedef struct __attribute__((__packed__)) {
  @param filename The filename of the Portable Bitmap (PBM) to be loaded.
  @return A structure containing the image data.
  */
-Image *loadPBGraphicFile(std::string &filename);
+Image *loadPBMGraphicFile(std::string &filename);
 
 /**
  @brief Creates a bitmap with the specified dimensions.

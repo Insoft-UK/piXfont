@@ -23,7 +23,7 @@
 #include "image.hpp"
 
 #include <fstream>
-Image *loadPBGraphicFile(std::string &filename)
+Image *loadPBMGraphicFile(std::string &filename)
 {
     std::ifstream infile;
     
