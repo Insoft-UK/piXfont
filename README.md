@@ -1,7 +1,7 @@
 # Adafruit GFX Pixel Font Creator
+This is a handy utility that goes well with the original [fontconvert](https://github.com/adafruit/Adafruit-GFX-Library/tree/master/fontconvert) tool provided by [Adafruit](https://www.adafruit.com/) for converting TTF fonts to Adafruit_GFX `.h` format.
 
-#### piXfont
-- Creates an Adafruit GFX Pixel Font file from a given PBM P4 file.
+This utility tool provides the ability to generate an Adafruit_GFX `.h` format from an image file.
 
-This is a handy command line tool for creating Adafruit GFX font from a .pbm (Prtable Bitmap) image file.
-This is useful since the the font you may wish to use is not a TTF file but an image file that contains the bitmap glyphs.
+> [!NOTE]
+The only image file format currently supported by this utility tool is the Portable Bitmap (PBM) P4 format.
