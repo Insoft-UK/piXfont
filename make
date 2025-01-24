@@ -3,6 +3,9 @@ DIR=$(dirname "$0")
 cd $DIR
 clear
 
+if [ ! -d "build" ]; then
+    mkdir build
+fi
 make
 
 # Close the Terminal window
