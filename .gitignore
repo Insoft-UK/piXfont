@@ -1,5 +1,5 @@
 *.xcworkspace/xcuserdata/
 xcuserdata/
 .DS_Store
-bin/
+build
 *.zip
