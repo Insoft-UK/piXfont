@@ -29,6 +29,7 @@
 #include <iomanip>
 
 #include "GFXFont.h"
+#include "pbm.hpp"
 #include "image.hpp"
 
 #include "version_code.h"
@@ -54,7 +55,7 @@ void error(void) {
 
 void info(void) {
     std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
-    std::cout << "Insoft "<< NAME << "\n";
+    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n\n";
 }
 
 void help(void) {
@@ -96,11 +97,11 @@ void help(void) {
 static bool verbose = false;
 static bool pplCode = false;
 
-enum class MessageType {
-    Warning,
-    Error,
-    Verbose
-};
+//enum class MessageType {
+//    Warning,
+//    Error,
+//    Verbose
+//};
 
 enum class Direction {
     Horizontal,
@@ -164,47 +165,47 @@ static std::string pplList(const void *data, const size_t lengthInBytes, const i
 
 
 
-std::ostream& operator<<(std::ostream& os, MessageType type) {
-    switch (type) {
-        case MessageType::Error:
-            os << "\033[91;1;1;1merror\033[0m: ";
-            break;
+//std::ostream& operator<<(std::ostream& os, MessageType type) {
+//    switch (type) {
+//        case MessageType::Error:
+//            os << "\033[91;1;1;1merror\033[0m: ";
+//            break;
+//
+//        case MessageType::Warning:
+//            os << "\033[98;1;1;1mwarning\033[0m: ";
+//            break;
+//            
+//        case MessageType::Verbose:
+//            os << ": ";
+//            break;
+//
+//        default:
+//            os << ": ";
+//            break;
+//    }
+//
+//    return os;
+//}
 
-        case MessageType::Warning:
-            os << "\033[98;1;1;1mwarning\033[0m: ";
-            break;
-            
-        case MessageType::Verbose:
-            os << ": ";
-            break;
 
-        default:
-            os << ": ";
-            break;
-    }
-
-    return os;
-}
-
-
-GFXglyph autoGFXglyphSettings(Image *image)
+GFXglyph autoGFXglyphSettings(TBitmap &image)
 {
     GFXglyph gfxGlyph = {0, 0, 0, 0, 0, 0};
     int minX, maxX, minY, maxY;
     
-    if (!image || !image->data) return gfxGlyph;
+    if (image.bytes.empty()) return gfxGlyph;
     
-    uint8_t *p = (uint8_t *)image->data;
+    uint8_t *p = (uint8_t *)image.bytes.data();
     
     maxX = 0;
     maxY = 0;
-    minX = image->width - 1;
-    minY = image->height - 1;
+    minX = image.width - 1;
+    minY = image.height - 1;
     
     
-    for (int y=0; y<image->height; y++) {
-        for (int x=0; x<image->width; x++) {
-            if (!p[x + y * image->width]) continue;
+    for (int y=0; y<image.height; y++) {
+        for (int x=0; x<image.width; x++) {
+            if (!p[x + y * image.width]) continue;
             if (minX > x) minX = x;
             if (maxX < x) maxX = x;
             if (minY > y) minY = y;
@@ -221,18 +222,18 @@ GFXglyph autoGFXglyphSettings(Image *image)
     gfxGlyph.height = maxY - minY + 1;
     gfxGlyph.xAdvance = minX + gfxGlyph.width;
     gfxGlyph.dX = minX;
-    gfxGlyph.dY = -image->height + minY;
+    gfxGlyph.dY = -image.height + minY;
     
     return gfxGlyph;
 }
 
-void concatenateImageData(Image *image, std::vector<uint8_t> &data)
+void concatenateImageData(TBitmap &image, std::vector<uint8_t> &data)
 {
-    uint8_t *p = (uint8_t *)image->data;
+    uint8_t *p = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
     uint8_t byte = 0;
     
-    for (int i = 0; i < image->width * image->height; i++) {
+    for (int i = 0; i < image.width * image.height; i++) {
         if(!bitPosition) bitPosition = 1 << 7;
         if (p[i])
             byte |= bitPosition;
@@ -261,16 +262,16 @@ void indexToXY(int index, int &x, int &y, const int w, const int h, const int cw
     y = index / (w / cw) * ch;
 }
 
-int asciiExtents(const Image *pixmap, GFXfont &font, int hs, int vs, Direction direction)
+int asciiExtents(const TBitmap &bitmap, GFXfont &font, int hs, int vs, Direction direction)
 {
-    if (!pixmap || !pixmap->data) return 0;
+    if (bitmap.bytes.empty()) return 0;
     int x,y;
     int prevFirst = (int)font.first;
     
     for (uint16_t n = 0; n < 256; n++) {
-        indexToXY(direction==Direction::Horizontal ? n : -n, x, y, pixmap->width, pixmap->height, font.width + hs, font.yAdvance + vs);
+        indexToXY(direction==Direction::Horizontal ? n : -n, x, y, bitmap.width, bitmap.height, font.width + hs, font.yAdvance + vs);
         
-        if (containsImage(pixmap, x, y, font.width, font.yAdvance)) {
+        if (containsImage(bitmap, x, y, font.width, font.yAdvance)) {
             if (font.first == 0) font.first = n;
             if (font.last < n) font.last = n;
             continue;
@@ -278,7 +279,7 @@ int asciiExtents(const Image *pixmap, GFXfont &font, int hs, int vs, Direction d
     
     }
     if (font.first > 32) font.first = 32;
-    if (verbose) std::cout << MessageType::Verbose <<
+    if (verbose) std::cout <<
         "ASCII Range :" <<
         " from "<< (int)font.first << " to " << (int)font.last << "\n";
     
@@ -427,52 +428,54 @@ const uint8_t " << name << "_Bitmaps[] PROGMEM = {\n  \
 
 void createNewFont(std::string &filename, std::string &name, GFXfont &font, int hs, int vs, bool fixed, bool leftAlign, int distance, Direction direction)
 {
-    Image *monochrome;
-    monochrome = loadPBMGraphicFile(filename);
+    TBitmap monochrome;
+    monochrome = loadPortableBitmapImage(filename);
     
-    if (!monochrome) {
-        std::cout << MessageType::Error << "Failed to load the monochrome bitmap file." << filename << ".\n";
+    if (monochrome.bytes.empty()) {
+        std::cout << "Failed to load the monochrome bitmap file." << filename << ".\n";
         return;
     }
     
-    if ((font.width + hs) * (font.yAdvance + vs) * (font.last - font.first + 1) > monochrome->width * monochrome->height) {
-        std::cout << MessageType::Error << "The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
-        reset(monochrome);
+    if ((font.width + hs) * (font.yAdvance + vs) * (font.last - font.first + 1) > monochrome.width * monochrome.height) {
+        std::cout << "The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
         return;
     }
     
     // We convert the monochrome bitmap to one byte per pixel to simplify working with the image.
-    Image *pixmap = convertMonochromeBitmapToPixmap(monochrome);
-    if (!pixmap) {
+    TBitmap bitmap = convertMonochromeToGrayScale(monochrome);
+    if (bitmap.bytes.empty()) {
         // This error shouldn't occur, but if it does, we must release resources and exit.
-        std::cout << MessageType::Error << "Failed to Allocate Memory.\n";
-        reset(monochrome);
+        std::cout << "Failed to Allocate Memory.\n";
         return;
     }
     
     
-    reset(monochrome);
     
     std::vector<uint8_t> data;
     std::vector<GFXglyph> glyphs;
-//    std::ostringstream osGlyph;
     uint16_t offset = 0;
     
-    Image *image = createPixmap(font.width, font.yAdvance);
+    TBitmap image = {
+        .width = font.width,
+        .height = font.yAdvance
+    };
+    image.bytes.reserve((size_t)image.width * (size_t)image.height);
+    image.bytes.resize((size_t)image.width * (size_t)image.height);
+    
     int x, y;
-    int indexOffset = asciiExtents(pixmap, font, hs, vs, direction);
+    int indexOffset = asciiExtents(bitmap, font, hs, vs, direction);
     for (int index = 0; index < font.last - font.first + 1; index++) {
         int n = direction == Direction::Horizontal ? index + indexOffset : -(index + indexOffset);
-        indexToXY(n, x, y, pixmap->width, pixmap->height, font.width + hs, font.yAdvance + vs);
-        copyPixmap(image, 0, 0, pixmap, x + font.xOffset, y + font.yOffset, image->width, image->height);
+        indexToXY(n, x, y, bitmap.width, bitmap.height, font.width + hs, font.yAdvance + vs);
+        copyBitmap(image, 0, 0, bitmap, x + font.xOffset, y + font.yOffset, image.width, image.height);
         
         GFXglyph glyph = {
             offset, 0, 0, 0, 0, 0
         };
         glyph = autoGFXglyphSettings(image);
         
-        Image *extractedImage = extractImageSection(image);
-        if (!extractedImage) {
+        TBitmap extractedImage = extractImageSection(image);
+        if (extractedImage.bytes.empty()) {
             glyph.xAdvance = font.width;
             glyphs.push_back(glyph);
             continue;
@@ -492,14 +495,11 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         }
         
         glyph.bitmapOffset = offset;
-        offset += (extractedImage->width * extractedImage->height + 7) / 8;
+        offset += (extractedImage.width * extractedImage.height + 7) / 8;
         if (pplCode) glyph.dY = abs(glyph.dY);
         glyphs.push_back(glyph);
-        reset(extractedImage);
     }
     
-    reset(image);
-    reset(pixmap);
     if (pplCode) {
         processForPPLAndCreateFile(filename, font, data, glyphs, name);
         return;

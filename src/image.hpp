@@ -28,24 +28,7 @@
 #include <sstream>
 #include <stdint.h>
 
-typedef enum ImageType {
-    ImageType_Bitmap,
-    ImageType_Pixmap
-} ImageType;
-
-typedef struct __attribute__((__packed__)) {
-    ImageType type;
-    uint16_t width;
-    uint16_t height;
-    void *data;
-} Image;
-
-/**
- @brief Loads a file in the Portable Bitmap (PBM) format.
- @param filename The filename of the Portable Bitmap (PBM) to be loaded.
- @return A structure containing the image data.
- */
-Image *loadPBMGraphicFile(std::string &filename);
+#include "pbm.hpp"
 
 /**
  @brief Creates a bitmap with the specified dimensions.
@@ -53,41 +36,27 @@ Image *loadPBMGraphicFile(std::string &filename);
  @param h The height of the bitmap.
  @return A structure containing the bitmap image data.
  */
-Image *createBitmap(int w, int h);
+TBitmap createBitmap(int w, int h, uint8_t bpp);
 
 /**
- @brief Creates a pixmap with the specified dimensions.
- @param w The width of the pixmap.
- @param h The height of the pixmap.
- @return A structure containing the pixmap image data.
+ @brief Copies a section of a bitmap to another bitmap.
+ @param dst The bitmap to which the section will be copied.
+ @param dx The horizontal position where the copied section will be placed within the destination bitmap.
+ @param dy The vertical axis position within the destination bitmap where the copied section will be placed.
+ @param src The bitmap from which the section will be copied.
+ @param x The x-axis from which the bitmap will be copied.
+ @param y The y-axis source of the bitmap to be copyed from.
+ @param w The width of the bitmap to be copied.
+ @param h The height of the bitmap to be copied.
  */
-Image *createPixmap(int w, int h);
-
-/**
- @brief Copies a section of a pixmap to another bitmap.
- @param dst The pixmap to which the section will be copied.
- @param dx The horizontal position where the copied section will be placed within the destination pixmap.
- @param dy The vertical axis position within the destination pixmap where the copied section will be placed.
- @param src The pixmap from which the section will be copied.
- @param x The x-axis from which the pixmap will be copied.
- @param y The y-axis source of the pixmap to be copyed from.
- @param w The width of the pixmap to be copied.
- @param h The height of the pixmap to be copied.
- */
-void copyPixmap(const Image *dst, int dx, int dy, const Image *src, int x, int y, uint16_t w, uint16_t h);
+void copyBitmap(const TBitmap &dst, int dx, int dy, const TBitmap &src, int x, int y, uint16_t w, uint16_t h);
 
 /**
  @brief Converts a monochrome bitmap to a pixmap, where each pixel is represented by a single byte.
  @param monochrome The monochrome bitmap to be converted to a pixmap bitmap.
- @return A structure containing the pixmap image data.
+ @return A structure containing the bitmap image data.
  */
-Image *convertMonochromeBitmapToPixmap(const Image *monochrome);
-
-/**
- @brief Frees the memory allocated for the image.
- @param image The image to be deallocated.
- */
-void reset(Image *&image);
+TBitmap convertMonochromeToGrayScale(const TBitmap monochrome);
 
 /**
  @brief Takes an input image and identifies if the image contains an actual image at the specified section.
@@ -97,11 +66,11 @@ void reset(Image *&image);
  @param w The width of the pixmap section to inspect.
  @param h The height of the pixmap section to inspect.
  */
-bool containsImage(const Image *image, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+bool containsImage(const TBitmap &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 /**
  @brief Takes an input image and identifies and extracts a section of the image that contains an actual image.
  @param image The input image from which a section containing an actual image will be extracted.
  */
-Image *extractImageSection(Image *image);
+TBitmap extractImageSection(TBitmap &image);
 

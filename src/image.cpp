@@ -24,131 +24,64 @@
 #include "image.hpp"
 
 #include <fstream>
-Image *loadPBMGraphicFile(std::string &filename)
+
+TBitmap createBitmap(int w, int h, uint8_t bpp)
 {
-    std::ifstream infile;
+    TBitmap bitmap = {
+        .width = static_cast<uint16_t>(w),
+        .height = static_cast<uint16_t>(h),
+        .bpp = bpp
+    };
     
-    Image *image = (Image *)malloc(sizeof(Image));
-    if (!image) {
-        return nullptr;
-    }
+    size_t length;
     
-    infile.open(filename, std::ios::in | std::ios::binary);
-    if (!infile.is_open()) {
-        free(image);
-        return nullptr;
-    }
+    length = w * h;
+    if (bpp == 1) length /= 8;
+    if (bpp == 16) length *= 2;
     
-    std::string s;
-    
-    getline(infile, s);
-    if (s != "P4") {
-        infile.close();
-        return image;
-    }
-    
-    image->type = ImageType_Bitmap;
-    
-    getline(infile, s);
-    image->width = atoi(s.c_str());
-    
-    getline(infile, s);
-    image->height = atoi(s.c_str());
-    
-    size_t length = ((image->width + 7) >> 3) * image->height;
-    image->data = (unsigned char *)malloc(length);
-    
-    if (!image->data) {
-        free(image);
-        infile.close();
-        return nullptr;
-    }
-    infile.read((char *)image->data, length);
-    
-    infile.close();
-    return image;
+    bitmap.bytes.reserve(length);
+    bitmap.bytes.resize(length);
+
+    return bitmap;
 }
 
-Image *createBitmap(int w, int h)
+void copyBitmap(const TBitmap &dst, int dx, int dy, const TBitmap &src, int x, int y, uint16_t w, uint16_t h)
 {
-    Image *image = (Image *)malloc(sizeof(Image));
-    if (!image) {
-        return nullptr;
-    }
+    uint8_t *d = (uint8_t *)dst.bytes.data();
+    uint8_t *s = (uint8_t *)src.bytes.data();
     
-    w = (w + 7) & ~7;
-    image->data = malloc(w * h / 8);
-    if (!image->data) {
-        free(image);
-        return nullptr;
-    }
-    
-    image->type = ImageType_Bitmap;
-    image->width = w;
-    image->height = h;
-    
-    return image;
-}
-
-Image *createPixmap(int w, int h)
-{
-    Image *image = (Image *)malloc(sizeof(Image));
-    if (!image) {
-        return nullptr;
-    }
-    
-    image->data = malloc(w * h);
-    if (!image->data) {
-        free(image);
-        return nullptr;
-    }
-    
-    image->type = ImageType_Pixmap;
-    image->width = w;
-    image->height = h;
-    
-    return image;
-}
-
-void copyPixmap(const Image *dst, int dx, int dy, const Image *src, int x, int y, uint16_t w, uint16_t h)
-{
-    uint8_t *d = (uint8_t *)dst->data;
-    uint8_t *s = (uint8_t *)src->data;
-    
-    d += dx + dy * dst->width;
-    s += x + y * src->width;
+    d += dx + dy * dst.width;
+    s += x + y * src.width;
     while (h--) {
         for (int i=0; i<w; i++) {
             d[i] = s[i];
         }
-        d += dst->width;
-        s += src->width;
+        d += dst.width;
+        s += src.width;
     }
 }
 
-Image *convertMonochromeBitmapToPixmap(const Image *monochrome)
+TBitmap convertMonochromeToGrayScale(const TBitmap monochrome)
 {
-    Image *image = (Image *)malloc(sizeof(Image));
-    if (!image)
-        return nullptr;
+    TBitmap grayscale;
     
-    uint8_t *src = (uint8_t *)monochrome->data;
+    if (monochrome.bpp != 1) return grayscale;
+
+    grayscale.bpp = 8;
+    grayscale.width = monochrome.width;
+    grayscale.height = monochrome.height;
+    size_t length = (size_t)monochrome.width * (size_t)monochrome.height;
+    grayscale.bytes.reserve(length);
+    grayscale.bytes.resize(length);
+    
+    uint8_t *src = (uint8_t *)monochrome.bytes.data();
+    uint8_t *dest = (uint8_t *)grayscale.bytes.data();
     uint8_t bitPosition = 1 << 7;
     
-    image->type = ImageType_Pixmap;
-    image->width = monochrome->width;
-    image->height = monochrome->height;
-    image->data = malloc(image->width * image->height);
-    if (!image->data) return image;
-    
-    memset(image->data, 0, image->width * image->height);
-    
-    uint8_t *dest = (uint8_t *)image->data;
-    
     int x, y;
-    for (y=0; y<monochrome->height; y++) {
+    for (y=0; y<monochrome.height; y++) {
         bitPosition = 1 << 7;
-        for (x=0; x<monochrome->width; x++) {
+        for (x=0; x<monochrome.width; x++) {
             *dest++ = (*src & bitPosition ? 1 : 0);
             if (bitPosition == 1) {
                 src++;
@@ -160,52 +93,45 @@ Image *convertMonochromeBitmapToPixmap(const Image *monochrome)
         if (x & 7) src++;
     }
     
-    return image;
+    return grayscale;
 }
 
-void reset(Image *&image)
-{
-    if (image) {
-        if (image->data) free(image->data);
-        free(image);
-        image = nullptr;
-    }
-}
 
-bool containsImage(const Image *image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+
+bool containsImage(const TBitmap &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-    if (!image || !image->data) return false;
-    if (x + w > image->width || y + h > image->height) return false;
-    uint8_t *p = (uint8_t *)image->data;
+    if (image.bytes.empty()) return false;
+    if (x + w > image.width || y + h > image.height) return false;
+    uint8_t *p = (uint8_t *)image.bytes.data();
     
-    p += x + y * image->width;
+    p += x + y * image.width;
     while (h--) {
         for (int i=0; i<w; i++) {
             if (p[i]) return true;
         }
-        p+=image->width;
+        p+=image.width;
     }
     return false;
 }
 
-Image *extractImageSection(Image *image)
+TBitmap extractImageSection(TBitmap &image)
 {
-    Image *extractedImage = nullptr;
+    TBitmap extractedImage;
     
     int minX, maxX, minY, maxY;
     
-    if (!image || !image->data) return nullptr;
+    if (image.bytes.empty()) return extractedImage;
     
-    uint8_t *p = (uint8_t *)image->data;
+    uint8_t *p = (uint8_t *)image.bytes.data();
     
     maxX = 0;
     maxY = 0;
-    minX = image->width - 1;
-    minY = image->height - 1;
+    minX = image.width - 1;
+    minY = image.height - 1;
     
-    for (int y=0; y<image->height; y++) {
-        for (int x=0; x<image->width; x++) {
-            if (!p[x + y * image->width]) continue;
+    for (int y=0; y<image.height; y++) {
+        for (int x=0; x<image.width; x++) {
+            if (!p[x + y * image.width]) continue;
             if (minX > x) minX = x;
             if (maxX < x) maxX = x;
             if (minY > y) minY = y;
@@ -214,15 +140,15 @@ Image *extractImageSection(Image *image)
     }
     
     if (maxX < minX || maxY < minY)
-        return nullptr;
+        return extractedImage;
     
     
     int width = maxX - minX + 1;
     int height = maxY - minY + 1;
     
-    extractedImage = createPixmap(width, height);
-    if (!extractedImage) return nullptr;
-    copyPixmap(extractedImage, 0, 0, image, minX, minY, width, height);
+    extractedImage = createBitmap(width, height, image.bpp);
+    if (extractedImage.bytes.empty()) return extractedImage;
+    copyBitmap(extractedImage, 0, 0, image, minX, minY, width, height);
     
     return extractedImage;
 }

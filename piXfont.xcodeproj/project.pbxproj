@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		13148B642D43CD4A00849C73 /* pbm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13148B632D43CD4A00849C73 /* pbm.cpp */; };
 		1328C2842BC6E8FD003C4B3A /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1328C2832BC6E355003C4B3A /* image.cpp */; };
 		84764229189579CD00AFBE9C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84764228189579CD00AFBE9C /* main.cpp */; };
 /* End PBXBuildFile section */
@@ -27,6 +28,8 @@
 		13148B5B2D407E7B00849C73 /* C437.hpprgm */ = {isa = PBXFileReference; lastKnownFileType = text; path = C437.hpprgm; sourceTree = "<group>"; };
 		13148B602D42B5E800849C73 /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
 		13148B612D42B69200849C73 /* version_code.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_code.h; sourceTree = "<group>"; };
+		13148B622D43CD4A00849C73 /* pbm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = pbm.hpp; sourceTree = "<group>"; };
+		13148B632D43CD4A00849C73 /* pbm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pbm.cpp; sourceTree = "<group>"; };
 		1328C27F2BC61D03003C4B3A /* GFXFont.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GFXFont.h; sourceTree = "<group>"; };
 		1328C2822BC6E355003C4B3A /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
 		1328C2832BC6E355003C4B3A /* image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
@@ -94,6 +97,8 @@
 				1328C27F2BC61D03003C4B3A /* GFXFont.h */,
 				1328C2822BC6E355003C4B3A /* image.hpp */,
 				1328C2832BC6E355003C4B3A /* image.cpp */,
+				13148B622D43CD4A00849C73 /* pbm.hpp */,
+				13148B632D43CD4A00849C73 /* pbm.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -172,6 +177,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13148B642D43CD4A00849C73 /* pbm.cpp in Sources */,
 				84764229189579CD00AFBE9C /* main.cpp in Sources */,
 				1328C2842BC6E8FD003C4B3A /* image.cpp in Sources */,
 			);
@@ -251,6 +257,7 @@
 		8476422F189579CD00AFBE9C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = piXfont;
 			};
@@ -259,6 +266,7 @@
 		84764230189579CD00AFBE9C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = piXfont;
 			};
