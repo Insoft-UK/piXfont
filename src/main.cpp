@@ -1,26 +1,25 @@
-/*
- The MIT License (MIT)
-
- Copyright (c) 2024 Insoft. All rights reserved.
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// The MIT License (MIT)
+//
+// Copyright (c) 2024-2025 Insoft. All rights reserved.
+// Originally created in 2024
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #include <iostream>
 #include <sstream>
@@ -32,9 +31,70 @@
 #include "GFXFont.h"
 #include "image.hpp"
 
-#include "build.h"
+#include "version_code.h"
+#define NAME "Adafruit GFX Pixel Font Creator"
+#define COMMAND_NAME "pixfont"
+#define basename(path)  path.substr(path.find_last_of("/") + 1)
 
-bool verbose = false;
+static std::string _basename;
+
+// MARK: - Command Line
+void version(void) {
+    std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
+    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
+    std::cout << "Built on: " << DATE << "\n";
+    std::cout << "Licence: MIT License\n\n";
+    std::cout << "For more information, visit: http://www.insoft.uk\n";
+}
+
+void error(void) {
+    std::cout << COMMAND_NAME << ": try '" << COMMAND_NAME << " --help' for more information\n";
+    exit(0);
+}
+
+void info(void) {
+    std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
+    std::cout << "Insoft "<< NAME << "\n";
+}
+
+void help(void) {
+    std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
+    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
+    std::cout << "\n";
+    std::cout << "Usage: " << _basename << " <input-file> -w <value> -h <value> [-n <name>] [-f <value>] [-l <value>] [-s <value>] [-O x-offset y-offset] [-d value]\n";
+    std::cout << "\n";
+    std::cout << "Options:\n";
+    std::cout << "  -w <0...32>             Max width of the bitmap in pixels.\n";
+    std::cout << "  -h <0...32>             Font height in pixels.\n";
+    std::cout << "  -n <name>               Font name.\n";
+    std::cout << "  -f <0...255>            First ASCII value of your first character.\n";
+    std::cout << "  -a                      Auto left-align glyphs.\n";
+    std::cout << "  -O <x-offset y-offset>  X-axis and Y-axis offset to the start of the glyphs.\n";
+    std::cout << "  -d <0...32>             Distance to advance cursor in the x-axis from\n";
+    std::cout << "                          the right edge of the glyph, default is 1.\n";
+    std::cout << "  -D                      Direction layout of glyphs.\n";
+    std::cout << "  -l <0...255>            Last ASCII value of your last character.\n";
+    std::cout << "  -s <0...32>             Distance to advance cursor in the x-axis for\n";
+    std::cout << "                          ascii char code 32 if not fixed char width.\n";
+    std::cout << "  -H <0...32>             Horizontal spacing in pixels between each glyph.\n";
+    std::cout << "  -V <0...32>             Vertical spacing in pixels between each glyph.\n";
+    std::cout << "  -F <0...32>             Fixed char width.\n";
+    std::cout << "  -ppl                    Generate PPL code.\n";
+    std::cout << "  -v                      Display detailed processing information.\n";
+    std::cout << "\n";
+    std::cout << "  Verbose Flags:\n";
+    std::cout << "     f                    Font\n";
+    std::cout << "     g                    Glyph\n";
+    std::cout << "\n";
+    std::cout << "Additional Commands:\n";
+    std::cout << "  ansiart {--version | --help}\n";
+    std::cout << "    --version              Display the version information.\n";
+    std::cout << "    --help                 Show this help message.\n";
+}
+
+
+static bool verbose = false;
+static bool pplCode = false;
 
 enum class MessageType {
     Warning,
@@ -46,6 +106,63 @@ enum class Direction {
     Horizontal,
     Vertical
 };
+
+template <typename T>
+T swap_endian(T u)
+{
+    static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+
+    union
+    {
+        T u;
+        unsigned char u8[sizeof(T)];
+    } source, dest;
+
+    source.u = u;
+
+    for (size_t k = 0; k < sizeof(T); k++)
+        dest.u8[k] = source.u8[sizeof(T) - k - 1];
+
+    return dest.u;
+}
+
+// A list is limited to 10,000 elements. Attempting to create a longer list will result in error 38 (Insufficient memory) being thrown.
+static std::string pplList(const void *data, const size_t lengthInBytes, const int columns, bool le = true) {
+    std::ostringstream os;
+    uint64_t n;
+    size_t count = 0;
+    size_t length = lengthInBytes;
+    uint64_t *bytes = (uint64_t *)data;
+    
+    while (length >= 8) {
+        n = *bytes++;
+        
+        if (!le) {
+            n = swap_endian<uint64_t>(n);
+        }
+        
+#ifndef __LITTLE_ENDIAN__
+        /*
+         This platform utilizes big-endian, not little-endian. To ensure
+         that data is processed correctly when generating the list, we
+         must convert between big-endian and little-endian.
+         */
+        if (le) n = swap_endian<uint64_t>(n);
+#endif
+
+        if (count) os << ", ";
+        if (count % columns == 0) {
+            os << (count ? "\n  " : "  ");
+        }
+        os << "#" << std::uppercase << std::hex << std::setfill('0') << std::setw(16) << n << ":64h";
+        
+        count += 1;
+        length -= 8;
+    }
+    return os.str();
+}
+
+
 
 std::ostream& operator<<(std::ostream& os, MessageType type) {
     switch (type) {
@@ -69,52 +186,6 @@ std::ostream& operator<<(std::ostream& os, MessageType type) {
     return os;
 }
 
-void usage(void)
-{
-    std::cout << "Copyright (C) 2024 Insoft. All rights reserved.\n";
-    std::cout << "Adafruit GFX Pixel Font Creator.\n\n";
-    std::cout << "Usage: pixfont file [-options] -n name -w width -h height [-D h|v] [-o x y] [-v {fg}]\n";
-    std::cout << "\n";
-    
-    // TODO: Add verbose
-    std::cout << " -v display detailed processing information\n";
-    std::cout << "\tFlags:\n";
-    std::cout << "\t\tf font\n";
-    std::cout << "\t\tg glyphs\n\n";
-    
-    std::cout << " -a\tAuto left-align glyphs.\n";
-    std::cout << " -o\tX-axis and Y-axis offset to the start of the glyphs.\n";
-    std::cout << " -d\tDistance to advance cursor in the x-axis from\n\tthe right edge of the glyph, default is 1.\n";
-    std::cout << " -D\tDirection layout of glyphs.\n";
-    std::cout << " -f\tFirst ASCII value of your first character.\n";
-    std::cout << " -l\tLast ASCII value of your last character.\n";
-    std::cout << " -n\tFont name.\n";
-    std::cout << " -s\tDistance to advance cursor in the x-axis for\n\tascii char code 32 if not fixed char width.\n";
-    std::cout << " -w\tMax width of the bitmap in pixels.\n";
-    std::cout << " -h\tFont height in pixels.\n";
-    std::cout << " -H\tHorizontal spacing in pixels between each glyph.\n";
-    std::cout << " -V\tvertical spacing in pixels between each glyph.\n";
-    std::cout << " -F\tFixed char width.\n";
-    std::cout << "\n";
-    std::cout << "Usage: pixfont {-version | -help}\n";
-}
-
-void error(void)
-{
-    std::cout << "piXfont: try 'pixfont -help' for more information\n";
-    exit(0);
-}
-
-void version(void) {
-    std::cout
-    << "Version: piXfont "
-    << (unsigned)__BUILD_NUMBER / 100000 << "."
-    << (unsigned)__BUILD_NUMBER / 10000 % 10 << "."
-    << (unsigned)__BUILD_NUMBER / 1000 % 10 << "."
-    << std::setfill('0') << std::setw(3) << (unsigned)__BUILD_NUMBER % 1000
-    << "\n";
-    std::cout << "Copyright: (C) 2024 Insoft. All rights reserved.\n";
-}
 
 GFXglyph autoGFXglyphSettings(Image *image)
 {
@@ -176,32 +247,6 @@ void concatenateImageData(Image *image, std::vector<uint8_t> &data)
     }
 }
 
-std::string addCharacter(uint16_t character, GFXglyph &glyph, GFXfont &font)
-{
-    std::ostringstream os;
-    std::string s;
-    
-    if (character == 32) {
-        glyph.xAdvance = font.xSpace;
-    }
-    
-    os << "  { ";
-    os << std::setw(5) << (int)glyph.bitmapOffset << "," << std::setw(4) << (int)glyph.width << "," << std::setw(4) << (int)glyph.height << "," << std::setw(4) << (int)glyph.xAdvance << "," << std::setw(4) << (int)glyph.dX << "," << std::setw(4) << (int)glyph.dY << " },   ";
-    
-    os << "// 0x" << std::setfill('0') << std::setw(2) << std::hex << (int)character << std::dec << " ";
-    
-    if (character < ' ') {
-        os << "'none printable'\n";
-    } else {
-        os << "'" << (char)character << "'\n";
-    }
-    
-    s = os.str();
-    if (font.last == character)
-        s = std::regex_replace(s, std::regex(R"(\},)"), "} ");
-    
-    return s;
-}
 
 void indexToXY(int index, int &x, int &y, const int w, const int h, const int cw, const int ch)
 {
@@ -240,7 +285,7 @@ int asciiExtents(const Image *pixmap, GFXfont &font, int hs, int vs, Direction d
     return (int)font.first - prevFirst;
 }
 
-void createFile(std::string &filename, std::ostringstream &os, std::string &name)
+void createUTF8File(std::string &filename, std::ostringstream &os, std::string &name)
 {
     std::ofstream outfile;
     std::string path;
@@ -256,7 +301,89 @@ void createFile(std::string &filename, std::ostringstream &os, std::string &name
     }
 }
 
-void processAndCreateFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::ostringstream &osGlyph,  std::string &name)
+void createUTF16LEFile(std::string& filename, std::ostringstream &os, std::string &name) {
+    std::ofstream outfile;
+    
+    std::string str = os.str();
+    
+    std::string path;
+    
+    size_t pos = filename.rfind("/");
+    path = filename.substr(0, pos + 1);
+    
+    outfile.open(path + name + ".hpprgm", std::ios::out | std::ios::binary);
+    if(!outfile.is_open()) {
+        error();
+        exit(0x02);
+    }
+    
+    outfile.put(0xFF);
+    outfile.put(0xFE);
+    
+    uint8_t* ptr = (uint8_t*)str.c_str();
+    for ( int n = 0; n < str.length(); n++) {
+        if (0xc2 == ptr[0]) {
+            ptr++;
+            continue;
+        }
+        
+        if (0xE0 <= ptr[0]) {
+            // 3 Bytes
+            uint16_t utf16 = ptr[0];
+            utf16 <<= 6;
+            utf16 |= ptr[1] & 0b111111;
+            utf16 <<= 6;
+            utf16 |= ptr[1] & 0b111111;
+            
+#ifndef __LITTLE_ENDIAN__
+            utf16 = utf16 >> 8 | utf16 << 8;
+#endif
+            outfile.write((const char *)&utf16, 2);
+            
+            ptr+=3;
+            continue;
+        }
+        
+        
+        if ('\r' == ptr[0]) {
+            ptr++;
+            continue;
+        }
+
+        // Output as UTF-16LE
+        outfile.put(*ptr++);
+        outfile.put('\0');
+    }
+    
+    outfile.close();
+}
+
+#include <stdint.h>
+
+uint8_t mirror_byte(uint8_t b) {
+    b = ((b & 0xF0) >> 4) | ((b & 0x0F) << 4);  // Swap upper and lower 4 bits
+    b = ((b & 0xCC) >> 2) | ((b & 0x33) << 2);  // Swap pairs of bits
+    b = ((b & 0xAA) >> 1) | ((b & 0x55) << 1);  // Swap individual bits
+    return b;
+}
+
+void processForPPLAndCreateFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
+{
+    std::ostringstream os;
+    
+    for (auto it = data.begin(); it < data.end(); it++) {
+        *it = mirror_byte(*it);
+    }
+    
+    os << "// Generated by piXfont\nEXPORT " << name << " := {\n {\n";
+    os << pplList(data.data(), data.size(), 16);
+    os << "\n }";
+    os << ",{\n" << pplList(glyphs.data(), glyphs.size() * sizeof(GFXglyph), 16) << "\n }, ";
+    os << (int)font.first << ", " << (int)font.last << ", " << (int)font.yAdvance << "\n};";
+    createUTF16LEFile(filename, os, name);
+}
+
+void processAndCreateFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
 {
     std::ostringstream os;
     
@@ -280,11 +407,20 @@ const uint8_t " << name << "_Bitmaps[] PROGMEM = {\n  \
     
     os << "const GFXglyph " << name << "_Glyphs[] PROGMEM = {\n";
     
-    os << osGlyph.str() << std::dec << "\n\
-const GFXfont " << name << " PROGMEM = {(uint8_t *) " << name << "_Bitmaps, (GFXglyph *) " << name << "_Glyphs, " << (int)font.first << ", " << (int)font.last << ", " << (int)font.yAdvance << "};\n\n\
-#endif /* " << name << "_h */\n";
+    for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
+        size_t index = it - glyphs.begin();
+        char character = index + font.first;
+        if (character < ' ') character = ' ';
+        os << "  { " << std::setfill(' ') << std::dec << std::setw(5) << (int)it->bitmapOffset << "," << std::setw(4) << (int)it->width << "," << std::setw(4) << (int)it->height << "," << std::setw(4) << (int)it->xAdvance << "," << std::setw(4) << (int)it->dX << "," << std::setw(4) << (int)it->dY << " }";
+        os << (it == glyphs.end() - 1 ? "  " : ", ");
+        os << " // 0x" << std::setfill('0') << std::setw(2) << std::hex << (int)index + font.first << std::dec << " ";
+        os << "'" << character << "'";
+        os << "\n";
+    }
+    os << std::dec << "};\nconst GFXfont " << name << " PROGMEM = {(uint8_t *) " << name << "_Bitmaps, (GFXglyph *) " << name << "_Glyphs, " << (int)font.first << ", " << (int)font.last << ", " << (int)font.yAdvance << "};\n\n#endif /* " << name << "_h */\n";
     
-    createFile(filename, os, name);
+    
+    createUTF8File(filename, os, name);
 }
 
 // TODO: Add extended support for none monochrome glyphs.
@@ -318,7 +454,8 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
     reset(monochrome);
     
     std::vector<uint8_t> data;
-    std::ostringstream osGlyph;
+    std::vector<GFXglyph> glyphs;
+//    std::ostringstream osGlyph;
     uint16_t offset = 0;
     
     Image *image = createPixmap(font.width, font.yAdvance);
@@ -334,11 +471,10 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         };
         glyph = autoGFXglyphSettings(image);
         
-        
-        
         Image *extractedImage = extractImageSection(image);
         if (!extractedImage) {
-            osGlyph << addCharacter(index + font.first, glyph, font);
+            glyph.xAdvance = font.width;
+            glyphs.push_back(glyph);
             continue;
         }
         
@@ -357,15 +493,18 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         
         glyph.bitmapOffset = offset;
         offset += (extractedImage->width * extractedImage->height + 7) / 8;
-        osGlyph << addCharacter(index + font.first, glyph, font);
+        if (pplCode) glyph.dY = abs(glyph.dY);
+        glyphs.push_back(glyph);
         reset(extractedImage);
     }
-    osGlyph << "};\n";
     
     reset(image);
     reset(pixmap);
-    
-    processAndCreateFile(filename, font, data, osGlyph, name);
+    if (pplCode) {
+        processForPPLAndCreateFile(filename, font, data, glyphs, name);
+        return;
+    }
+    processAndCreateFile(filename, font, data, glyphs, name);
 }
 
 int main(int argc, const char * argv[])
@@ -375,9 +514,12 @@ int main(int argc, const char * argv[])
         return 0;
     }
     
+    std::string args(argv[0]);
+    _basename = basename(args);
+    
     std::string filename, name, prefix, sufix;
     
-    GFXfont font = { 0, 0, .first=0, .last=0, .yAdvance=8, .bitWidth=1, .palette=0, .width=8, .xSpace=8, .xOffset=0, .yOffset=0 };
+    GFXfont font = { 0, 0, .first=0, .last=0, .yAdvance=8, .width=8, .xSpace=8, .xOffset=0, .yOffset=0 };
     int hs = 0, vs = 0;
     bool fixed = false;
     bool leftAlign = false;
@@ -411,7 +553,7 @@ int main(int argc, const char * argv[])
             }
             
             
-            if (args == "-o") {
+            if (args == "-O") {
                 if (++n > argc) error();
                 font.xOffset = atoi(argv[n]);
                 if (++n > argc) error();
@@ -471,12 +613,17 @@ int main(int argc, const char * argv[])
                 continue;
             }
             
-            if (args == "-help") {
-                usage();
+            if (args == "-ppl") {
+                pplCode = true;
+                continue;
+            }
+            
+            if (args == "--help") {
+                help();
                 return 0;
             }
             
-            if (args == "-version") {
+            if (args == "--version") {
                 version();
                 return 0;
             }
@@ -500,6 +647,7 @@ int main(int argc, const char * argv[])
         name = name.substr(pos + 1, name.length() - pos);
     }
     
+    info();
     createNewFont(filename, name, font, hs, vs, fixed, leftAlign, distance, direction);
     return 0;
 }

@@ -40,14 +40,6 @@ typedef struct {
     uint8_t    last;            // The last ASCII value of your last character.
     uint8_t    yAdvance;        // Newline distance in the y-axis.
     
-    
-    // Extension
-    uint8_t    bitWidth;       /*
-                                 Bits per pixel for color depth, typically rangingfrom 1 to 4 for
-                                 monochrome and grayscale/color.
-                                 */
-    uint16_t  *palette;         // R5R6R5 palette for color, or null for monochrome or grayscale.
-    
     // Used by piXfont
     uint8_t    width;
     uint8_t    xSpace;          // Distance to advance cursor in the x-axis for [space].
