@@ -34,7 +34,7 @@
 
 #include "version_code.h"
 #define NAME "Adafruit GFX Pixel Font Creator"
-#define COMMAND_NAME "pixfont"
+#define COMMAND_NAME "pxfnt"
 #define basename(path)  path.substr(path.find_last_of("/") + 1)
 
 static std::string _basename;
@@ -543,7 +543,6 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         
         glyph.bitmapOffset = offset;
         offset += (extractedImage.width * extractedImage.height + 7) / 8;
-        if (pplCode) glyph.dY = abs(glyph.dY);
         glyphs.push_back(glyph);
     }
     
