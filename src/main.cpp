@@ -80,7 +80,7 @@ void help(void) {
     std::cout << "  -H <0...32>             Horizontal spacing in pixels between each glyph.\n";
     std::cout << "  -V <0...32>             Vertical spacing in pixels between each glyph.\n";
     std::cout << "  -F <0...32>             Fixed char width.\n";
-    std::cout << "  -ppl                    Generate PPL code.\n";
+    std::cout << "  -ppl                    Generate PPL code, not required for .h files.\n";
     std::cout << "  -v                      Display detailed processing information.\n";
     std::cout << "\n";
     std::cout << "  Verbose Flags:\n";
@@ -162,30 +162,6 @@ static std::string pplList(const void *data, const size_t lengthInBytes, const i
     }
     return os.str();
 }
-
-
-
-//std::ostream& operator<<(std::ostream& os, MessageType type) {
-//    switch (type) {
-//        case MessageType::Error:
-//            os << "\033[91;1;1;1merror\033[0m: ";
-//            break;
-//
-//        case MessageType::Warning:
-//            os << "\033[98;1;1;1mwarning\033[0m: ";
-//            break;
-//            
-//        case MessageType::Verbose:
-//            os << ": ";
-//            break;
-//
-//        default:
-//            os << ": ";
-//            break;
-//    }
-//
-//    return os;
-//}
 
 
 GFXglyph autoGFXglyphSettings(TBitmap &image)
@@ -424,6 +400,77 @@ const uint8_t " << name << "_Bitmaps[] PROGMEM = {\n  \
     createUTF8File(filename, os, name);
 }
 
+void createNewPPL(std::string &filename, std::string &name)
+{
+    std::ifstream infile;
+    std::string utf8;
+    
+
+    // Open the file in text mode
+    infile.open(filename, std::ios::in);
+
+    // Check if the file is successfully opened
+    if (!infile.is_open())
+    {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        exit(2); // Handle the error as needed
+    }
+
+    // Use a stringstream to read the file's content into the string
+    std::stringstream buffer;
+    buffer << infile.rdbuf();
+    utf8 = buffer.str();
+
+    infile.close();
+    
+    
+    std::smatch match;
+    std::vector<uint8_t> data;
+    
+    std::regex_search(utf8, match, std::regex(R"(const uint8_t \w+\[\] PROGMEM = \{([^}]*))"));
+    if (match[1].matched) {
+        auto s = match[1].str();
+        while (std::regex_search(s, match, std::regex(R"(0x[\dA-Fa-f]{2})"))) {
+            data.push_back(std::stoi(match.str(), nullptr, 16));
+            s = match.suffix().str();
+        }
+    } else {
+        std::cout << "Failed to find <Bitmap Data>.\n";
+        return;
+    }
+    
+    std::vector<GFXglyph> glyphs;
+
+    auto s = utf8;
+    while (std::regex_search(s, match, std::regex(R"(\{ *(\d+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(-?\d+) *\})"))) {
+        GFXglyph glyph;
+        glyph.bitmapOffset = std::stoi(match.str(1), nullptr, 10);
+        glyph.width = std::stoi(match.str(2), nullptr, 10);
+        glyph.height = std::stoi(match.str(3), nullptr, 10);
+        glyph.xAdvance = std::stoi(match.str(4), nullptr, 10);
+        glyph.dX = std::stoi(match.str(5), nullptr, 10);
+        glyph.dY = std::stoi(match.str(6), nullptr, 10);
+        glyphs.push_back(glyph);
+        s = match.suffix().str();
+    }
+    if (glyphs.empty()) {
+        std::cout << "Failed to find <Glyph Table>.\n";
+        return;
+    }
+    
+    GFXfont font;
+    if (std::regex_search(s, match, std::regex(R"((\d+) *, *(\d+) *, *(\d+) *\};)"))) {
+        font.first = std::stoi(match.str(1), nullptr, 10);
+        font.last = std::stoi(match.str(2), nullptr, 10);
+        font.yAdvance = std::stoi(match.str(3), nullptr, 10);
+    } else {
+        std::cout << "Failed to find <Font>.\n";
+        return;
+    }
+
+    processForPPLAndCreateFile(filename, font, data, glyphs, name);
+}
+
 // TODO: Add extended support for none monochrome glyphs.
 
 void createNewFont(std::string &filename, std::string &name, GFXfont &font, int hs, int vs, bool fixed, bool leftAlign, int distance, Direction direction)
@@ -648,6 +695,12 @@ int main(int argc, const char * argv[])
     }
     
     info();
+    
+    if (filename.substr(filename.length() - 2, 2) == ".h") {
+        createNewPPL(filename, name);
+        return 0;
+    }
+    
     createNewFont(filename, name, font, hs, vs, fixed, leftAlign, distance, direction);
     return 0;
 }

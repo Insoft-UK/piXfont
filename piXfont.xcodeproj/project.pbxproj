@@ -30,6 +30,7 @@
 		13148B612D42B69200849C73 /* version_code.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_code.h; sourceTree = "<group>"; };
 		13148B622D43CD4A00849C73 /* pbm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = pbm.hpp; sourceTree = "<group>"; };
 		13148B632D43CD4A00849C73 /* pbm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pbm.cpp; sourceTree = "<group>"; };
+		13148B7C2D47D24E00849C73 /* charset.hpprgm */ = {isa = PBXFileReference; lastKnownFileType = text; path = charset.hpprgm; sourceTree = "<group>"; };
 		1328C27F2BC61D03003C4B3A /* GFXFont.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GFXFont.h; sourceTree = "<group>"; };
 		1328C2822BC6E355003C4B3A /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
 		1328C2832BC6E355003C4B3A /* image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
@@ -63,6 +64,7 @@
 				1328C2882BC733B7003C4B3A /* C437.pbm */,
 				1328C2892BC733BF003C4B3A /* C437.h */,
 				13148B5B2D407E7B00849C73 /* C437.hpprgm */,
+				13148B7C2D47D24E00849C73 /* charset.hpprgm */,
 			);
 			path = examples;
 			sourceTree = SOURCE_ROOT;
