@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2024 Insoft. All rights reserved.
+// Copyright (c) 2024-2025 Insoft. All rights reserved.
 // Originally created in 2023
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,7 +25,48 @@
 
 #include <fstream>
 
-TBitmap createBitmap(int w, int h, uint8_t bpp)
+#include "pbm.hpp"
+#include "bmp.hpp"
+
+image::TBitmap image::loadBitmap(const char *filename)
+{
+    TBitmap bitmap;
+    
+    auto bmp = bmp::load(filename);
+    if (!bmp.bytes.empty()) {
+        bitmap.width = bmp.width;
+        bitmap.height = bmp.height;
+        bitmap.bpp = bmp.bpp;
+        bitmap.palette = bmp.palette;
+        bitmap.bytes = bmp.bytes;
+        return bitmap;
+    }
+    
+    auto pbm = pbm::load(filename);
+    if (!pbm.bytes.empty()) {
+        bitmap.width = pbm.width;
+        bitmap.height = pbm.height;
+        bitmap.bpp = 1;
+        bitmap.bytes = pbm.bytes;
+        return bitmap;
+    }
+    
+    return bitmap;
+}
+
+void image::saveBitmap(const char *filename, const image::TBitmap &bitmap)
+{
+    bmp::TImage image = {
+        .width = bitmap.width,
+        .height = bitmap.height,
+        .bpp = bitmap.bpp,
+        .palette = bitmap.palette,
+        .bytes = bitmap.bytes
+    };
+    bmp::save(filename, image);
+}
+
+image::TBitmap image::createBitmap(int w, int h, uint8_t bpp)
 {
     TBitmap bitmap = {
         .width = static_cast<uint16_t>(w),
@@ -41,11 +82,17 @@ TBitmap createBitmap(int w, int h, uint8_t bpp)
     
     bitmap.bytes.reserve(length);
     bitmap.bytes.resize(length);
+    
+    bitmap.palette.reserve(2);
+    bitmap.palette.resize(2);
+    
+    bitmap.palette.at(1) = 0;
+    bitmap.palette.at(0) = 0x00FFFFFF;
 
     return bitmap;
 }
 
-void copyBitmap(const TBitmap &dst, int dx, int dy, const TBitmap &src, int x, int y, uint16_t w, uint16_t h)
+void image::copyBitmap(const TBitmap &dst, int dx, int dy, const TBitmap &src, int x, int y, uint16_t w, uint16_t h)
 {
     uint8_t *d = (uint8_t *)dst.bytes.data();
     uint8_t *s = (uint8_t *)src.bytes.data();
@@ -61,7 +108,7 @@ void copyBitmap(const TBitmap &dst, int dx, int dy, const TBitmap &src, int x, i
     }
 }
 
-TBitmap convertMonochromeToGrayScale(const TBitmap monochrome)
+image::TBitmap image::convertMonochromeToGrayScale(const TBitmap monochrome)
 {
     TBitmap grayscale;
     
@@ -98,7 +145,7 @@ TBitmap convertMonochromeToGrayScale(const TBitmap monochrome)
 
 
 
-bool containsImage(const TBitmap &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+bool image::containsImage(const TBitmap &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
     if (image.bytes.empty()) return false;
     if (x + w > image.width || y + h > image.height) return false;
@@ -114,7 +161,7 @@ bool containsImage(const TBitmap &image, uint16_t x, uint16_t y, uint16_t w, uin
     return false;
 }
 
-TBitmap extractImageSection(TBitmap &image)
+image::TBitmap image::extractImageSection(TBitmap &image)
 {
     TBitmap extractedImage;
     

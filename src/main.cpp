@@ -31,6 +31,9 @@
 #include "GFXFont.h"
 #include "pbm.hpp"
 #include "image.hpp"
+#include "font.hpp"
+
+using namespace image;
 
 #include "version_code.h"
 #define NAME "Adafruit GFX Pixel Font Creator"
@@ -95,7 +98,7 @@ void help(void) {
 
 
 static bool verbose = false;
-static bool pplCode = false;
+static bool PPL = false;
 
 //enum class MessageType {
 //    Warning,
@@ -344,7 +347,7 @@ uint8_t mirror_byte(uint8_t b) {
     return b;
 }
 
-void processForPPLAndCreateFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
+void createHpprgmFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
 {
     std::ostringstream os;
     
@@ -360,7 +363,40 @@ void processForPPLAndCreateFile(std::string &filename, GFXfont &font, std::vecto
     createUTF16LEFile(filename, os, name);
 }
 
-void processAndCreateFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
+void createImageFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
+{
+    TBitmap bitmap;
+    
+    font::TFont adafruitFont = {
+        .bitmap = data.data(),
+        .glyph = (font::TGlyph *)glyphs.data(),
+        .first = font.first,
+        .last = font.last,
+        .yAdvance = font.yAdvance
+    };
+    
+    int w = 0;
+    for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
+        if (it->xAdvance > w) w = it->xAdvance;
+    }
+    bitmap = createBitmap(w, font.yAdvance * (font.last - font.first + 1), 8);
+    
+    int y = 0;
+    char c = adafruitFont.first;
+    for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
+        font::glyph(0, y, c, (uint8_t)1, adafruitFont, bitmap);
+        y += adafruitFont.yAdvance;
+        c++;
+    }
+    std::string path;
+    
+    size_t pos = filename.rfind("/");
+    path = filename.substr(0, pos + 1);
+    
+    saveBitmap((path + name + ".bmp").c_str(), bitmap);
+}
+
+void createAdafruitFontFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
 {
     std::ostringstream os;
     
@@ -400,22 +436,19 @@ const uint8_t " << name << "_Bitmaps[] PROGMEM = {\n  \
     createUTF8File(filename, os, name);
 }
 
-void createNewPPL(std::string &filename, std::string &name)
+std::string loadAdafruitFont(std::string &filename)
 {
     std::ifstream infile;
     std::string utf8;
     
-
     // Open the file in text mode
     infile.open(filename, std::ios::in);
-
+    
     // Check if the file is successfully opened
-    if (!infile.is_open())
-    {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        exit(2); // Handle the error as needed
+    if (!infile.is_open()) {
+        return utf8;
     }
-
+    
     // Use a stringstream to read the file's content into the string
     std::stringstream buffer;
     buffer << infile.rdbuf();
@@ -423,10 +456,23 @@ void createNewPPL(std::string &filename, std::string &name)
 
     infile.close();
     
+    return utf8;
+}
+
+bool extractAdafruitFont(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs)
+{
+    std::ifstream infile;
+    std::string utf8;
+    
+    utf8 = loadAdafruitFont(filename);
+    
+    // Check if the file is successfully opened
+    if (utf8.empty()) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return false;
+    }
     
     std::smatch match;
-    std::vector<uint8_t> data;
-    
     std::regex_search(utf8, match, std::regex(R"(const uint8_t \w+\[\] PROGMEM = \{([^}]*))"));
     if (match[1].matched) {
         auto s = match[1].str();
@@ -436,13 +482,11 @@ void createNewPPL(std::string &filename, std::string &name)
         }
     } else {
         std::cout << "Failed to find <Bitmap Data>.\n";
-        return;
+        return false;
     }
     
-    std::vector<GFXglyph> glyphs;
-
     auto s = utf8;
-    while (std::regex_search(s, match, std::regex(R"(\{ *(\d+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(-?\d+) *\})"))) {
+    while (std::regex_search(s, match, std::regex(R"(\{ *((?:0x)?[\d[a-fA-F]+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(-?\d+) *\})"))) {
         GFXglyph glyph;
         glyph.bitmapOffset = std::stoi(match.str(1), nullptr, 10);
         glyph.width = std::stoi(match.str(2), nullptr, 10);
@@ -455,49 +499,76 @@ void createNewPPL(std::string &filename, std::string &name)
     }
     if (glyphs.empty()) {
         std::cout << "Failed to find <Glyph Table>.\n";
-        return;
+        return false;
     }
     
-    GFXfont font;
     if (std::regex_search(s, match, std::regex(R"((\d+) *, *(\d+) *, *(\d+) *\};)"))) {
         font.first = std::stoi(match.str(1), nullptr, 10);
         font.last = std::stoi(match.str(2), nullptr, 10);
         font.yAdvance = std::stoi(match.str(3), nullptr, 10);
     } else {
         std::cout << "Failed to find <Font>.\n";
-        return;
+        return false;
+    }
+    
+    return true;
+}
+
+void convertAdafruitFontToHpprgm(std::string &filename, std::string &name)
+{
+    std::vector<uint8_t> data;
+    std::vector<GFXglyph> glyphs;
+    GFXfont font;
+    
+    if (!extractAdafruitFont(filename, font, data, glyphs)) {
+        std::cout << "Failed to find valid Adafruit Font data.\n";
+        exit(2);
     }
 
-    processForPPLAndCreateFile(filename, font, data, glyphs, name);
+    createHpprgmFile(filename, font, data, glyphs, name);
+}
+
+void convertAdafruitFontToImage(std::string &filename, std::string &name)
+{
+    std::vector<uint8_t> data;
+    std::vector<GFXglyph> glyphs;
+    GFXfont font;
+    
+    if (!extractAdafruitFont(filename, font, data, glyphs)) {
+        std::cout << "Failed to find valid Adafruit Font data.\n";
+        exit(2);
+    }
+    
+    createImageFile(filename, font, data, glyphs, name);
 }
 
 // TODO: Add extended support for none monochrome glyphs.
 
 void createNewFont(std::string &filename, std::string &name, GFXfont &font, int hs, int vs, bool fixed, bool leftAlign, int distance, Direction direction)
 {
-    TBitmap monochrome;
-    monochrome = loadPortableBitmapImage(filename);
+    TBitmap bitmap;
+    bitmap = loadBitmap(filename.c_str());
     
-    if (monochrome.bytes.empty()) {
+    if (bitmap.bytes.empty()) {
         std::cout << "Failed to load the monochrome bitmap file." << filename << ".\n";
         return;
     }
     
-    if ((font.width + hs) * (font.yAdvance + vs) * (font.last - font.first + 1) > monochrome.width * monochrome.height) {
+    if (bitmap.bpp == 1) {
+        bitmap = convertMonochromeToGrayScale(bitmap);
+    }
+    
+    if (bitmap.bpp != 8) {
+        std::cout << "Failed to load a monochrome, grayscale or 256 color bitmap file." << filename << ".\n";
+        return;
+    }
+    
+    if ((font.width + hs) * (font.yAdvance + vs) * (font.last - font.first + 1) > bitmap.width * bitmap.height) {
         std::cout << "The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
         return;
     }
     
-    // We convert the monochrome bitmap to one byte per pixel to simplify working with the image.
-    TBitmap bitmap = convertMonochromeToGrayScale(monochrome);
-    if (bitmap.bytes.empty()) {
-        // This error shouldn't occur, but if it does, we must release resources and exit.
-        std::cout << "Failed to Allocate Memory.\n";
-        return;
-    }
-    
-    
-    
+
     std::vector<uint8_t> data;
     std::vector<GFXglyph> glyphs;
     uint16_t offset = 0;
@@ -546,11 +617,11 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         glyphs.push_back(glyph);
     }
     
-    if (pplCode) {
-        processForPPLAndCreateFile(filename, font, data, glyphs, name);
+    if (PPL) {
+        createHpprgmFile(filename, font, data, glyphs, name);
         return;
     }
-    processAndCreateFile(filename, font, data, glyphs, name);
+    createAdafruitFontFile(filename, font, data, glyphs, name);
 }
 
 int main(int argc, const char * argv[])
@@ -660,7 +731,7 @@ int main(int argc, const char * argv[])
             }
             
             if (args == "-ppl") {
-                pplCode = true;
+                PPL = true;
                 continue;
             }
             
@@ -696,7 +767,11 @@ int main(int argc, const char * argv[])
     info();
     
     if (filename.substr(filename.length() - 2, 2) == ".h") {
-        createNewPPL(filename, name);
+        if (PPL) {
+            convertAdafruitFontToHpprgm(filename, name);
+            return 0;
+        }
+        convertAdafruitFontToImage(filename, name);
         return 0;
     }
     

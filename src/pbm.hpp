@@ -1,6 +1,7 @@
 // The MIT License (MIT)
 //
 // Copyright (c) 2024-2025 Insoft. All rights reserved.
+// Originally created in 2023
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,34 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef pbm_h
-#define pbm_h
+#ifndef pbm_hpp
+#define pbm_hpp
 
-#include <iostream>
 #include <cstdint>
+#include <vector>
 
-#ifndef __BITMAP_TYPE
-#define __BITMAP_TYPE
-typedef struct {
-    uint16_t width;
-    uint16_t height;
-    uint8_t  bpp;
-    std::vector<uint32_t> palette;
-    std::vector<uint8_t> bytes;
-} TBitmap;
-#endif
+namespace pbm {
+    typedef struct {
+        uint16_t width;
+        uint16_t height;
+        std::vector<uint8_t> bytes;
+    } TImage;
+    
+    /**
+     @brief Loads a file in the Portable Bitmap (PBM) format.
+     @param filename The filename of the Portable Bitmap (PBM) to be loaded.
+     @return A structure containing the image data.
+     */
+    TImage load(const char *filename);
+}
 
-/**
- @brief Loads a file in the Portable Bitmap (PBM) format.
- @param filename The filename of the Portable Bitmap (PBM) to be loaded.
- @return A structure containing the image data.
- */
-TBitmap loadPortableBitmapImage(std::string &filename);
-
-/**
- @brief    Frees the memory allocated for the portable bitmap image.
- @param    bitmap The portable bitmap image to be deallocated.
- */
-void releasePortableBitmap(TBitmap &bitmap);
-
-#endif /* pbm_h */
+#endif /* pbm_hpp */

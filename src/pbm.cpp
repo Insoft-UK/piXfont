@@ -1,6 +1,7 @@
 // The MIT License (MIT)
 //
 // Copyright (c) 2024-2025 Insoft. All rights reserved.
+// Originally created in 2023
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,38 +24,37 @@
 #include "pbm.hpp"
 
 #include <fstream>
+#include <iostream>
 
-TBitmap loadPortableBitmapImage(std::string &filename)
+pbm::TImage pbm::load(const char *filename)
 {
     std::ifstream infile;
-    TBitmap bitmap;
+    TImage image;
     
     infile.open(filename, std::ios::in | std::ios::binary);
-    if (!infile.is_open()) return bitmap;
+    if (!infile.is_open()) return image;
     
     std::string s;
     
     getline(infile, s);
     if (s != "P4") {
         infile.close();
-        return bitmap;
+        return image;
     }
     
     getline(infile, s);
-    bitmap.width = atoi(s.c_str());
+    image.width = atoi(s.c_str());
     
     getline(infile, s);
-    bitmap.height = atoi(s.c_str());
+    image.height = atoi(s.c_str());
     
-    bitmap.bpp = 1;
+    size_t length = ((image.width + 7) >> 3) * image.height;
+    image.bytes.reserve(length);
+    image.bytes.resize(length);
     
-    size_t length = ((bitmap.width + 7) >> 3) * bitmap.height;
-    bitmap.bytes.reserve(length);
-    bitmap.bytes.resize(length);
-    
-    infile.read((char *)bitmap.bytes.data(), length);
+    infile.read((char *)image.bytes.data(), length);
     infile.close();
-    
-    return bitmap;
+        
+    return image;
 }
 
