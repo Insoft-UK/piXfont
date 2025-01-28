@@ -51,7 +51,7 @@ namespace font {
     
 
     template <typename T >
-    int glyph(int16_t x, int16_t y, uint8_t c, T color, TFont &font, image::TBitmap &image)
+    int glyph(int16_t x, int16_t y, uint8_t c, T color, TFont &font, image::TImage &image)
     {
         if (c < font.first || c > font.last) {
             return 0;
@@ -85,7 +85,7 @@ namespace font {
     }
 
     template <typename T>
-    int print(int16_t x, int16_t y, const char *s, T color, TFont &font, image::TBitmap &image)
+    int print(int16_t x, int16_t y, const char *s, T color, TFont &font, image::TImage &image)
     {
         uint8_t *c = (uint8_t *)s;
         

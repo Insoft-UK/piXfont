@@ -28,47 +28,47 @@
 #include "pbm.hpp"
 #include "bmp.hpp"
 
-image::TBitmap image::loadBitmap(const char *filename)
+image::TImage image::loadImage(const char *filename)
 {
-    TBitmap bitmap;
+    TImage image;
     
     auto bmp = bmp::load(filename);
     if (!bmp.bytes.empty()) {
-        bitmap.width = bmp.width;
-        bitmap.height = bmp.height;
-        bitmap.bpp = bmp.bpp;
-        bitmap.palette = bmp.palette;
-        bitmap.bytes = bmp.bytes;
-        return bitmap;
+        image.width = bmp.width;
+        image.height = bmp.height;
+        image.bpp = bmp.bpp;
+        image.palette = bmp.palette;
+        image.bytes = bmp.bytes;
+        return image;
     }
     
     auto pbm = pbm::load(filename);
     if (!pbm.bytes.empty()) {
-        bitmap.width = pbm.width;
-        bitmap.height = pbm.height;
-        bitmap.bpp = 1;
-        bitmap.bytes = pbm.bytes;
-        return bitmap;
+        image.width = pbm.width;
+        image.height = pbm.height;
+        image.bpp = 1;
+        image.bytes = pbm.bytes;
+        return image;
     }
     
-    return bitmap;
+    return image;
 }
 
-void image::saveBitmap(const char *filename, const image::TBitmap &bitmap)
+void image::saveImage(const char *filename, const image::TImage &image)
 {
-    bmp::TImage image = {
-        .width = bitmap.width,
-        .height = bitmap.height,
-        .bpp = bitmap.bpp,
-        .palette = bitmap.palette,
-        .bytes = bitmap.bytes
+    bmp::TImage newImage = {
+        .width = image.width,
+        .height = image.height,
+        .bpp = image.bpp,
+        .palette = image.palette,
+        .bytes = image.bytes
     };
-    bmp::save(filename, image);
+    bmp::save(filename, newImage);
 }
 
-image::TBitmap image::createBitmap(int w, int h, uint8_t bpp)
+image::TImage image::createImage(int w, int h, uint8_t bpp)
 {
-    TBitmap bitmap = {
+    TImage image = {
         .width = static_cast<uint16_t>(w),
         .height = static_cast<uint16_t>(h),
         .bpp = bpp
@@ -80,19 +80,19 @@ image::TBitmap image::createBitmap(int w, int h, uint8_t bpp)
     if (bpp == 1) length /= 8;
     if (bpp == 16) length *= 2;
     
-    bitmap.bytes.reserve(length);
-    bitmap.bytes.resize(length);
+    image.bytes.reserve(length);
+    image.bytes.resize(length);
     
-    bitmap.palette.reserve(2);
-    bitmap.palette.resize(2);
+    image.palette.reserve(2);
+    image.palette.resize(2);
     
-    bitmap.palette.at(1) = 0;
-    bitmap.palette.at(0) = 0x00FFFFFF;
+    image.palette.at(1) = 0;
+    image.palette.at(0) = 0x00FFFFFF;
 
-    return bitmap;
+    return image;
 }
 
-void image::copyBitmap(const TBitmap &dst, int dx, int dy, const TBitmap &src, int x, int y, uint16_t w, uint16_t h)
+void image::copyImage(const TImage &dst, int dx, int dy, const TImage &src, int x, int y, uint16_t w, uint16_t h)
 {
     uint8_t *d = (uint8_t *)dst.bytes.data();
     uint8_t *s = (uint8_t *)src.bytes.data();
@@ -108,9 +108,9 @@ void image::copyBitmap(const TBitmap &dst, int dx, int dy, const TBitmap &src, i
     }
 }
 
-image::TBitmap image::convertMonochromeToGrayScale(const TBitmap monochrome)
+image::TImage image::convertMonochromeToGrayScale(const TImage monochrome)
 {
-    TBitmap grayscale;
+    TImage grayscale;
     
     if (monochrome.bpp != 1) return grayscale;
 
@@ -145,7 +145,7 @@ image::TBitmap image::convertMonochromeToGrayScale(const TBitmap monochrome)
 
 
 
-bool image::containsImage(const TBitmap &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+bool image::containsImage(const TImage &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
     if (image.bytes.empty()) return false;
     if (x + w > image.width || y + h > image.height) return false;
@@ -161,9 +161,9 @@ bool image::containsImage(const TBitmap &image, uint16_t x, uint16_t y, uint16_t
     return false;
 }
 
-image::TBitmap image::extractImageSection(TBitmap &image)
+image::TImage image::extractImageSection(TImage &image)
 {
-    TBitmap extractedImage;
+    TImage extractedImage;
     
     int minX, maxX, minY, maxY;
     
@@ -193,9 +193,9 @@ image::TBitmap image::extractImageSection(TBitmap &image)
     int width = maxX - minX + 1;
     int height = maxY - minY + 1;
     
-    extractedImage = createBitmap(width, height, image.bpp);
+    extractedImage = createImage(width, height, image.bpp);
     if (extractedImage.bytes.empty()) return extractedImage;
-    copyBitmap(extractedImage, 0, 0, image, minX, minY, width, height);
+    copyImage(extractedImage, 0, 0, image, minX, minY, width, height);
     
     return extractedImage;
 }

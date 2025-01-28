@@ -35,16 +35,16 @@ namespace image {
         uint8_t  bpp;
         std::vector<uint32_t> palette;
         std::vector<uint8_t> bytes;
-    } TBitmap;
+    } TImage;
     
     /**
      @brief    Loads a file in the Bitmap (BMP) or Portable Bitmap (PBM)  format.
      @param    filename The filename of the Bitmap (BMP) or Portable Bitmap (PBM)  to be loaded.
      @return   A structure containing the bitmap image data.
      */
-    TBitmap loadBitmap(const char *filename);
+    TImage loadImage(const char *filename);
     
-    void saveBitmap(const char *filename, const TBitmap &bitmap);
+    void saveImage(const char *filename, const TImage &image);
     
     /**
      @brief Creates a bitmap with the specified dimensions.
@@ -52,7 +52,7 @@ namespace image {
      @param h The height of the bitmap.
      @return A structure containing the bitmap image data.
      */
-    TBitmap createBitmap(int w, int h, uint8_t bpp);
+    TImage createImage(int w, int h, uint8_t bpp);
     
     /**
      @brief Copies a section of a bitmap to another bitmap.
@@ -65,14 +65,14 @@ namespace image {
      @param w The width of the bitmap to be copied.
      @param h The height of the bitmap to be copied.
      */
-    void copyBitmap(const TBitmap &dst, int dx, int dy, const TBitmap &src, int x, int y, uint16_t w, uint16_t h);
+    void copyImage(const TImage &dst, int dx, int dy, const TImage &src, int x, int y, uint16_t w, uint16_t h);
     
     /**
      @brief Converts a monochrome bitmap to a pixmap, where each pixel is represented by a single byte.
      @param monochrome The monochrome bitmap to be converted to a pixmap bitmap.
      @return A structure containing the bitmap image data.
      */
-    TBitmap convertMonochromeToGrayScale(const TBitmap monochrome);
+    TImage convertMonochromeToGrayScale(const TImage monochrome);
     
     /**
      @brief Takes an input image and identifies if the image contains an actual image at the specified section.
@@ -82,11 +82,11 @@ namespace image {
      @param w The width of the pixmap section to inspect.
      @param h The height of the pixmap section to inspect.
      */
-    bool containsImage(const TBitmap &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    bool containsImage(const TImage &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     
     /**
      @brief Takes an input image and identifies and extracts a section of the image that contains an actual image.
      @param image The input image from which a section containing an actual image will be extracted.
      */
-    TBitmap extractImageSection(TBitmap &image);
+    TImage extractImageSection(TImage &image);
 }

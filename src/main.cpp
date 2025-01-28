@@ -167,7 +167,7 @@ static std::string pplList(const void *data, const size_t lengthInBytes, const i
 }
 
 
-GFXglyph autoGFXglyphSettings(TBitmap &image)
+GFXglyph autoGFXglyphSettings(TImage &image)
 {
     GFXglyph gfxGlyph = {0, 0, 0, 0, 0, 0};
     int minX, maxX, minY, maxY;
@@ -206,7 +206,7 @@ GFXglyph autoGFXglyphSettings(TBitmap &image)
     return gfxGlyph;
 }
 
-void concatenateImageData(TBitmap &image, std::vector<uint8_t> &data)
+void concatenateImageData(TImage &image, std::vector<uint8_t> &data)
 {
     uint8_t *p = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
@@ -241,7 +241,7 @@ void indexToXY(int index, int &x, int &y, const int w, const int h, const int cw
     y = index / (w / cw) * ch;
 }
 
-int asciiExtents(const TBitmap &bitmap, GFXfont &font, int hs, int vs, Direction direction)
+int asciiExtents(const TImage &bitmap, GFXfont &font, int hs, int vs, Direction direction)
 {
     if (bitmap.bytes.empty()) return 0;
     int x,y;
@@ -365,7 +365,7 @@ void createHpprgmFile(std::string &filename, GFXfont &font, std::vector<uint8_t>
 
 void createImageFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
 {
-    TBitmap bitmap;
+    TImage bitmap;
     
     font::TFont adafruitFont = {
         .bitmap = data.data(),
@@ -379,7 +379,7 @@ void createImageFile(std::string &filename, GFXfont &font, std::vector<uint8_t> 
     for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
         if (it->xAdvance > w) w = it->xAdvance;
     }
-    bitmap = createBitmap(w, font.yAdvance * (font.last - font.first + 1), 8);
+    bitmap = createImage(w, font.yAdvance * (font.last - font.first + 1), 8);
     
     int y = 0;
     char c = adafruitFont.first;
@@ -393,7 +393,7 @@ void createImageFile(std::string &filename, GFXfont &font, std::vector<uint8_t> 
     size_t pos = filename.rfind("/");
     path = filename.substr(0, pos + 1);
     
-    saveBitmap((path + name + ".bmp").c_str(), bitmap);
+    saveImage((path + name + ".bmp").c_str(), bitmap);
 }
 
 void createAdafruitFontFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
@@ -561,8 +561,8 @@ void convertAdafruitFontToImage(std::string &filename, std::string &name)
 
 void createNewFont(std::string &filename, std::string &name, GFXfont &font, int hs, int vs, bool fixed, bool leftAlign, int distance, Direction direction)
 {
-    TBitmap bitmap;
-    bitmap = loadBitmap(filename.c_str());
+    TImage bitmap;
+    bitmap = loadImage(filename.c_str());
     
     if (bitmap.bytes.empty()) {
         std::cout << "Failed to load the monochrome bitmap file." << filename << ".\n";
@@ -588,7 +588,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
     std::vector<GFXglyph> glyphs;
     uint16_t offset = 0;
     
-    TBitmap image = {
+    TImage image = {
         .width = font.width,
         .height = font.yAdvance
     };
@@ -600,14 +600,14 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
     for (int index = 0; index < font.last - font.first + 1; index++) {
         int n = direction == Direction::Horizontal ? index + indexOffset : -(index + indexOffset);
         indexToXY(n, x, y, bitmap.width, bitmap.height, font.width + hs, font.yAdvance + vs);
-        copyBitmap(image, 0, 0, bitmap, x + font.xOffset, y + font.yOffset, image.width, image.height);
+        copyImage(image, 0, 0, bitmap, x + font.xOffset, y + font.yOffset, image.width, image.height);
         
         GFXglyph glyph = {
             offset, 0, 0, 0, 0, 0
         };
         glyph = autoGFXglyphSettings(image);
         
-        TBitmap extractedImage = extractImageSection(image);
+        TImage extractedImage = extractImageSection(image);
         if (extractedImage.bytes.empty()) {
             glyph.xAdvance = font.width;
             glyphs.push_back(glyph);
