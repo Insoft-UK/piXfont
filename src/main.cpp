@@ -459,6 +459,21 @@ std::string loadAdafruitFont(std::string &filename)
     return utf8;
 }
 
+static int parseNumber(const std::string &str)
+{
+    std::regex hexPattern("^0x[\\da-fA-F]+$");
+    std::regex decPattern("^[+-]?\\d+$");
+    std::regex octPattern("^0[0-8]+$");
+    std::regex binPattern("^0b[01]+$");
+    
+    if (std::regex_match(str, hexPattern)) return std::stoi(str, nullptr, 16);
+    if (std::regex_match(str, decPattern)) return std::stoi(str, nullptr, 10);
+    if (std::regex_match(str, octPattern)) return std::stoi(str, nullptr, 8);
+    if (std::regex_match(str, binPattern)) return std::stoi(str, nullptr, 2);
+    
+    return 0;
+}
+
 bool extractAdafruitFont(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs)
 {
     std::ifstream infile;
@@ -476,8 +491,8 @@ bool extractAdafruitFont(std::string &filename, GFXfont &font, std::vector<uint8
     std::regex_search(utf8, match, std::regex(R"(const uint8_t \w+\[\] PROGMEM = \{([^}]*))"));
     if (match[1].matched) {
         auto s = match[1].str();
-        while (std::regex_search(s, match, std::regex(R"(0x[\dA-Fa-f]{2})"))) {
-            data.push_back(std::stoi(match.str(), nullptr, 16));
+        while (std::regex_search(s, match, std::regex(R"((?:0x)?[\d[a-fA-F]{1,2})"))) {
+            data.push_back(parseNumber(match.str()));
             s = match.suffix().str();
         }
     } else {
@@ -488,12 +503,12 @@ bool extractAdafruitFont(std::string &filename, GFXfont &font, std::vector<uint8
     auto s = utf8;
     while (std::regex_search(s, match, std::regex(R"(\{ *((?:0x)?[\d[a-fA-F]+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(-?\d+) *\})"))) {
         GFXglyph glyph;
-        glyph.bitmapOffset = std::stoi(match.str(1), nullptr, 10);
-        glyph.width = std::stoi(match.str(2), nullptr, 10);
-        glyph.height = std::stoi(match.str(3), nullptr, 10);
-        glyph.xAdvance = std::stoi(match.str(4), nullptr, 10);
-        glyph.dX = std::stoi(match.str(5), nullptr, 10);
-        glyph.dY = std::stoi(match.str(6), nullptr, 10);
+        glyph.bitmapOffset = parseNumber(match.str(1));
+        glyph.width = parseNumber(match.str(2));
+        glyph.height = parseNumber(match.str(3));
+        glyph.xAdvance = parseNumber(match.str(4));
+        glyph.dX = parseNumber(match.str(5));
+        glyph.dY = parseNumber(match.str(6));
         glyphs.push_back(glyph);
         s = match.suffix().str();
     }
@@ -502,10 +517,10 @@ bool extractAdafruitFont(std::string &filename, GFXfont &font, std::vector<uint8
         return false;
     }
     
-    if (std::regex_search(s, match, std::regex(R"((\d+) *, *(\d+) *, *(\d+) *\};)"))) {
-        font.first = std::stoi(match.str(1), nullptr, 10);
-        font.last = std::stoi(match.str(2), nullptr, 10);
-        font.yAdvance = std::stoi(match.str(3), nullptr, 10);
+    if (std::regex_search(s, match, std::regex(R"(((?:0x)?[\da-fA-F]+)\s*,\s*((?:0x)?[\da-fA-F]+)\s*,\s*((?:0x)?[\da-fA-F]+)\s*\};)"))) {
+        font.first = parseNumber(match.str(1));
+        font.last = parseNumber(match.str(2));
+        font.yAdvance = parseNumber(match.str(3));
     } else {
         std::cout << "Failed to find <Font>.\n";
         return false;
