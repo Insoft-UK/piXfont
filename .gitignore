@@ -2,5 +2,8 @@
 xcuserdata/
 .DS_Store
 build
--examples
+examples/*.bmp
+examples/CASIO/*.h
+examples/CASIO/*.pbm
+examples/CASIO/*.bmp
 *.zip
