@@ -24,7 +24,7 @@
 
 #ifndef GFXFont_h
 #define GFXFont_h
-
+// 0x00fb, 2, 2, 2, -1, -7  w2 xA2 dX-1
 typedef struct {
     uint16_t   bitmapOffset;    // Offset address into the bitmap data.
     uint8_t    width, height;   // Bitmap dimensions in pixels.

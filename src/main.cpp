@@ -33,7 +33,7 @@
 #include "image.hpp"
 #include "font.hpp"
 
-using namespace image;
+//using namespace image;
 
 #include "version_code.h"
 #define NAME "Adafruit GFX Pixel Font Creator"
@@ -65,24 +65,26 @@ void help(void) {
     std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
     std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
     std::cout << "\n";
-    std::cout << "Usage: " << _basename << " <input-file> -w <value> -h <value> [-n <name>] [-f <value>] [-l <value>] [-s <value>] [-O x-offset y-offset] [-d value]\n";
+    std::cout << "Usage: " << _basename << " <input-file> -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-O x-offset y-offset] [-d value] [-D] [-s <value>] [-H <value>] [-V <value>] [-F <value>] [-ppl]\n";
     std::cout << "\n";
     std::cout << "Options:\n";
     std::cout << "  -w <0...32>             Max width of the bitmap in pixels.\n";
     std::cout << "  -h <0...32>             Font height in pixels.\n";
+    std::cout << "  -c <columns>            Number of glyphs per coloumn when generating an\n";
+    std::cout << "                          image of glyths.\n";
     std::cout << "  -n <name>               Font name.\n";
     std::cout << "  -f <0...255>            First ASCII value of your first character.\n";
+    std::cout << "  -l <0...255>            Last ASCII value of your last character.\n";
     std::cout << "  -a                      Auto left-align glyphs.\n";
     std::cout << "  -O <x-offset y-offset>  X-axis and Y-axis offset to the start of the glyphs.\n";
     std::cout << "  -d <0...32>             Distance to advance cursor in the x-axis from\n";
     std::cout << "                          the right edge of the glyph, default is 1.\n";
     std::cout << "  -D                      Direction layout of glyphs.\n";
-    std::cout << "  -l <0...255>            Last ASCII value of your last character.\n";
     std::cout << "  -s <0...32>             Distance to advance cursor in the x-axis for\n";
     std::cout << "                          ascii char code 32 if not fixed char width.\n";
-    std::cout << "  -H <0...32>             Horizontal spacing in pixels between each glyph.\n";
-    std::cout << "  -V <0...32>             Vertical spacing in pixels between each glyph.\n";
-    std::cout << "  -F <0...32>             Fixed char width.\n";
+    std::cout << "  -H <value>              Horizontal spacing in pixels between each glyph.\n";
+    std::cout << "  -V <value>              Vertical spacing in pixels between each glyph.\n";
+    std::cout << "  -F <value>              Fixed char width.\n";
     std::cout << "  -ppl                    Generate PPL code, not required for .h files.\n";
     std::cout << "  -v                      Display detailed processing information.\n";
     std::cout << "\n";
@@ -99,12 +101,6 @@ void help(void) {
 
 static bool verbose = false;
 static bool PPL = false;
-
-//enum class MessageType {
-//    Warning,
-//    Error,
-//    Verbose
-//};
 
 enum class Direction {
     Horizontal,
@@ -167,7 +163,7 @@ static std::string pplList(const void *data, const size_t lengthInBytes, const i
 }
 
 
-GFXglyph autoGFXglyphSettings(TImage &image)
+GFXglyph autoGFXglyphSettings(image::TImage &image)
 {
     GFXglyph gfxGlyph = {0, 0, 0, 0, 0, 0};
     int minX, maxX, minY, maxY;
@@ -206,7 +202,7 @@ GFXglyph autoGFXglyphSettings(TImage &image)
     return gfxGlyph;
 }
 
-void concatenateImageData(TImage &image, std::vector<uint8_t> &data)
+void concatenateImageData(image::TImage &image, std::vector<uint8_t> &data)
 {
     uint8_t *p = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
@@ -241,7 +237,7 @@ void indexToXY(int index, int &x, int &y, const int w, const int h, const int cw
     y = index / (w / cw) * ch;
 }
 
-int asciiExtents(const TImage &bitmap, GFXfont &font, int hs, int vs, Direction direction)
+int asciiExtents(const image::TImage &bitmap, GFXfont &font, int hs, int vs, Direction direction)
 {
     if (bitmap.bytes.empty()) return 0;
     int x,y;
@@ -363,9 +359,26 @@ void createHpprgmFile(std::string &filename, GFXfont &font, std::vector<uint8_t>
     createUTF16LEFile(filename, os, name);
 }
 
-void createImageFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
+void drawAllGlyphs(const int rows, const int columns, const font::TFont &adafruitFont, const image::TImage &image)
 {
-    TImage bitmap;
+    int x, y, xAdvance, yAdvance;
+    
+    x = 0; y = 0;
+    xAdvance = image.width / columns;
+    yAdvance = image.height / rows;
+    
+    for (int i = adafruitFont.first; i < adafruitFont.last; i++, x += xAdvance) {
+        if (x > image.width - 1) {
+            x = 0;
+            y += yAdvance;
+        }
+        font::drawGlyph(x, y, (char)i, (uint8_t)1, adafruitFont, image);
+    }
+}
+
+void createImageFile(const std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs, const std::string &name, const int columns)
+{
+    image::TImage image;
     
     font::TFont adafruitFont = {
         .bitmap = data.data(),
@@ -378,22 +391,28 @@ void createImageFile(std::string &filename, GFXfont &font, std::vector<uint8_t> 
     int w = 0;
     for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
         if (it->xAdvance > w) w = it->xAdvance;
+        if (w - it->dX > w) w = w - it->dX;
     }
-    bitmap = createImage(w, font.yAdvance * (font.last - font.first + 1), 8);
     
-    int y = 0;
-    char c = adafruitFont.first;
+    int h = font.yAdvance;
     for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
-        font::glyph(0, y, c, (uint8_t)1, adafruitFont, bitmap);
-        y += adafruitFont.yAdvance;
-        c++;
+        if (it->dY + font.yAdvance + it->height > h) h = it->dY + font.yAdvance + it->height;
     }
+    
+    
+    int rows = ceil((float)(font.last - font.first + 1) / (float)columns);
+    int height = rows * h;
+    int width = columns * w;
+    
+    image = image::createImage(width, height, 8);
+    drawAllGlyphs(rows, columns, adafruitFont, image);
+
     std::string path;
     
     size_t pos = filename.rfind("/");
     path = filename.substr(0, pos + 1);
     
-    saveImage((path + name + ".bmp").c_str(), bitmap);
+    saveImage((path + name + ".bmp").c_str(), image);
 }
 
 void createAdafruitFontFile(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs,  std::string &name)
@@ -436,7 +455,7 @@ const uint8_t " << name << "_Bitmaps[] PROGMEM = {\n  \
     createUTF8File(filename, os, name);
 }
 
-std::string loadAdafruitFont(std::string &filename)
+std::string loadAdafruitFont(const std::string &filename)
 {
     std::ifstream infile;
     std::string utf8;
@@ -474,7 +493,7 @@ static int parseNumber(const std::string &str)
     return 0;
 }
 
-bool extractAdafruitFont(std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs)
+bool extractAdafruitFont(const std::string &filename, GFXfont &font, std::vector<uint8_t> &data, std::vector<GFXglyph> &glyphs)
 {
     std::ifstream infile;
     std::string utf8;
@@ -501,7 +520,7 @@ bool extractAdafruitFont(std::string &filename, GFXfont &font, std::vector<uint8
     }
     
     auto s = utf8;
-    while (std::regex_search(s, match, std::regex(R"(\{ *((?:0x)?[\d[a-fA-F]+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(\d+) *, *(-?\d+) *\})"))) {
+    while (std::regex_search(s, match, std::regex(R"(\{ *((?:0x)?[\d[a-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *\})"))) {
         GFXglyph glyph;
         glyph.bitmapOffset = parseNumber(match.str(1));
         glyph.width = parseNumber(match.str(2));
@@ -543,7 +562,7 @@ void convertAdafruitFontToHpprgm(std::string &filename, std::string &name)
     createHpprgmFile(filename, font, data, glyphs, name);
 }
 
-void convertAdafruitFontToImage(std::string &filename, std::string &name)
+void convertAdafruitFontToImage(const std::string &filename, const std::string &name, const int glyphsPercolumn)
 {
     std::vector<uint8_t> data;
     std::vector<GFXglyph> glyphs;
@@ -554,15 +573,15 @@ void convertAdafruitFontToImage(std::string &filename, std::string &name)
         exit(2);
     }
     
-    createImageFile(filename, font, data, glyphs, name);
+    createImageFile(filename, font, data, glyphs, name, glyphsPercolumn);
 }
 
 // TODO: Add extended support for none monochrome glyphs.
 
 void createNewFont(std::string &filename, std::string &name, GFXfont &font, int hs, int vs, bool fixed, bool leftAlign, int distance, Direction direction)
 {
-    TImage bitmap;
-    bitmap = loadImage(filename.c_str());
+    image::TImage bitmap;
+    bitmap = image::loadImage(filename.c_str());
     
     if (bitmap.bytes.empty()) {
         std::cout << "Failed to load the monochrome bitmap file." << filename << ".\n";
@@ -588,7 +607,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
     std::vector<GFXglyph> glyphs;
     uint16_t offset = 0;
     
-    TImage image = {
+    image::TImage image = {
         .width = font.width,
         .height = font.yAdvance
     };
@@ -607,7 +626,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         };
         glyph = autoGFXglyphSettings(image);
         
-        TImage extractedImage = extractImageSection(image);
+        image::TImage extractedImage = image::extractImageSection(image);
         if (extractedImage.bytes.empty()) {
             glyph.xAdvance = font.width;
             glyphs.push_back(glyph);
@@ -650,6 +669,7 @@ int main(int argc, const char * argv[])
     _basename = basename(args);
     
     std::string filename, name, prefix, sufix;
+    int columns = 16;
     
     GFXfont font = { 0, 0, .first=0, .last=0, .yAdvance=8, .width=8, .xSpace=8, .xOffset=0, .yOffset=0 };
     int hs = 0, vs = 0;
@@ -702,6 +722,12 @@ int main(int argc, const char * argv[])
             if (args == "-w") {
                 if (++n > argc) error();
                 font.width = atoi(argv[n]);
+                continue;
+            }
+            
+            if (args == "-c") {
+                if (++n > argc) error();
+                columns = atoi(argv[n]);
                 continue;
             }
             
@@ -786,7 +812,7 @@ int main(int argc, const char * argv[])
             convertAdafruitFontToHpprgm(filename, name);
             return 0;
         }
-        convertAdafruitFontToImage(filename, name);
+        convertAdafruitFontToImage(filename, name, columns);
         return 0;
     }
     

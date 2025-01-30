@@ -51,14 +51,10 @@ namespace font {
     
 
     template <typename T >
-    int glyph(int16_t x, int16_t y, uint8_t c, T color, TFont &font, image::TImage &image)
+    int drawGlyph(int16_t x, int16_t y, const uint8_t asciiCode, T color, const TFont &font, const image::TImage &image)
     {
-        if (c < font.first || c > font.last) {
-            return 0;
-        }
-        
-        uint8_t *dst = image.bytes.data();
-        TGlyph *glyph = &font.glyph[(int)c - font.first];
+        uint8_t *dst = (uint8_t *)image.bytes.data();
+        TGlyph *glyph = &font.glyph[(int)asciiCode - font.first];
         
         int height = glyph->height;
         int width = glyph->width;
@@ -85,13 +81,16 @@ namespace font {
     }
 
     template <typename T>
-    int print(int16_t x, int16_t y, const char *s, T color, TFont &font, image::TImage &image)
+    int print(int16_t x, int16_t y, const char *s, T color, const TFont &font, const image::TImage &image)
     {
         uint8_t *c = (uint8_t *)s;
-        
+        uint8_t asciiCode;
         while (*c) {
-            x += glyph(x, y, (uint8_t)*c, color, font, image);
-            c++;
+            asciiCode = *c++;
+            if (asciiCode < font.first || asciiCode > font.last) {
+                continue;
+            }
+            x += drawGlyph(x, y, asciiCode, color, font, image);
         }
         return x;
     }
