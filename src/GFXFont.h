@@ -39,11 +39,6 @@ typedef struct {
     uint8_t    first;           // The first ASCII value of your first character.
     uint8_t    last;            // The last ASCII value of your last character.
     uint8_t    yAdvance;        // Newline distance in the y-axis.
-    
-    // Used by piXfont
-    uint8_t    width;
-    uint8_t    xSpace;          // Distance to advance cursor in the x-axis for [space].
-    uint16_t   xOffset, yOffset;
 } GFXfont;
 
 #endif /* GFXFont_h */

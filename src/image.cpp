@@ -27,6 +27,8 @@
 
 #include "pbm.hpp"
 #include "bmp.hpp"
+#include "png.hpp"
+
 
 image::TImage image::loadImage(const char *filename)
 {
@@ -50,7 +52,16 @@ image::TImage image::loadImage(const char *filename)
         image.bytes = pbm.bytes;
         return image;
     }
-    
+
+//    auto png = png::load(filename);
+//    if (!png.bytes.empty()) {
+//        image.width = pbm.width;
+//        image.height = pbm.height;
+//        image.bpp = bmp.bpp;
+//        image.bytes = bmp.bytes;
+//        return image;
+//    }
+
     return image;
 }
 

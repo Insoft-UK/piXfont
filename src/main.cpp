@@ -33,8 +33,6 @@
 #include "image.hpp"
 #include "font.hpp"
 
-//using namespace image;
-
 #include "version_code.h"
 #define NAME "Adafruit GFX Pixel Font Creator"
 #define COMMAND_NAME "pxfnt"
@@ -65,47 +63,57 @@ void help(void) {
     std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
     std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
     std::cout << "\n";
-    std::cout << "Usage: " << _basename << " <input-file> -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-O x-offset y-offset] [-d value] [-D] [-s <value>] [-H <value>] [-V <value>] [-F <value>] [-ppl]\n";
+    std::cout << "Usage: " << _basename << " <input-file> -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-ppl] [-v]\n";
     std::cout << "\n";
     std::cout << "Options:\n";
-    std::cout << "  -w <0...32>             Max width of the bitmap in pixels.\n";
-    std::cout << "  -h <0...32>             Font height in pixels.\n";
-    std::cout << "  -c <columns>            Number of glyphs per coloumn when generating an\n";
-    std::cout << "                          image of glyths.\n";
-    std::cout << "  -n <name>               Font name.\n";
-    std::cout << "  -f <0...255>            First ASCII value of your first character.\n";
-    std::cout << "  -l <0...255>            Last ASCII value of your last character.\n";
-    std::cout << "  -a                      Auto left-align glyphs.\n";
-    std::cout << "  -O <x-offset y-offset>  X-axis and Y-axis offset to the start of the glyphs.\n";
-    std::cout << "  -d <0...32>             Distance to advance cursor in the x-axis from\n";
-    std::cout << "                          the right edge of the glyph, default is 1.\n";
-    std::cout << "  -D                      Direction layout of glyphs.\n";
-    std::cout << "  -s <0...32>             Distance to advance cursor in the x-axis for\n";
-    std::cout << "                          ascii char code 32 if not fixed char width.\n";
-    std::cout << "  -H <value>              Horizontal spacing in pixels between each glyph.\n";
-    std::cout << "  -V <value>              Vertical spacing in pixels between each glyph.\n";
-    std::cout << "  -F <value>              Fixed char width.\n";
-    std::cout << "  -ppl                    Generate PPL code, not required for .h files.\n";
-    std::cout << "  -v                      Display detailed processing information.\n";
+    std::cout << "  -w <value>         Maximum glyph width in pixels.\n";
+    std::cout << "  -h <value>         Maximum glyph height in pixels.\n";
+    std::cout << "  -c <columns>       Number of glyphs per column when generating a glyph image.\n";
+    std::cout << "  -n <name>          Font name.\n";
+    std::cout << "  -f <value>         First ASCII value of the first character.\n";
+    std::cout << "  -l <value>         Last ASCII value of the last character.\n";
+    std::cout << "  -a                 Auto left-align glyphs.\n";
+    std::cout << "  -x <x-offset>      X-axis offset where glyphs start within the image file.\n";
+    std::cout << "  -y <y-offset>      Y-axis offset where glyphs start within the image file.\n";
+    std::cout << "  -u <value>         Cursor advance distance in the x-axis from the\n";
+    std::cout << "                     right edge of the glyph (default: 1).\n";
+    std::cout << "  -g <h/v>           Set the glyph layout direction, horizontal or vertical.\n";
+    std::cout << "  -s <value>         Cursor advance distance in the x-axis for ASCII\n";
+    std::cout << "                     character 32 (space), if not using fixed width.\n";
+    std::cout << "  -H <value>         Horizontal spacing in pixels between glyphs.\n";
+    std::cout << "  -V <value>         Vertical spacing in pixels between glyphs.\n";
+    std::cout << "  -F                 Use fixed glyph width.\n";
+    std::cout << "  -ppl               Generate PPL code (not required for .h files).\n";
+    std::cout << "  -v                 Enable verbose output for detailed processing information.\n";
     std::cout << "\n";
-    std::cout << "  Verbose Flags:\n";
-    std::cout << "     f                    Font\n";
-    std::cout << "     g                    Glyph\n";
+    std::cout << "Verbose Flags:\n";
+    std::cout << "  f                  Font details.\n";
+    std::cout << "  g                  Glyph details.\n";
     std::cout << "\n";
     std::cout << "Additional Commands:\n";
     std::cout << "  ansiart {--version | --help}\n";
-    std::cout << "    --version              Display the version information.\n";
-    std::cout << "    --help                 Show this help message.\n";
+    std::cout << "    --version        Display version information.\n";
+    std::cout << "    --help           Show this help message.\n";
 }
+
 
 
 static bool verbose = false;
 static bool PPL = false;
 
-enum class Direction {
-    Horizontal,
-    Vertical
+enum Direction {
+    DirectionHorizontal,
+    DirectionVertical
 };
+
+typedef struct {
+    int cellWidth, cellHeight;
+    int cursorAdvance;
+    int spaceAdvance;
+    int horizontalOffset, verticalOffset;
+    int cellHorizontalSpacing, cellVerticalSpacing;
+    Direction direction;
+} TPiXfont;
 
 template <typename T>
 T swap_endian(T u)
@@ -224,29 +232,56 @@ void concatenateImageData(image::TImage &image, std::vector<uint8_t> &data)
 }
 
 
-void indexToXY(int index, int &x, int &y, const int w, const int h, const int cw, const int ch)
+
+/**
+ * @brief Converts a given index into (x, y) coordinates within a grid.
+ *
+ * This function maps a linear index to 2D coordinates based on the grid dimensions
+ * and cell size. If the index is negative, it is interpreted as traversing the grid
+ * from top to bottom, left to right. If the index is positive, it follows the standard
+ * left-to-right, top-to-bottom order.
+ *
+ * @param cellIndex The index of the cell.
+ *                  - Positive: Traverses left to right, top to bottom.
+ *                  - Negative: Traverses top to bottom, left to right.
+ * @param outX Reference to store the computed x-coordinate.
+ * @param outY Reference to store the computed y-coordinate.
+ * @param gridWidth The total width of the grid in pixels.
+ * @param gridHeight The total height of the grid in pixels.
+ * @param cellWidth The width of each individual cell in pixels.
+ * @param cellHeight The height of each individual cell in pixels.
+ */
+void getCellCoordinates(int cellIndex, int& outX, int& outY,
+                        int gridWidth, int gridHeight,
+                        int cellWidth, int cellHeight)
 {
-    if (index < 0) {
-        index = -index;
-        y = index % (h / ch) * ch;
-        x = index / (h / ch) * ch;
-        return;
+    int numCols = gridWidth / cellWidth;
+    int numRows = gridHeight / cellHeight;
+
+    if (cellIndex >= 0) {
+        // Normal indexing: left-to-right, top-to-bottom
+        outX = (cellIndex % numCols) * cellWidth;
+        outY = (cellIndex / numCols) * cellHeight;
+    } else {
+        // Reverse indexing: top-to-bottom, left-to-right
+        int absIndex = -cellIndex - 1; // Convert negative index to range
+        outX = (absIndex / numRows) * cellWidth;
+        outY = (absIndex % numRows) * cellHeight;
     }
-    
-    x = index % (w / cw) * cw;
-    y = index / (w / cw) * ch;
 }
 
-int asciiExtents(const image::TImage &bitmap, GFXfont &font, int hs, int vs, Direction direction)
+int asciiExtents(const image::TImage &bitmap, GFXfont &font, const TPiXfont &piXfont)
 {
     if (bitmap.bytes.empty()) return 0;
     int x,y;
     int prevFirst = (int)font.first;
     
     for (uint16_t n = 0; n < 256; n++) {
-        indexToXY(direction==Direction::Horizontal ? n : -n, x, y, bitmap.width, bitmap.height, font.width + hs, font.yAdvance + vs);
+        getCellCoordinates(piXfont.direction == DirectionHorizontal ? n : -n, x, y, bitmap.width - piXfont.horizontalOffset, bitmap.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing);
+        x += piXfont.horizontalOffset;
+        y += piXfont.verticalOffset;
         
-        if (containsImage(bitmap, x, y, font.width, font.yAdvance)) {
+        if (containsImage(bitmap, x, y, piXfont.cellWidth, piXfont.cellHeight)) {
             if (font.first == 0) font.first = n;
             if (font.last < n) font.last = n;
             continue;
@@ -578,7 +613,7 @@ void convertAdafruitFontToImage(const std::string &filename, const std::string &
 
 // TODO: Add extended support for none monochrome glyphs.
 
-void createNewFont(std::string &filename, std::string &name, GFXfont &font, int hs, int vs, bool fixed, bool leftAlign, int distance, Direction direction)
+void createNewFont(std::string &filename, std::string &name, GFXfont &font, bool fixed, bool leftAlign, const TPiXfont &piXfont)
 {
     image::TImage bitmap;
     bitmap = image::loadImage(filename.c_str());
@@ -597,7 +632,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         return;
     }
     
-    if ((font.width + hs) * (font.yAdvance + vs) * (font.last - font.first + 1) > bitmap.width * bitmap.height) {
+    if ((piXfont.cellWidth + piXfont.cellHorizontalSpacing) * (piXfont.cellHeight + piXfont.cellVerticalSpacing) * (font.last - font.first + 1) > bitmap.width * bitmap.height) {
         std::cout << "The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
         return;
     }
@@ -608,18 +643,27 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
     uint16_t offset = 0;
     
     image::TImage image = {
-        .width = font.width,
-        .height = font.yAdvance
+        .width = static_cast<uint16_t>(piXfont.cellWidth),
+        .height = static_cast<uint16_t>(piXfont.cellHeight)
     };
     image.bytes.reserve((size_t)image.width * (size_t)image.height);
     image.bytes.resize((size_t)image.width * (size_t)image.height);
     
     int x, y;
-    int indexOffset = asciiExtents(bitmap, font, hs, vs, direction);
+    int indexOffset = asciiExtents(bitmap, font, piXfont);
+    
     for (int index = 0; index < font.last - font.first + 1; index++) {
-        int n = direction == Direction::Horizontal ? index + indexOffset : -(index + indexOffset);
-        indexToXY(n, x, y, bitmap.width, bitmap.height, font.width + hs, font.yAdvance + vs);
-        copyImage(image, 0, 0, bitmap, x + font.xOffset, y + font.yOffset, image.width, image.height);
+        if (piXfont.direction == DirectionHorizontal) {
+            getCellCoordinates(index + indexOffset, x, y, bitmap.width - piXfont.horizontalOffset, bitmap.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing);
+        } else {
+            getCellCoordinates(-(index + indexOffset), x, y, bitmap.width - piXfont.horizontalOffset, bitmap.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing);
+        }
+        
+        
+        x += piXfont.horizontalOffset;
+        y += piXfont.verticalOffset;
+        
+        copyImage(image, 0, 0, bitmap, x, y, image.width, image.height);
         
         GFXglyph glyph = {
             offset, 0, 0, 0, 0, 0
@@ -628,7 +672,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         
         image::TImage extractedImage = image::extractImageSection(image);
         if (extractedImage.bytes.empty()) {
-            glyph.xAdvance = font.width;
+            glyph.xAdvance = piXfont.cellWidth;
             glyphs.push_back(glyph);
             continue;
         }
@@ -641,9 +685,9 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, int 
         }
         
         if (fixed) {
-            glyph.xAdvance = font.width;
+            glyph.xAdvance = piXfont.cellWidth;
         } else {
-            glyph.xAdvance += distance;
+            glyph.xAdvance += piXfont.cursorAdvance;
         }
         
         glyph.bitmapOffset = offset;
@@ -668,33 +712,37 @@ int main(int argc, const char * argv[])
     std::string args(argv[0]);
     _basename = basename(args);
     
+    TPiXfont piXfont{
+        .spaceAdvance = 8,
+        .cursorAdvance = 1,
+        .cellHeight = 8,
+        .cellWidth = 8
+    };
+    
     std::string filename, name, prefix, sufix;
     int columns = 16;
     
-    GFXfont font = { 0, 0, .first=0, .last=0, .yAdvance=8, .width=8, .xSpace=8, .xOffset=0, .yOffset=0 };
-    int hs = 0, vs = 0;
+    GFXfont font = { 0, 0, .first=0, .last=0, .yAdvance=static_cast<uint8_t>(piXfont.cellHeight) };
     bool fixed = false;
     bool leftAlign = false;
-    int distance = 1;
-    Direction direction = Direction::Horizontal;
-    
     
     
     for( int n = 1; n < argc; n++ ) {
         if (*argv[n] == '-') {
             std::string args(argv[n]);
             
-            if (args == "-d") {
+            if (args == "-u") {
                 if (++n > argc) error();
-                distance = atoi(argv[n]);
+                piXfont.cursorAdvance = parseNumber(argv[n]);
+                if (piXfont.cursorAdvance < 0) piXfont.cursorAdvance = 1;
                 continue;
             }
             
-            if (args == "-D") {
+            if (args == "-g") {
                 if (++n > argc) error();
                 args = argv[n];
                 if (args!="h" && args!="v") error();
-                direction = args=="h" ? Direction::Horizontal : Direction::Vertical;
+                piXfont.direction = args=="h" ? DirectionHorizontal : DirectionVertical;
                 continue;
             }
             
@@ -705,53 +753,65 @@ int main(int argc, const char * argv[])
             }
             
             
-            if (args == "-O") {
+            if (args == "-x") {
                 if (++n > argc) error();
-                font.xOffset = atoi(argv[n]);
+                piXfont.horizontalOffset = parseNumber(argv[n]);
+                if (piXfont.horizontalOffset < 0) piXfont.horizontalOffset = 0;
+                continue;
+            }
+            
+            if (args == "-y") {
                 if (++n > argc) error();
-                font.xOffset = atoi(argv[n]);
+                piXfont.verticalOffset = parseNumber(argv[n]);
+                if (piXfont.verticalOffset < 0) piXfont.verticalOffset = 0;
                 continue;
             }
             
             if (args == "-h") {
                 if (++n > argc) error();
-                font.yAdvance = atoi(argv[n]);
+                piXfont.cellHeight = parseNumber(argv[n]);
+                if (piXfont.cellHeight < 1) piXfont.cellHeight = 1;
+                font.yAdvance = piXfont.cellWidth;
                 continue;
             }
             
             if (args == "-w") {
                 if (++n > argc) error();
-                font.width = atoi(argv[n]);
+                piXfont.cellWidth = parseNumber(argv[n]);
+                if (piXfont.cellWidth < 1) piXfont.cellWidth = 1;
                 continue;
             }
             
             if (args == "-c") {
                 if (++n > argc) error();
-                columns = atoi(argv[n]);
+                columns = parseNumber(argv[n]);
+                if (columns < 1) columns = 1;
                 continue;
             }
             
             if (args == "-f") {
                 if (++n > argc) error();
-                font.first = atoi(argv[n]);
+                font.first = parseNumber(argv[n]);
+                if (font.first < 0 || font.first > 255) font.first = 0;
                 continue;
             }
             
             if (args == "-l") {
                 if (++n > argc) error();
-                font.last = atoi(argv[n]);
+                font.last = parseNumber(argv[n]);
+                if (font.last < 0 || font.last > 255) font.last = 255;
                 continue;
             }
             
             if (args == "-V") {
                 if (++n > argc) error();
-                vs = atoi(argv[n]);
+                piXfont.cellVerticalSpacing = parseNumber(argv[n]);
                 continue;
             }
             
             if (args == "-H") {
                 if (++n > argc) error();
-                hs = atoi(argv[n]);
+                piXfont.cellHorizontalSpacing = parseNumber(argv[n]);
                 continue;
             }
             
@@ -767,7 +827,7 @@ int main(int argc, const char * argv[])
             
             if (args == "-s") {
                 if (++n > argc) error();
-                font.xSpace = atoi(argv[n]);
+                piXfont.spaceAdvance = parseNumber(argv[n]);
                 continue;
             }
             
@@ -796,6 +856,8 @@ int main(int argc, const char * argv[])
             error();
             return 0;
         }
+        
+        if (!filename.empty()) error();
         filename = argv[n];
     }
     
@@ -803,6 +865,11 @@ int main(int argc, const char * argv[])
         name = regex_replace(filename, std::regex(R"(\.\w+$)"), "");
         size_t pos = name.rfind("/");
         name = name.substr(pos + 1, name.length() - pos);
+    }
+    
+    if (font.last < font.first) {
+        font.first = 0;
+        font.last = 255;
     }
     
     info();
@@ -816,7 +883,7 @@ int main(int argc, const char * argv[])
         return 0;
     }
     
-    createNewFont(filename, name, font, hs, vs, fixed, leftAlign, distance, direction);
+    createNewFont(filename, name, font, fixed, leftAlign, piXfont);
     return 0;
 }
 

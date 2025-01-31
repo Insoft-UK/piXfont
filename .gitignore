@@ -7,3 +7,4 @@ examples/CASIO/*.h
 examples/CASIO/*.pbm
 examples/CASIO/*.bmp
 *.zip
+*.psd

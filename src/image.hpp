@@ -44,6 +44,11 @@ namespace image {
      */
     TImage loadImage(const char *filename);
     
+    /**
+     @brief    Saves a file in the Bitmap (BMP) format.
+     @param    filename The filename of the Bitmap (BMP)  to be saved.
+     @param    image A structure containing the bitmap image data.
+     */
     void saveImage(const char *filename, const TImage &image);
     
     /**
