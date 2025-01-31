@@ -4,4 +4,4 @@ This is a handy utility that goes well with the original [fontconvert](https://g
 This utility tool provides the ability to generate an Adafruit_GFX `.h` format from an image file.
 
 > [!NOTE]
-The only image file format currently supported by this utility tool is the Portable Bitmap (PBM) P4 format.
+The only image file format currently supported by this utility tool is the Portable Bitmap (PBM) P4 and Bitmap (BMP) format.
