@@ -87,6 +87,13 @@ namespace image {
     TImage convertMonochromeToGrayScale(const TImage monochrome);
     
     /**
+     @brief Converts a monochrome bitmap to a pixmap, where each pixel is represented by a single byte.
+     @param monochrome The monochrome bitmap to be converted to a pixmap bitmap.
+     @return A structure containing the bitmap image data.
+     */
+    TImage convert16ColorTo256Color(const TImage &image);
+    
+    /**
      @brief Takes an input image and identifies if the image contains an actual image at the specified section.
      @param image The input image that is to be inspected.
      @param x The start x-axis position from which the pixmap will be inspected at.

@@ -26,9 +26,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include <png.h>
+#include "png.h"
 
-png::TImage load(const char *filename)
+png::TImage png::load(const char *filename)
 {
     png::TImage image;
     
@@ -110,7 +110,7 @@ png::TImage load(const char *filename)
     return image;
 }
 
-void png::save(const char *filename, TImage &image) {
+void png::save(const char *filename, const TImage &image) {
 
     // Open file
     FILE* fp = fopen(filename, "wb");

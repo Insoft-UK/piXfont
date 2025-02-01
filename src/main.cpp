@@ -84,6 +84,8 @@ void help(void) {
     std::cout << "  -V <value>         Vertical spacing in pixels between glyphs.\n";
     std::cout << "  -F                 Use fixed glyph width.\n";
     std::cout << "  -ppl               Generate PPL code (not required for .h files).\n";
+    std::cout << "  -i <value>         The color index used to represent a pixel in a glyph when\n";
+    std::cout << "                     using a non-monochrome image.\n";
     std::cout << "  -v                 Enable verbose output for detailed processing information.\n";
     std::cout << "\n";
     std::cout << "Verbose Flags:\n";
@@ -113,6 +115,7 @@ typedef struct {
     int horizontalOffset, verticalOffset;
     int cellHorizontalSpacing, cellVerticalSpacing;
     Direction direction;
+    uint8_t indexColor;
 } TPiXfont;
 
 template <typename T>
@@ -197,7 +200,7 @@ void findImageBounds(int &top, int &left, int &bottom, int &right, const image::
     }
 }
 
-void appendImageData(std::vector<uint8_t> &data, const image::TImage &image)
+void appendImageData(std::vector<uint8_t> &data, const image::TImage &image, uint8_t indexColor = 1)
 {
     uint8_t *p = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
@@ -205,7 +208,7 @@ void appendImageData(std::vector<uint8_t> &data, const image::TImage &image)
     
     for (int i = 0; i < image.width * image.height; i++) {
         if(!bitPosition) bitPosition = 1 << 7;
-        if (p[i])
+        if (p[i] == indexColor)
             byte |= bitPosition;
         bitPosition >>= 1;
         if (!bitPosition) {
@@ -611,7 +614,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, bool
     }
     
     if (bitmap.bpp == 1) {
-        bitmap = convertMonochromeToGrayScale(bitmap);
+        bitmap = image::convertMonochromeToGrayScale(bitmap);
     }
     
     if (bitmap.bpp != 8) {
@@ -665,7 +668,7 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, bool
             .dY = static_cast<int8_t>(-cellImage.height + top)
         };
     
-        appendImageData(data, extractedImage);
+        appendImageData(data, extractedImage, piXfont.indexColor);
         
         if (leftAlign) {
             glyph.xAdvance -= glyph.dX;
@@ -705,7 +708,8 @@ int main(int argc, const char * argv[])
         .spaceAdvance = 8,
         .cursorAdvance = 1,
         .cellHeight = 8,
-        .cellWidth = 8
+        .cellWidth = 8,
+        .indexColor = 1
     };
     
     std::string filename, name, prefix, sufix;
@@ -817,6 +821,12 @@ int main(int argc, const char * argv[])
             if (args == "-s") {
                 if (++n > argc) error();
                 piXfont.spaceAdvance = parseNumber(argv[n]);
+                continue;
+            }
+            
+            if (args == "-i") {
+                if (++n > argc) error();
+                piXfont.indexColor = parseNumber(argv[n]);
                 continue;
             }
             

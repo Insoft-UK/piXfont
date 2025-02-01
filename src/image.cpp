@@ -53,14 +53,14 @@ image::TImage image::loadImage(const char *filename)
         return image;
     }
 
-//    auto png = png::load(filename);
-//    if (!png.bytes.empty()) {
-//        image.width = pbm.width;
-//        image.height = pbm.height;
-//        image.bpp = bmp.bpp;
-//        image.bytes = bmp.bytes;
-//        return image;
-//    }
+    auto png = png::load(filename);
+    if (!png.bytes.empty()) {
+        image.width = pbm.width;
+        image.height = pbm.height;
+        image.bpp = bmp.bpp;
+        image.bytes = bmp.bytes;
+        return image;
+    }
 
     return image;
 }
@@ -154,6 +154,22 @@ image::TImage image::convertMonochromeToGrayScale(const TImage monochrome)
     return grayscale;
 }
 
+image::TImage image::convert16ColorTo256Color(const TImage &image)
+{
+    TImage newImage;
+    
+    newImage = createImage(image.width, image.height, Index256Colors);
+    
+    for (auto it = image.bytes.begin(); it < image.bytes.end(); it++) {
+        newImage.bytes.push_back(*it >> 4);
+        newImage.bytes.push_back(*it & 15);
+    }
+    
+    newImage.bpp = 8;
+    newImage.palette = image.palette;
+    
+    return newImage;
+}
 
 
 bool image::containsImage(const TImage &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
