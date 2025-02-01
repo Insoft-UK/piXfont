@@ -6,7 +6,7 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/HD44780.png" width="20%" >
 
 ```
-pxfnt HD44780.bmp -f 32 -l 255 -w 5 -h 10 -x 1 -y 1 -H 1 -V 1 -F -g v
+pxfnt HD44780.bmp -f 32 -l 255 -w 5 -h 10 -x 1 -y 1 -H 1 -V 1 -F -g v -i 3
 ```
 
 
