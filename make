@@ -6,9 +6,9 @@ clear
 if [ ! -d "build" ]; then
     mkdir build
 fi
-make -j$(sysctl -n hw.ncpu)
+make -j$(sysctl -n hw.ncpu) arm64
 #strip build/pxfnt
-lipo -info build/pxfnt
+lipo -info build/pxfnt*
 
 # Code Signing...
 echo "Code Signing... Please wait!"

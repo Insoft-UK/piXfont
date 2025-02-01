@@ -11,7 +11,9 @@
 		13CDCDB02D4910130005D2EA /* bmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDCDAD2D4910130005D2EA /* bmp.cpp */; };
 		13CDCDB12D4910130005D2EA /* pbm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDCDAF2D4910130005D2EA /* pbm.cpp */; };
 		13CDF1A22D4C20AC0005D2EA /* png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF1A12D4C20AC0005D2EA /* png.cpp */; };
-		13CDF1B12D4C2FD10005D2EA /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF1B02D4C2FD10005D2EA /* libpng.a */; };
+		13CDF1CF2D4EA5EF0005D2EA /* delta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */; };
+		13CDF1D62D4EA86E0005D2EA /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF1D42D4EA86E0005D2EA /* libpng.a */; };
+		13CDF1D72D4EA86E0005D2EA /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF1D52D4EA86E0005D2EA /* libz.a */; };
 		84764229189579CD00AFBE9C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84764228189579CD00AFBE9C /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -43,7 +45,15 @@
 		13CDCDD42D49500D0005D2EA /* font.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = font.hpp; sourceTree = "<group>"; };
 		13CDF1A02D4C20AC0005D2EA /* png.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = png.hpp; sourceTree = "<group>"; };
 		13CDF1A12D4C20AC0005D2EA /* png.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = png.cpp; sourceTree = "<group>"; };
-		13CDF1B02D4C2FD10005D2EA /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../../../opt/homebrew/lib/libpng.a; sourceTree = "<group>"; };
+		13CDF1CD2D4EA5EF0005D2EA /* delta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = delta.hpp; sourceTree = "<group>"; };
+		13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = delta.cpp; sourceTree = "<group>"; };
+		13CDF1D42D4EA86E0005D2EA /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = src/arm64/libpng.a; sourceTree = "<group>"; };
+		13CDF1D52D4EA86E0005D2EA /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = src/arm64/libz.a; sourceTree = "<group>"; };
+		13CDF1D92D4EA8FA0005D2EA /* png.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = png.h; sourceTree = "<group>"; };
+		13CDF1DA2D4EA8FA0005D2EA /* pngconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pngconf.h; sourceTree = "<group>"; };
+		13CDF1DB2D4EA8FA0005D2EA /* pnglibconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pnglibconf.h; sourceTree = "<group>"; };
+		13CDF1DD2D4EA9210005D2EA /* zconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
+		13CDF1DE2D4EA9210005D2EA /* zlib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* piXfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piXfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,7 +68,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13CDF1B12D4C2FD10005D2EA /* libpng.a in Frameworks */,
+				13CDF1D62D4EA86E0005D2EA /* libpng.a in Frameworks */,
+				13CDF1D72D4EA86E0005D2EA /* libz.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,9 +79,29 @@
 		13CDF1AF2D4C2FD10005D2EA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				13CDF1B02D4C2FD10005D2EA /* libpng.a */,
+				13CDF1D42D4EA86E0005D2EA /* libpng.a */,
+				13CDF1D52D4EA86E0005D2EA /* libz.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		13CDF1D82D4EA8D30005D2EA /* libpng */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF1D92D4EA8FA0005D2EA /* png.h */,
+				13CDF1DA2D4EA8FA0005D2EA /* pngconf.h */,
+				13CDF1DB2D4EA8FA0005D2EA /* pnglibconf.h */,
+			);
+			name = libpng;
+			sourceTree = "<group>";
+		};
+		13CDF1DC2D4EA90B0005D2EA /* libz */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF1DD2D4EA9210005D2EA /* zconf.h */,
+				13CDF1DE2D4EA9210005D2EA /* zlib.h */,
+			);
+			name = libz;
 			sourceTree = "<group>";
 		};
 		8476421C189579CD00AFBE9C = {
@@ -99,6 +130,8 @@
 		84764227189579CD00AFBE9C /* src */ = {
 			isa = PBXGroup;
 			children = (
+				13CDF1D82D4EA8D30005D2EA /* libpng */,
+				13CDF1DC2D4EA90B0005D2EA /* libz */,
 				13148B612D42B69200849C73 /* version_code.h */,
 				84764228189579CD00AFBE9C /* main.cpp */,
 				1328C27F2BC61D03003C4B3A /* GFXFont.h */,
@@ -111,6 +144,8 @@
 				13CDCDD42D49500D0005D2EA /* font.hpp */,
 				13CDF1A02D4C20AC0005D2EA /* png.hpp */,
 				13CDF1A12D4C20AC0005D2EA /* png.cpp */,
+				13CDF1CD2D4EA5EF0005D2EA /* delta.hpp */,
+				13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -193,6 +228,7 @@
 				13CDCDB02D4910130005D2EA /* bmp.cpp in Sources */,
 				13CDCDB12D4910130005D2EA /* pbm.cpp in Sources */,
 				1328C2842BC6E8FD003C4B3A /* image.cpp in Sources */,
+				13CDF1CF2D4EA5EF0005D2EA /* delta.cpp in Sources */,
 				13CDF1A22D4C20AC0005D2EA /* png.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -278,6 +314,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					/opt/homebrew/lib,
+					"$(PROJECT_DIR)/src",
+					"$(PROJECT_DIR)/src/arm64",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "";
 				PRODUCT_NAME = piXfont;
@@ -294,6 +332,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					/opt/homebrew/lib,
+					"$(PROJECT_DIR)/src",
+					"$(PROJECT_DIR)/src/arm64",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "";
 				PRODUCT_NAME = piXfont;
