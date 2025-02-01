@@ -37,6 +37,13 @@ namespace image {
         std::vector<uint8_t> bytes;
     } TImage;
     
+    enum BPP : uint8_t {
+        Index256Colors,
+        Index16Colors,
+        Index4Colors,
+        Monochrome
+    };
+    
     /**
      @brief    Loads a file in the Bitmap (BMP) or Portable Bitmap (PBM)  format.
      @param    filename The filename of the Bitmap (BMP) or Portable Bitmap (PBM)  to be loaded.

@@ -170,47 +170,34 @@ static std::string pplList(const void *data, const size_t lengthInBytes, const i
     return os.str();
 }
 
-
-GFXglyph autoGFXglyphSettings(image::TImage &image)
+void findImageBounds(int &top, int &left, int &bottom, int &right, const image::TImage &image)
 {
-    GFXglyph gfxGlyph = {0, 0, 0, 0, 0, 0};
-    int minX, maxX, minY, maxY;
-    
-    if (image.bytes.empty()) return gfxGlyph;
+    if (image.bytes.empty() || image.bpp != image::Index256Colors)
+        return;
     
     uint8_t *p = (uint8_t *)image.bytes.data();
     
-    maxX = 0;
-    maxY = 0;
-    minX = image.width - 1;
-    minY = image.height - 1;
+    right = 0; bottom = 0;
+    left = image.width - 1; top = image.height - 1;
     
     
     for (int y=0; y<image.height; y++) {
         for (int x=0; x<image.width; x++) {
             if (!p[x + y * image.width]) continue;
-            if (minX > x) minX = x;
-            if (maxX < x) maxX = x;
-            if (minY > y) minY = y;
-            if (maxY < y) maxY = y;
+            if (left > x) left = x;
+            if (right < x) right = x;
+            if (top > y) top = y;
+            if (bottom < y) bottom = y;
         }
     }
     
-    if (maxX < minX || maxY < minY) {
-        return gfxGlyph;
+    if (right < left || bottom < top) {
+        top = 0; left = 0; bottom = image.height - 1; right = image.width - 1;
+        return;
     }
-    
-    gfxGlyph.bitmapOffset = 0;
-    gfxGlyph.width = maxX - minX + 1;
-    gfxGlyph.height = maxY - minY + 1;
-    gfxGlyph.xAdvance = minX + gfxGlyph.width;
-    gfxGlyph.dX = minX;
-    gfxGlyph.dY = -image.height + minY;
-    
-    return gfxGlyph;
 }
 
-void concatenateImageData(image::TImage &image, std::vector<uint8_t> &data)
+void appendImageData(std::vector<uint8_t> &data, const image::TImage &image)
 {
     uint8_t *p = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
@@ -251,22 +238,22 @@ void concatenateImageData(image::TImage &image, std::vector<uint8_t> &data)
  * @param cellWidth The width of each individual cell in pixels.
  * @param cellHeight The height of each individual cell in pixels.
  */
-void getCellCoordinates(int cellIndex, int& outX, int& outY,
+void getCellCoordinates(int cellIndex, int &outX, int &outY,
                         int gridWidth, int gridHeight,
-                        int cellWidth, int cellHeight)
+                        int cellWidth, int cellHeight,
+                        Direction direction)
 {
     int numCols = gridWidth / cellWidth;
     int numRows = gridHeight / cellHeight;
 
-    if (cellIndex >= 0) {
+    if (direction == DirectionHorizontal) {
         // Normal indexing: left-to-right, top-to-bottom
         outX = (cellIndex % numCols) * cellWidth;
         outY = (cellIndex / numCols) * cellHeight;
     } else {
         // Reverse indexing: top-to-bottom, left-to-right
-        int absIndex = -cellIndex - 1; // Convert negative index to range
-        outX = (absIndex / numRows) * cellWidth;
-        outY = (absIndex % numRows) * cellHeight;
+        outX = (cellIndex / numRows) * cellWidth;
+        outY = (cellIndex % numRows) * cellHeight;
     }
 }
 
@@ -277,7 +264,7 @@ int asciiExtents(const image::TImage &bitmap, GFXfont &font, const TPiXfont &piX
     int prevFirst = (int)font.first;
     
     for (uint16_t n = 0; n < 256; n++) {
-        getCellCoordinates(piXfont.direction == DirectionHorizontal ? n : -n, x, y, bitmap.width - piXfont.horizontalOffset, bitmap.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing);
+        getCellCoordinates(n, x, y, bitmap.width - piXfont.horizontalOffset, bitmap.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing, piXfont.direction);
         x += piXfont.horizontalOffset;
         y += piXfont.verticalOffset;
         
@@ -640,44 +627,45 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, bool
 
     std::vector<uint8_t> data;
     std::vector<GFXglyph> glyphs;
-    uint16_t offset = 0;
+    uint16_t bitmapOffset = 0;
     
-    image::TImage image = {
-        .width = static_cast<uint16_t>(piXfont.cellWidth),
-        .height = static_cast<uint16_t>(piXfont.cellHeight)
-    };
-    image.bytes.reserve((size_t)image.width * (size_t)image.height);
-    image.bytes.resize((size_t)image.width * (size_t)image.height);
+    image::TImage cellImage = image::createImage(piXfont.cellWidth, piXfont.cellHeight, image::Index256Colors);
+    
     
     int x, y;
-    int indexOffset = asciiExtents(bitmap, font, piXfont);
     
     for (int index = 0; index < font.last - font.first + 1; index++) {
-        if (piXfont.direction == DirectionHorizontal) {
-            getCellCoordinates(index + indexOffset, x, y, bitmap.width - piXfont.horizontalOffset, bitmap.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing);
-        } else {
-            getCellCoordinates(-(index + indexOffset), x, y, bitmap.width - piXfont.horizontalOffset, bitmap.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing);
-        }
-        
-        
+        getCellCoordinates(index, x, y, bitmap.width - piXfont.horizontalOffset, bitmap.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing, piXfont.direction);
+       
         x += piXfont.horizontalOffset;
         y += piXfont.verticalOffset;
         
-        copyImage(image, 0, 0, bitmap, x, y, image.width, image.height);
+        copyImage(cellImage, 0, 0, bitmap, x, y, cellImage.width, cellImage.height);
         
-        GFXglyph glyph = {
-            offset, 0, 0, 0, 0, 0
-        };
-        glyph = autoGFXglyphSettings(image);
-        
-        image::TImage extractedImage = image::extractImageSection(image);
+        image::TImage extractedImage = image::extractImageSection(cellImage);
         if (extractedImage.bytes.empty()) {
-            glyph.xAdvance = piXfont.cellWidth;
-            glyphs.push_back(glyph);
+            /*
+             If the image does not contain a glyph for a character,
+             insert a blank entry with xAdvance set to the cell width.
+            */
+            glyphs.push_back({0, 0, 0, static_cast<uint8_t>(piXfont.cellWidth + piXfont.cursorAdvance), 0, 0});
             continue;
         }
         
-        concatenateImageData(extractedImage, data);
+        
+        int top, left, bottom, right;
+        findImageBounds(top, left, bottom, right, cellImage);
+        
+        GFXglyph glyph = {
+            .bitmapOffset = 0,
+            .width = static_cast<uint8_t>(right - left + 1),
+            .height = static_cast<uint8_t>(bottom - top + 1),
+            .xAdvance = static_cast<uint8_t>(left + (right - left + 1)),
+            .dX = static_cast<int8_t>(left),
+            .dY = static_cast<int8_t>(-cellImage.height + top)
+        };
+    
+        appendImageData(data, extractedImage);
         
         if (leftAlign) {
             glyph.xAdvance -= glyph.dX;
@@ -685,13 +673,14 @@ void createNewFont(std::string &filename, std::string &name, GFXfont &font, bool
         }
         
         if (fixed) {
-            glyph.xAdvance = piXfont.cellWidth;
+            glyph.xAdvance = piXfont.cellWidth + piXfont.cursorAdvance;
         } else {
             glyph.xAdvance += piXfont.cursorAdvance;
         }
         
-        glyph.bitmapOffset = offset;
-        offset += (extractedImage.width * extractedImage.height + 7) / 8;
+        
+        glyph.bitmapOffset = bitmapOffset;
+        bitmapOffset += (extractedImage.width * extractedImage.height + 7) / 8;
         glyphs.push_back(glyph);
     }
     
