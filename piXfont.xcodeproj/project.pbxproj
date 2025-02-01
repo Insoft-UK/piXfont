@@ -202,7 +202,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		1328C28A2BC83B5A003C4B3A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -213,7 +213,7 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "./version_code\nmv version_code.h src/version_code.h\n";
 		};

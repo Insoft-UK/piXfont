@@ -6,7 +6,7 @@ clear
 if [ ! -d "build" ]; then
     mkdir build
 fi
-make -j$(sysctl -n hw.ncpu) arm64
+make -j$(sysctl -n hw.ncpu) all
 #strip build/pxfnt
 lipo -info build/pxfnt*
 

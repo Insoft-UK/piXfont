@@ -6,5 +6,6 @@ examples/*.bmp
 examples/CASIO/*.h
 examples/CASIO/*.pbm
 examples/CASIO/*.bmp
+ignore
 *.zip
 *.psd
