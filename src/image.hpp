@@ -38,10 +38,12 @@ namespace image {
     } TImage;
     
     enum BPP : uint8_t {
-        Index256Colors,
-        Index16Colors,
-        Index4Colors,
-        Monochrome
+        TrueColor = 32,
+        HighColor = 16,
+        Index256Colors = 8,
+        Index16Colors = 4,
+        Index4Colors = 2,
+        Monochrome = 1
     };
     
     /**
@@ -92,6 +94,8 @@ namespace image {
      @return A structure containing the bitmap image data.
      */
     TImage convert16ColorTo256Color(const TImage &image);
+    
+    TImage convert256ColorImageToTrueColorImage(const TImage &image);
     
     /**
      @brief Takes an input image and identifies if the image contains an actual image at the specified section.

@@ -89,7 +89,7 @@ png::TImage png::load(const char *filename)
     // Create the TImage structure
     image.width = static_cast<uint16_t>(width);
     image.height = static_cast<uint16_t>(height);
-    image.bpp = 32;  // Assume we're loading in RGBA format (32 bits per pixel)
+    // Assume we're loading in RGBA format (32 bits per pixel)
     
     // Allocate memory for the pixel data
     size_t dataSize = width * height * 4; // 4 bytes per pixel (RGBA)

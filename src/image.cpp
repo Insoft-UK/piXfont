@@ -67,14 +67,30 @@ image::TImage image::loadImage(const char *filename)
 
 void image::saveImage(const char *filename, const image::TImage &image)
 {
-    bmp::TImage newImage = {
-        .width = image.width,
-        .height = image.height,
-        .bpp = image.bpp,
-        .palette = image.palette,
-        .bytes = image.bytes
-    };
-    bmp::save(filename, newImage);
+    std::filesystem::path filePath(filename);
+    std::string extension = filePath.extension();
+    
+    if (extension == ".bmp") {
+        bmp::TImage newImage = {
+            .width = image.width,
+            .height = image.height,
+            .bpp = image.bpp,
+            .palette = image.palette,
+            .bytes = image.bytes
+        };
+        bmp::save(filename, newImage);
+    }
+    
+    if (extension == ".png") {
+        TImage newImage = convert256ColorImageToTrueColorImage(image);
+        png::TImage pngImage = {
+            .width = image.width,
+            .height = image.height,
+            .bpp = 32,
+            .bytes = newImage.bytes
+        };
+        png::save(filename, pngImage);
+    }
 }
 
 image::TImage image::createImage(int w, int h, uint8_t bpp)
@@ -90,6 +106,7 @@ image::TImage image::createImage(int w, int h, uint8_t bpp)
     length = w * h;
     if (bpp == 1) length /= 8;
     if (bpp == 16) length *= 2;
+    if (bpp == 32) length *= sizeof(uint32_t);
     
     image.bytes.reserve(length);
     image.bytes.resize(length);
@@ -167,6 +184,21 @@ image::TImage image::convert16ColorTo256Color(const TImage &image)
     
     newImage.bpp = 8;
     newImage.palette = image.palette;
+    
+    return newImage;
+}
+
+image::TImage image::convert256ColorImageToTrueColorImage(const TImage &image)
+{
+    TImage newImage;
+    
+    newImage = createImage(image.width, image.height, TrueColor);
+    
+    for (auto it = image.bytes.begin(); it < image.bytes.end(); it++) {
+        newImage.bytes.push_back(image.palette.at(*it));
+    }
+    
+    newImage.bpp = TrueColor;
     
     return newImage;
 }
