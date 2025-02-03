@@ -23,9 +23,6 @@
 
 #include "delta.hpp"
 
-#include <vector>
-
-// Function to perform delta encoding on a bit stream (8-bit per element)
 std::vector<uint8_t> delta::encode(const std::vector<uint8_t> &bitStream)
 {
     if (bitStream.empty()) return {};
@@ -40,7 +37,6 @@ std::vector<uint8_t> delta::encode(const std::vector<uint8_t> &bitStream)
     return encodedStream;
 }
 
-// Function to decode a delta-encoded bit stream
 std::vector<uint8_t> delta::decode(const std::vector<uint8_t> &encodedStream)
 {
     if (encodedStream.empty()) return {};

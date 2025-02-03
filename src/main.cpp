@@ -87,8 +87,8 @@ void help(void) {
     std::cout << "  -F                 Use fixed glyph width.\n";
     std::cout << "  -ppl               Generate PPL code (not required for .h files).\n";
 //    std::cout << "  -indices           Use glyph indices.\n";
-    std::cout << "  -i <value>         The color index used to represent a pixel in a glyph when\n";
-    std::cout << "                     using a non-monochrome image.\n";
+    std::cout << "  -i <value>         The color index used to represent a pixel in a glyph when using\n";
+    std::cout << "                     a non-monochrome image, for monochrome image value is 0 or 1.\n";
     std::cout << "  -v                 Enable verbose output for detailed processing information.\n";
     std::cout << "\n";
     std::cout << "Verbose Flags:\n";
@@ -397,7 +397,7 @@ void createHpprgmFile(const std::string &filename, TFont &font, std::vector<uint
     createUTF16LEFile(filename, os, name);
 }
 
-void drawAllGlyphs(const int rows, const int columns, const font::TFont &adafruitFont, const image::TImage &image)
+void drawAllGlyphsHorizontaly(const int rows, const int columns, const font::TFont &adafruitFont, const image::TImage &image)
 {
     int x, y, xAdvance, yAdvance;
     
@@ -405,7 +405,7 @@ void drawAllGlyphs(const int rows, const int columns, const font::TFont &adafrui
     xAdvance = image.width / columns;
     yAdvance = image.height / rows;
     
-    for (int i = adafruitFont.first; i < adafruitFont.last; i++, x += xAdvance) {
+    for (int i = adafruitFont.first; i <= adafruitFont.last; i++, x += xAdvance) {
         if (x > image.width - 1) {
             x = 0;
             y += yAdvance;
@@ -414,7 +414,24 @@ void drawAllGlyphs(const int rows, const int columns, const font::TFont &adafrui
     }
 }
 
-void createImageFile(const std::string &filename, TFont &font, std::vector<uint8_t> &data, std::vector<TGlyph> &glyphs, const std::string &name, const int columns)
+void drawAllGlyphsVerticaly(const int rows, const int columns, const font::TFont &adafruitFont, const image::TImage &image)
+{
+    int x, y, xAdvance, yAdvance;
+    
+    x = 0; y = 0;
+    xAdvance = image.width / columns;
+    yAdvance = image.height / rows;
+    
+    for (int i = adafruitFont.first; i <= adafruitFont.last; i++, y += yAdvance) {
+        if (y > image.height - 1) {
+            y = 0;
+            x += xAdvance;
+        }
+        font::drawGlyph(x, y, (char)i, (uint8_t)1, adafruitFont, image);
+    }
+}
+
+void createImageFile(const std::string &filename, TFont &font, std::vector<uint8_t> &data, std::vector<TGlyph> &glyphs, const std::string &name, const int columns, const TPiXfont &piXfont)
 {
     image::TImage image;
     
@@ -437,13 +454,16 @@ void createImageFile(const std::string &filename, TFont &font, std::vector<uint8
         if (it->dY + font.yAdvance + it->height > h) h = it->dY + font.yAdvance + it->height;
     }
     
-    
     int rows = ceil((float)(font.last - font.first + 1) / (float)columns);
     int height = rows * h;
     int width = columns * w;
     
     image = image::createImage(width, height, 8);
-    drawAllGlyphs(rows, columns, adafruitFont, image);
+    if (piXfont.direction == DirectionHorizontal) {
+        drawAllGlyphsHorizontaly(rows, columns, adafruitFont, image);
+    } else {
+        drawAllGlyphsVerticaly(rows, columns, adafruitFont, image);
+    }
     
     saveImage(filename.c_str(), image);
 }
@@ -620,7 +640,7 @@ void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_file
     createHpprgmFile(out_filename, font, data, glyphs, name);
 }
 
-void convertAdafruitFontToImage(const std::string &in_filename, const std::string out_filename, const std::string &name, const int glyphsPercolumn)
+void convertAdafruitFontToImage(const std::string &in_filename, const std::string out_filename, const std::string &name, const int glyphsPercolumn, const TPiXfont &piXfont)
 {
     std::vector<uint8_t> data;
     std::vector<TGlyph> glyphs;
@@ -631,7 +651,7 @@ void convertAdafruitFontToImage(const std::string &in_filename, const std::strin
         exit(2);
     }
     
-    createImageFile(out_filename, font, data, glyphs, name, glyphsPercolumn);
+    createImageFile(out_filename, font, data, glyphs, name, glyphsPercolumn, piXfont);
 }
 
 // TODO: Add extended support for none monochrome glyphs.
@@ -648,6 +668,11 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
     
     if (image.bpp == 1) {
         image = image::convertMonochromeToGrayScale(image);
+        if (piXfont.indexColor == 0) {
+            for (int i = 0; i < image.width * image.height; i++) {
+                image.bytes.at(i) = !image.bytes.at(i);
+            }
+        }
     }
     
     if (image.bpp != 8) {
@@ -658,6 +683,11 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
     if ((piXfont.cellWidth + piXfont.cellHorizontalSpacing) * (piXfont.cellHeight + piXfont.cellVerticalSpacing) * (font.last - font.first + 1) > image.width * image.height) {
         std::cout << "The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
         return;
+    }
+    
+    for (int i = 1; i < image.width * image.height; i++) {
+        if (image.bytes.at(i) == piXfont.indexColor) continue;
+        image.bytes.at(i) = 0;
     }
     
     std::vector<uint8_t> data;
@@ -683,7 +713,8 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
              If the image does not contain a glyph for a character,
              insert a blank entry with xAdvance set to the cell width.
             */
-            glyphs.push_back({0, 0, 0, static_cast<uint8_t>(piXfont.cellWidth + piXfont.cursorAdvance), 0, 0});
+            TGlyph glyph = {0, 0, 0, static_cast<uint8_t>(piXfont.cellWidth + piXfont.cursorAdvance), 0, 0};
+            glyphs.push_back(glyph);
             continue;
         }
         
@@ -929,7 +960,7 @@ int main(int argc, const char * argv[])
             return 0;
         }
         out_filename.append(".bmp");
-        convertAdafruitFontToImage(in_filename, out_filename, name, columns);
+        convertAdafruitFontToImage(in_filename, out_filename, name, columns, piXfont);
         std::cout << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
         
         return 0;

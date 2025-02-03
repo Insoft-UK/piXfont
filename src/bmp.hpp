@@ -32,7 +32,7 @@ namespace bmp {
         uint16_t width;
         uint16_t height;
         uint8_t  bpp;
-        std::vector<uint32_t> palette; // Palette stored in RGBA be
+        std::vector<uint32_t> palette; // !Palette stored in RGBA format.
         std::vector<uint8_t> bytes;
     } TImage;
     
@@ -43,6 +43,11 @@ namespace bmp {
      */
     TImage load(const char *filename);
     
+    /**
+     @brief    Saves a file in the Bitmap (BMP) format.
+     @param    filename The filename of the Bitmap (BMP) to be saved.
+     @param    image A structure containing the bitmap image data.
+     */
     void save(const char *filename, const TImage &image);
 }
 

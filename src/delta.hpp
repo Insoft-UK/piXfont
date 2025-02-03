@@ -25,9 +25,22 @@
 #define delta_hpp
 
 #include <iostream>
+#include <cstdint>
+#include <vector>
 
 namespace delta {
+    /**
+     @brief    Performs delta encoding on a bit stream.
+     @param    bitStream The input bit stream represented as a vector of 8-bit values.
+     @return   A vector of 8-bit values containing the delta-encoded data.
+     */
     std::vector<uint8_t> encode(const std::vector<uint8_t> &bitStream);
+    
+    /**
+     @brief    Decodes a delta-encoded bit stream.
+     @param    encodedStream The input delta-encoded bit stream represented as a vector of 8-bit values.
+     @return   A vector of 8-bit values containing the decoded original data.
+     */
     std::vector<uint8_t> decode(const std::vector<uint8_t> &encodedStream);
 }
 

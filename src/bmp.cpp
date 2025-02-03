@@ -199,8 +199,7 @@ void bmp::save(const char *filename, const TImage &image)
     bip_header.fileHeader.bfType[1] = 'M';
     bip_header.fileHeader.bfSize = size;
     bip_header.fileHeader.bfOffBits = sizeof(BIPHeader) + bip_header.biClrUsed * sizeof(uint32_t);
-//    bip_header.fileHeader.bfOffBits = sizeof(BIPHeader) + image.palette.size() * sizeof(uint32_t);
-    
+
     std::ofstream outfile;
     outfile.open(filename, std::ios::out | std::ios::binary);
     if (!outfile.is_open()) {
