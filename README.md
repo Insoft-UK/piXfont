@@ -51,7 +51,7 @@ Verbose Flags:
   g                  Glyph details.
 
 Additional Commands:
-  ansiart {--version | --help}
+  pxfnt {--version | --help}
     --version        Display version information.
     --help           Show this help message.
 ```
