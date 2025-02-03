@@ -40,9 +40,6 @@
 #include "version_code.h"
 #define NAME "Adafruit GFX Pixel Font Creator"
 #define COMMAND_NAME "pxfnt"
-#define basename(path)  path.substr(path.find_last_of("/") + 1)
-
-static std::string _basename;
 
 // MARK: - Command Line
 void version(void) {
@@ -67,7 +64,7 @@ void help(void) {
     std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
     std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
     std::cout << "\n";
-    std::cout << "Usage: " << _basename << " <input-file> [-o <output-file>] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-ppl] [-i] [-v]\n";
+    std::cout << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-ppl] [-i] [-v]\n";
     std::cout << "\n";
     std::cout << "Options:\n";
     std::cout << "  -o <output-file>   Specify the filename for generated .bmp, .h or .hpprgm file.\n";
@@ -99,7 +96,7 @@ void help(void) {
     std::cout << "  g                  Glyph details.\n";
     std::cout << "\n";
     std::cout << "Additional Commands:\n";
-    std::cout << "  ansiart {--version | --help}\n";
+    std::cout << "  " << COMMAND_NAME << " {--version | --help}\n";
     std::cout << "    --version        Display version information.\n";
     std::cout << "    --help           Show this help message.\n";
 }
@@ -739,7 +736,6 @@ int main(int argc, const char * argv[])
     }
     
     std::string args(argv[0]);
-    _basename = basename(args);
     
     TPiXfont piXfont{
         .spaceAdvance = 8,
