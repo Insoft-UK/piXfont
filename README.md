@@ -18,7 +18,7 @@ The glyphs begin 1 pixel from the left `-x 1` and 1 pixel from the top `-y 1` of
 
 ```
 Copyright (C) 2024-2025 Insoft. All rights reserved.
-Insoft Adafruit GFX Pixel Font Creator version, 1.0.6 (BUILD A0G00-25B2)
+Insoft Adafruit GFX Pixel Font Creator version, 1.0.6 (BUILD A0G01-25B2)
 
 Usage: pxfnt <input-file> [-o <output-file>] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-ppl] [-i] [-v]
 
