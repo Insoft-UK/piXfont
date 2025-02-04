@@ -193,19 +193,16 @@ void bmp::save(const char *filename, const TImage &image)
             .biPlanes = 1,
             .biCompression = 0,
             .biBitCount = image.bpp,
-            .biSizeImage = static_cast<uint32_t>(image.width * image.height * (8 / image.bpp)),
+            .biSizeImage = static_cast<uint32_t>((image.width * image.bpp + 31) / 32 * 4 * (image.height)),
             .biClrUsed = static_cast<uint32_t>(image.palette.size()),
             .biClImportant = static_cast<uint32_t>(image.palette.size())
     };
-    uint32_t size;
     
-    size = image.width * image.height * (8 / image.bpp);
-    size += sizeof(BIPHeader);
-    size += image.palette.size() * sizeof(uint32_t);
+    bip_header.biSizeImage = (bip_header.biWidth * bip_header.biBitCount + 31) / 32 * 4 * abs(bip_header.biHeight);
     
     bip_header.fileHeader.bfType[0] = 'B';
     bip_header.fileHeader.bfType[1] = 'M';
-    bip_header.fileHeader.bfSize = size;
+    bip_header.fileHeader.bfSize = bip_header.biSizeImage + (uint32_t)image.palette.size() * sizeof(uint32_t);
     bip_header.fileHeader.bfOffBits = sizeof(BIPHeader) + bip_header.biClrUsed * sizeof(uint32_t);
 
     std::ofstream outfile;
@@ -216,7 +213,28 @@ void bmp::save(const char *filename, const TImage &image)
     
     outfile.write((char *)&bip_header, sizeof(BIPHeader));
     outfile.write((char *)image.palette.data(), image.palette.size() * sizeof(uint32_t));
-    outfile.write((char *)image.bytes.data(), image.bytes.size());
+    
+    int bytesPerLine = (image.width * image.bpp + 31) / 32;
+    
+    char *pixelData = (char *)image.bytes.data();
+    
+    for (int line = 0; line < image.height; line++) {
+        outfile.write(pixelData, image.bytes.size());
+        pixelData += bytesPerLine;
+        
+        /*
+         Each scan line is zero padded to the nearest 4-byte boundary.
+         
+         If the image has a width that is not divisible by four, say, 21 bytes, there
+         would be 3 bytes of padding at the end of every scan line.
+         */
+        int padding = bip_header.biSizeImage / abs(bip_header.biHeight) - bytesPerLine;
+        while (padding--) {
+            outfile.put(0);
+        }
+    }
+    
+    
     outfile.close();
 }
 
