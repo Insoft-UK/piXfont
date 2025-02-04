@@ -946,6 +946,7 @@ int main(int argc, const char * argv[])
     
     if (out_filename.empty() || out_filename == in_filename) {
         out_filename = filePath.parent_path();
+        out_filename.append("/");
         out_filename.append(filenameWithoutExtension);
     } else {
         out_filename = regex_replace(out_filename, std::regex(R"(\.\w+$)"), "");
