@@ -3,10 +3,10 @@
     #define PROGMEM /* None Arduino */
 #endif
 
-#ifndef Bit7Inv_h
-#define Bit7Inv_h
+#ifndef BBC_h
+#define BBC_h
 
-const uint8_t Bit7Inv_Bitmaps[] PROGMEM = {
+const uint8_t BBC_Bitmaps[] PROGMEM = {
     0xff, 0xff, 0xf0, 0xf0, 0xde, 0xf7, 0xbd, 0xec, 0x6c, 0xd9, 0xb3, 0x6f,
     0xff, 0xdb, 0x36, 0xff, 0xfd, 0xb3, 0x66, 0xcd, 0x80, 0x18, 0x31, 0xfb,
     0xfd, 0x1a, 0x1f, 0x3e, 0x16, 0x2f, 0xf7, 0xe3, 0x06, 0x00, 0xc3, 0x0c,
@@ -245,7 +245,7 @@ const uint8_t Bit7Inv_Bitmaps[] PROGMEM = {
     0x33, 0x33, 0xcc, 0xcc, 0x33, 0x33, 0xcc, 0xcc
 };
 
-const GFXglyph Bit7Inv_Glyphs[] PROGMEM = {
+const GFXglyph BBC_Glyphs[] PROGMEM = {
     {     0,   0,   0,   9,   0,   0 },  // 0x20 ' '
     {     0,   2,  14,   9,   3, -16 },  // 0x21 '!'
     {     4,   5,   6,   9,   1, -16 },  // 0x22 '"'
@@ -472,12 +472,12 @@ const GFXglyph Bit7Inv_Glyphs[] PROGMEM = {
     {  2812,   8,  16,   9,   0, -16 }   // 0xff ' '
 };
 
-const GFXfont Bit7Inv PROGMEM = {
-    (uint8_t *) Bit7Inv_Bitmaps, 
-    (GFXglyph *) Bit7Inv_Glyphs, 
+const GFXfont BBC PROGMEM = {
+    (uint8_t *) BBC_Bitmaps, 
+    (GFXglyph *) BBC_Glyphs, 
     32, 
     255, 
     16
 };
 
-#endif /* Bit7Inv_h */
+#endif /* BBC_h */
