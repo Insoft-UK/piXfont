@@ -102,6 +102,14 @@ bmp::TImage bmp::load(const char *filename)
     }
     
     image.bpp = bip_header.biBitCount;
+    if (bip_header.biSizeImage == 0) {
+        /*
+         If the BMP file uses BI_RGB (no compression), biSizeImage
+         may be set to 0 because the size can be inferred from the
+         image width, height, and bit depth.
+         */
+        bip_header.biSizeImage = (bip_header.biWidth * bip_header.biBitCount + 31) / 32 * 4 * abs(bip_header.biHeight);
+    }
     image.bytes.reserve(bip_header.biSizeImage);
     image.bytes.resize(bip_header.biSizeImage);
     if (image.bytes.empty()) {
