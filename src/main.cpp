@@ -1122,6 +1122,7 @@ int main(int argc, const char * argv[])
      If no path is provided, we prepend the path from the input file.
      */
     if (std::filesystem::path(out_filename).parent_path().empty()) {
+        out_filename.insert(0, "/");
         out_filename.insert(0, std::filesystem::path(in_filename).parent_path());
     }
     
@@ -1132,7 +1133,6 @@ int main(int argc, const char * argv[])
     
     // Source file is an .h file
     if (in_extension == ".h") {
-        
         if (out_extension == ".hpprgm") {
             convertAdafruitFontToHpprgm(in_filename, out_filename, name);
             std::cout << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
