@@ -214,12 +214,11 @@ void bmp::save(const char *filename, const TImage &image)
     outfile.write((char *)&bip_header, sizeof(BIPHeader));
     outfile.write((char *)image.palette.data(), image.palette.size() * sizeof(uint32_t));
     
-    int bytesPerLine = (image.width * image.bpp + 31) / 32;
-    
+    int bytesPerLine = (float)image.width / (8.0 / (float)image.bpp);
     char *pixelData = (char *)image.bytes.data();
     
     for (int line = 0; line < image.height; line++) {
-        outfile.write(pixelData, image.bytes.size());
+        outfile.write(pixelData, bytesPerLine);
         pixelData += bytesPerLine;
         
         /*
