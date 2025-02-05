@@ -12,8 +12,12 @@
 		13CDCDB12D4910130005D2EA /* pbm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDCDAF2D4910130005D2EA /* pbm.cpp */; };
 		13CDF1A22D4C20AC0005D2EA /* png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF1A12D4C20AC0005D2EA /* png.cpp */; };
 		13CDF1CF2D4EA5EF0005D2EA /* delta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */; };
-		13CDF1D62D4EA86E0005D2EA /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF1D42D4EA86E0005D2EA /* libpng.a */; };
-		13CDF1D72D4EA86E0005D2EA /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF1D52D4EA86E0005D2EA /* libz.a */; };
+		13CDF22A2D5309530005D2EA /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF21D2D5309530005D2EA /* libpng.a */; };
+		13CDF22B2D5309530005D2EA /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF2262D5309530005D2EA /* libz.a */; };
+		13CDF22C2D5309530005D2EA /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF21B2D5309530005D2EA /* libpng.a */; };
+		13CDF22D2D5309530005D2EA /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF2242D5309530005D2EA /* libz.a */; };
+		13CDF22F2D53096F0005D2EA /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF22E2D53096F0005D2EA /* libpng.a */; };
+		13CDF2312D53098A0005D2EA /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF2302D53098A0005D2EA /* libz.a */; };
 		84764229189579CD00AFBE9C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84764228189579CD00AFBE9C /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -47,13 +51,17 @@
 		13CDF1A12D4C20AC0005D2EA /* png.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = png.cpp; sourceTree = "<group>"; };
 		13CDF1CD2D4EA5EF0005D2EA /* delta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = delta.hpp; sourceTree = "<group>"; };
 		13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = delta.cpp; sourceTree = "<group>"; };
-		13CDF1D42D4EA86E0005D2EA /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = src/arm64/libpng.a; sourceTree = "<group>"; };
-		13CDF1D52D4EA86E0005D2EA /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = src/arm64/libz.a; sourceTree = "<group>"; };
-		13CDF1D92D4EA8FA0005D2EA /* png.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = png.h; sourceTree = "<group>"; };
-		13CDF1DA2D4EA8FA0005D2EA /* pngconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pngconf.h; sourceTree = "<group>"; };
-		13CDF1DB2D4EA8FA0005D2EA /* pnglibconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pnglibconf.h; sourceTree = "<group>"; };
-		13CDF1DD2D4EA9210005D2EA /* zconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
-		13CDF1DE2D4EA9210005D2EA /* zlib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
+		13CDF2172D5309530005D2EA /* png.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = png.h; sourceTree = "<group>"; };
+		13CDF2182D5309530005D2EA /* pngconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pngconf.h; sourceTree = "<group>"; };
+		13CDF2192D5309530005D2EA /* pnglibconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pnglibconf.h; sourceTree = "<group>"; };
+		13CDF21B2D5309530005D2EA /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpng.a; sourceTree = "<group>"; };
+		13CDF21D2D5309530005D2EA /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpng.a; sourceTree = "<group>"; };
+		13CDF2212D5309530005D2EA /* zconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
+		13CDF2222D5309530005D2EA /* zlib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
+		13CDF2242D5309530005D2EA /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
+		13CDF2262D5309530005D2EA /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
+		13CDF22E2D53096F0005D2EA /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpng.a; sourceTree = "<group>"; };
+		13CDF2302D53098A0005D2EA /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* piXfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piXfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,8 +76,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13CDF1D62D4EA86E0005D2EA /* libpng.a in Frameworks */,
-				13CDF1D72D4EA86E0005D2EA /* libz.a in Frameworks */,
+				13CDF2312D53098A0005D2EA /* libz.a in Frameworks */,
+				13CDF22A2D5309530005D2EA /* libpng.a in Frameworks */,
+				13CDF22B2D5309530005D2EA /* libz.a in Frameworks */,
+				13CDF22C2D5309530005D2EA /* libpng.a in Frameworks */,
+				13CDF22D2D5309530005D2EA /* libz.a in Frameworks */,
+				13CDF22F2D53096F0005D2EA /* libpng.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,29 +91,97 @@
 		13CDF1AF2D4C2FD10005D2EA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				13CDF1D42D4EA86E0005D2EA /* libpng.a */,
-				13CDF1D52D4EA86E0005D2EA /* libz.a */,
+				13CDF22E2D53096F0005D2EA /* libpng.a */,
+				13CDF2302D53098A0005D2EA /* libz.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		13CDF1D82D4EA8D30005D2EA /* libpng */ = {
+		13CDF21A2D5309530005D2EA /* include */ = {
 			isa = PBXGroup;
 			children = (
-				13CDF1D92D4EA8FA0005D2EA /* png.h */,
-				13CDF1DA2D4EA8FA0005D2EA /* pngconf.h */,
-				13CDF1DB2D4EA8FA0005D2EA /* pnglibconf.h */,
+				13CDF2172D5309530005D2EA /* png.h */,
+				13CDF2182D5309530005D2EA /* pngconf.h */,
+				13CDF2192D5309530005D2EA /* pnglibconf.h */,
 			);
-			name = libpng;
+			path = include;
 			sourceTree = "<group>";
 		};
-		13CDF1DC2D4EA90B0005D2EA /* libz */ = {
+		13CDF21C2D5309530005D2EA /* arm64 */ = {
 			isa = PBXGroup;
 			children = (
-				13CDF1DD2D4EA9210005D2EA /* zconf.h */,
-				13CDF1DE2D4EA9210005D2EA /* zlib.h */,
+				13CDF21B2D5309530005D2EA /* libpng.a */,
 			);
-			name = libz;
+			path = arm64;
+			sourceTree = "<group>";
+		};
+		13CDF21E2D5309530005D2EA /* x86_64 */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF21D2D5309530005D2EA /* libpng.a */,
+			);
+			path = x86_64;
+			sourceTree = "<group>";
+		};
+		13CDF21F2D5309530005D2EA /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF21C2D5309530005D2EA /* arm64 */,
+				13CDF21E2D5309530005D2EA /* x86_64 */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		13CDF2202D5309530005D2EA /* libpng */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF21A2D5309530005D2EA /* include */,
+				13CDF21F2D5309530005D2EA /* lib */,
+			);
+			path = libpng;
+			sourceTree = "<group>";
+		};
+		13CDF2232D5309530005D2EA /* include */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF2212D5309530005D2EA /* zconf.h */,
+				13CDF2222D5309530005D2EA /* zlib.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		13CDF2252D5309530005D2EA /* arm64 */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF2242D5309530005D2EA /* libz.a */,
+			);
+			path = arm64;
+			sourceTree = "<group>";
+		};
+		13CDF2272D5309530005D2EA /* x86_64 */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF2262D5309530005D2EA /* libz.a */,
+			);
+			path = x86_64;
+			sourceTree = "<group>";
+		};
+		13CDF2282D5309530005D2EA /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF2252D5309530005D2EA /* arm64 */,
+				13CDF2272D5309530005D2EA /* x86_64 */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		13CDF2292D5309530005D2EA /* libz */ = {
+			isa = PBXGroup;
+			children = (
+				13CDF2232D5309530005D2EA /* include */,
+				13CDF2282D5309530005D2EA /* lib */,
+			);
+			path = libz;
 			sourceTree = "<group>";
 		};
 		8476421C189579CD00AFBE9C = {
@@ -130,8 +210,8 @@
 		84764227189579CD00AFBE9C /* src */ = {
 			isa = PBXGroup;
 			children = (
-				13CDF1D82D4EA8D30005D2EA /* libpng */,
-				13CDF1DC2D4EA90B0005D2EA /* libz */,
+				13CDF2202D5309530005D2EA /* libpng */,
+				13CDF2292D5309530005D2EA /* libz */,
 				13148B612D42B69200849C73 /* version_code.h */,
 				84764228189579CD00AFBE9C /* main.cpp */,
 				1328C27F2BC61D03003C4B3A /* GFXFont.h */,
@@ -316,6 +396,10 @@
 					/opt/homebrew/lib,
 					"$(PROJECT_DIR)/src",
 					"$(PROJECT_DIR)/src/arm64",
+					"$(PROJECT_DIR)/src/libpng/lib/x86_64",
+					"$(PROJECT_DIR)/src/libz/lib/x86_64",
+					"$(PROJECT_DIR)/src/libpng/lib/arm64",
+					"$(PROJECT_DIR)/src/libz/lib/arm64",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "";
 				PRODUCT_NAME = piXfont;
@@ -334,6 +418,10 @@
 					/opt/homebrew/lib,
 					"$(PROJECT_DIR)/src",
 					"$(PROJECT_DIR)/src/arm64",
+					"$(PROJECT_DIR)/src/libpng/lib/x86_64",
+					"$(PROJECT_DIR)/src/libz/lib/x86_64",
+					"$(PROJECT_DIR)/src/libpng/lib/arm64",
+					"$(PROJECT_DIR)/src/libz/lib/arm64",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "";
 				PRODUCT_NAME = piXfont;
