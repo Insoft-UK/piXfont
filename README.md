@@ -71,7 +71,7 @@ e.g.
 01111110 #7Eh to 01111110 #7Eh
 00111000 #38h to 00011100 #1Ch
 00010000 #10h to 00001000 #01h
-00000000 #00h to 00000000 #00h := #C0F0FCFFF055AA0F:64h
+00000000 #00h to 00000000 #00h := #00011C7E7F7F7F36:64h
 ```
 > [!NOTE]
 The only image file format currently supported by this utility tool is the Portable Bitmap (PBM) P4 and Bitmap (BMP) format.
