@@ -69,6 +69,7 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		13148B5D2D41818200849C73 /* hpprgm */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = hpprgm; sourceTree = "<group>"; };
 		13148BA72D4830E500849C73 /* examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = examples; sourceTree = "<group>"; };
+		13CDF24E2D53B70B0005D2EA /* fonts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = fonts; path = assets/fonts; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +192,7 @@
 				1328C2962BCB4908003C4B3A /* README.md */,
 				13148B602D42B5E800849C73 /* version.txt */,
 				1328C2972BCB4910003C4B3A /* Makefile */,
+				13CDF24E2D53B70B0005D2EA /* fonts */,
 				13148B5D2D41818200849C73 /* hpprgm */,
 				13148BA72D4830E500849C73 /* examples */,
 				84764227189579CD00AFBE9C /* src */,

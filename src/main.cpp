@@ -241,7 +241,8 @@ static std::string pplList(const void *data, const size_t lengthInBytes, const i
             os << (count ? "\n  " : "  ");
         }
         
-        os << "#" << std::uppercase << std::hex << std::setfill('0') << std::setw(16) << (n & 0xFFFFFFFFFFFFFFFF >> (length * 8)) << ":64h";
+        // TODO: improve this code for readability.
+        os << "#" << std::uppercase << std::hex << std::setfill('0') << std::setw(16) << (n & (0xFFFFFFFFFFFFFFFF >> ((8-length) * 8))) << ":64h";
     }
     
     return os.str();
@@ -745,7 +746,7 @@ bool extractAdafruitFontFromHpprgm(const std::string &filename, TFont &font, std
         return false;
     }
     
-    re = R"(#([0-9A-F]{16}):64h)";
+    re = R"(#([0-9A-F]{2,16}):64h)";
     
     str = match.str(1);
     for (std::sregex_iterator it(str.begin(), str.end(), re), end; it != end; ++it) {
@@ -823,8 +824,6 @@ void convertAdafruitFontToImage(const std::string &in_filename, const std::strin
     
     createImageFile(out_filename, font, data, glyphs, name, glyphsPercolumn, piXfont);
 }
-
-// TODO: Add extended support for none monochrome glyphs.
 
 void createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, TFont &font, bool fixed, bool leftAlign, const TPiXfont &piXfont)
 {
@@ -1114,8 +1113,22 @@ int main(int argc, const char * argv[])
         out_filename.append(std::filesystem::path(in_filename).stem().string());
     }
     
+    
     std::string in_extension = std::filesystem::path(in_filename).extension();
     std::string out_extension = std::filesystem::path(out_filename).extension();
+    
+    /*
+     We need to ensure that the specified output filename includes a path.
+     If no path is provided, we prepend the path from the input file.
+     */
+    if (std::filesystem::path(out_filename).parent_path().empty()) {
+        out_filename.insert(0, std::filesystem::path(in_filename).parent_path());
+    }
+    
+    if (in_filename == out_filename) {
+        std::cout << "Error file out:" << std::filesystem::path(out_filename).filename() << " can't be same as file in:" << std::filesystem::path(in_filename).filename() << ".\n";
+        return 0;
+    }
     
     // Source file is an .h file
     if (in_extension == ".h") {

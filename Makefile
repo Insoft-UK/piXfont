@@ -1,5 +1,6 @@
 NAME := pxfnt
 SRC := src
+ARCH := $(shell arch)
 
 all: arm64 x86_64
 
@@ -11,4 +12,10 @@ x86_64:
 	
 clean:
 	rm -rf build/*
+	
+install:
+	cp build/$(ARCH)/$(NAME) /usr/local/bin/$(NAME)
+	
+uninstall:
+	rm /usr/local/bin/$(NAME)
 
