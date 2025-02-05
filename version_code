@@ -91,7 +91,7 @@ echo "Internal Build Code: ${major_letter}${minor}${patch_letter}${build}"
 # Output the generated version code to file.
 echo "// The MIT License (MIT)" > version_code.h
 echo "// " >> version_code.h
-echo "// Copyright (c) 2023 Insoft. All rights reserved." >> version_code.h
+echo "// Copyright (c) 2024-2025 Insoft. All rights reserved." >> version_code.h
 echo "// " >> version_code.h
 echo "// Permission is hereby granted, free of charge, to any person obtaining a copy" >> version_code.h
 echo "// of this software and associated documentation files (the "Software"), to deal" >> version_code.h
@@ -118,3 +118,5 @@ echo "#define NUMERIC_BUILD          $version" >> version_code.h
 echo "#define INTERNAL_BUILD_CODE   \"${major_letter}${minor}${patch_letter}${build}\"" >> version_code.h
 echo "#define DATE                  \"$(date +"%Y %B %d")\"" >> version_code.h
 echo "#define YEAR                  \"$(date +"%Y")\"" >> version_code.h
+
+mv version_code.h src/version_code.h
