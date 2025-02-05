@@ -6,7 +6,10 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 **Fonts**
 
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
-
+[HD44780](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.h)
+[BBC](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
+[C437](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.h)
+[ARCADE](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.h)
 
 e.g.
 ### HD44780.h
