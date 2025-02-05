@@ -7,7 +7,7 @@ PATH=$DIR/build/arm64:$PATH
 
 pxfnt assets/BBC.bmp -o assets/fonts/BBC.h -f 32 -l 255 -w 8 -h 16 -y 16 -H 8 -F -u 0
 pxfnt assets/C437.pbm -o assets/fonts/C437.h -f 0 -l 255 -w 8 -h 16 -H 1 -F -u 0
-pxfnt assets/ARCADE.pbm -o assets/fonts/ARCADE.h -f 32 -l 96 -w 8 -h 8 -F -u 0
+pxfnt assets/ARCADE.pbm -o assets/fonts/ARCADE.h -f 32 -l 140 -w 8 -h 8 -F -u 0
 pxfnt assets/HD44780.bmp -o assets/fonts/HD44780.h -f 32 -l 255 -w 5 -h 10 -F -i 3 -g v -H 1 -V 1 -x 1 -y 1
 
 pxfnt assets/fonts/BBC.h -o assets/fonts/BBC.hpprgm
