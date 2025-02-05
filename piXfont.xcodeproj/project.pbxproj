@@ -54,7 +54,6 @@
 		13CDF1DB2D4EA8FA0005D2EA /* pnglibconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pnglibconf.h; sourceTree = "<group>"; };
 		13CDF1DD2D4EA9210005D2EA /* zconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
 		13CDF1DE2D4EA9210005D2EA /* zlib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
-		13CDF1F62D52CEEA0005D2EA /* debug.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = debug.sh; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* piXfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piXfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -108,7 +107,6 @@
 		8476421C189579CD00AFBE9C = {
 			isa = PBXGroup;
 			children = (
-				13CDF1F62D52CEEA0005D2EA /* debug.sh */,
 				138F54D32C977594009357F9 /* LICENSE.md */,
 				1328C2962BCB4908003C4B3A /* README.md */,
 				13148B602D42B5E800849C73 /* version.txt */,
