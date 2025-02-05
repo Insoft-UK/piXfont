@@ -6,10 +6,26 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 **Fonts**
 
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
-[HD44780](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.h)
-[BBC](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
-[C437](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.h)
-[ARCADE](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.h)
+
+### HD44780
+[HD44780.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.h)
+
+[HD44780.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.hpprgm)
+
+### BBC
+[BBC.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
+
+[BBC.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.hpprgm)
+
+### C437
+[C437.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.h)
+
+[C437.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.hpprgm)
+
+### ARCADE
+[ARCADE.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.h)
+
+[ARCADE.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.hpprgm)
 
 e.g.
 ### HD44780.h
