@@ -3,12 +3,18 @@ This is a handy utility that goes well with the original [fontconvert](https://g
 
 This utility tool provides the ability to generate an Adafruit_GFX `.h` format from an image file.
 
+**Fonts**
+
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
+
+
+e.g.
+### HD44780.h
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/HD44780.png" width="20%" >
 
 ```
-pxfnt HD44780.bmp -f 32 -l 255 -w 5 -h 10 -F -i 3 -g v -H 1 -V 1 -x 1 -y 1
+pxfnt HD44780.bmp -o HD44780.h -f 32 -l 255 -w 5 -h 10 -F -i 3 -g v -H 1 -V 1 -x 1 -y 1
 ```
-### HD44780.h
 Glyphs range from ASCII code 32 `-f 32` to ASCII code 255 `-l 255`.</br>
 Each glyph has a maximum width of 5 pixels `-w 5` and a height of 10 pixels `-h 10`, with a fixed width of 10 pixels `-F`.</br>
 Color index 3 `-i 3` is used for pixel data, with a default value of 1.</br>
