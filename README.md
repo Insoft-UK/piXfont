@@ -59,7 +59,7 @@ Additional Commands:
 ```
 pxfnt HD44780.h -o HD44780.hpprgm
 ```
-The HP Prime stores its data as a list of 64-bit unsigned integers. The bitmap, however, is stored in a specific bit order where each byte of the 64-bit value is mirror-flipped.
+The HP Prime stores its data as a list of 64-bit unsigned integers. The bitmap, however, is stored in a specific bit order (little-endian) where each byte of the 64-bit value is mirror-flipped.
 
 e.g.
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/Hart.png" width="128" >
