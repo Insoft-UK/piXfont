@@ -42,16 +42,16 @@ Glyphs are spaced 1 pixel apart horizontally `-H 1` and 1 pixel apart vertically
 The glyphs begin 1 pixel from the left `-x 1` and 1 pixel from the top `-y 1` of the image.</br>
 
 ```
+Insoft Adafruit GFX Pixel Font Creator version, 1.0.8 (BUILD A0I87-25B5)
 Copyright (C) 2024-2025 Insoft. All rights reserved.
-Insoft Adafruit GFX Pixel Font Creator version, 1.0.6 (BUILD A0G01-25B2)
 
-Usage: pxfnt <input-file> [-o <output-file>] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-ppl] [-i] [-v]
+Usage: pxfnt <input-file> [-o <output-file>] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-i] [-v]
 
 Options:
   -o <output-file>   Specify the filename for generated .bmp, .h or .hpprgm file.
   -w <value>         Maximum glyph width in pixels.
   -h <value>         Maximum glyph height in pixels.
-  -c <columns>       Number of glyphs per column when generating a glyph image.
+  -c <columns>       Number of glyphs per column when generating a glyph atlas.
   -n <name>          Font name.
   -f <value>         First ASCII value of the first character.
   -l <value>         Last ASCII value of the last character.
@@ -66,9 +66,11 @@ Options:
   -H <value>         Horizontal spacing in pixels between glyphs.
   -V <value>         Vertical spacing in pixels between glyphs.
   -F                 Use fixed glyph width.
-  -ppl               Generate PPL code (not required for .h files).
-  -i <value>         The color index used to represent a pixel in a glyph when
-                     using a non-monochrome image.
+  -2x                2x glyphs when generating a glyph atlas.
+  -3x                3x glyphs when generating a glyph atlas.
+  -4x                4x glyphs when generating a glyph atlas.
+  -i <value>         The color index used to represent a pixel in a glyph when using
+                     a non-monochrome image, for monochrome image value is 0 or 1.
   -v                 Enable verbose output for detailed processing information.
 
 Verbose Flags:
