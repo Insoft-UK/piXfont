@@ -949,7 +949,8 @@ int main(int argc, const char * argv[])
     std::string in_filename, out_filename, name, prefix, sufix;
     int columns = 16;
     
-    TFont font = { 0, 0, .first=0, .last=0, .yAdvance=static_cast<uint8_t>(piXfont.cellHeight) };
+    TFont font = { 0, 0, .first = 0, .last = 255, .yAdvance = static_cast<uint8_t>(piXfont.cellHeight) };
+    
     bool fixed = false;
     bool leftAlign = false;
     
@@ -1100,21 +1101,47 @@ int main(int argc, const char * argv[])
         name = std::filesystem::path(in_filename).stem().string();
     }
     
+    /*
+     We ensure that if an invalid ‘last’ or ‘first’ entry is provided, we
+     revert to the default values for ‘last’ and ‘first’.
+     */
     if (font.last < font.first) {
         font.first = 0;
         font.last = 255;
     }
     
+    /*
+     Initially, we display the command-line application’s basic information,
+     including its name, version, and copyright details.
+     */
     info();
     
+    /*
+     If no output file is specified, the program will use the input file’s name
+     (excluding its extension) as the output file name.
+     */
     if (out_filename.empty() || out_filename == in_filename) {
         out_filename = std::filesystem::path(in_filename).parent_path();
         out_filename.append("/");
         out_filename.append(std::filesystem::path(in_filename).stem().string());
     }
     
-    
     std::string in_extension = std::filesystem::path(in_filename).extension();
+    
+    /*
+     If the output file does not have an extension, a default is applied based on
+     the input file’s extension:
+     
+     • For an input file with a .bmp extension, the default output extension is .h.
+     • For an input file with a .h extension, the default output extension is .hpprgm.
+     • For an input file with a .hpprgm extension, the default output extension is .h.
+     */
+    if (std::filesystem::path(out_filename).extension().empty()) {
+        if (in_extension == ".bmp") out_filename.append(".h");
+        if (in_extension == ".h") out_filename.append(".hpprgm");
+        if (in_extension == ".hpprgm") out_filename.append(".h");
+    }
+    
     std::string out_extension = std::filesystem::path(out_filename).extension();
     
     /*
@@ -1126,12 +1153,19 @@ int main(int argc, const char * argv[])
         out_filename.insert(0, std::filesystem::path(in_filename).parent_path());
     }
     
+    /*
+     The output file must differ from the input file. If they are the same, the
+     process will be halted and an error message returned to the user.
+     */
     if (in_filename == out_filename) {
-        std::cout << "Error file out:" << std::filesystem::path(out_filename).filename() << " can't be same as file in:" << std::filesystem::path(in_filename).filename() << ".\n";
+        std::cout << "Error: The output file must differ from the input file. Please specify a different output file name.\n";
         return 0;
     }
     
-    // Source file is an .h file
+    /*
+     If the input file is a .h file, the output must be either .hpprgm or .bmp;
+     otherwise, the process is halted and an error is reported to the user.
+     */
     if (in_extension == ".h") {
         if (out_extension == ".hpprgm") {
             convertAdafruitFontToHpprgm(in_filename, out_filename, name);
@@ -1139,14 +1173,20 @@ int main(int argc, const char * argv[])
             return 0;
         }
         
-        if (out_extension != ".bmp") out_filename.append(".bmp");
-        convertAdafruitFontToImage(in_filename, out_filename, name, columns, piXfont);
-        std::cout << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+        if (out_extension == ".bmp") {
+            convertAdafruitFontToImage(in_filename, out_filename, name, columns, piXfont);
+            std::cout << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+            return 0;
+        }
         
+        std::cout << "Error: For ‘." << in_extension << "’ input file, the output file must have a ‘.hpprgm’ or ‘.bmp’ extension. Please choose a valid output file type.\n";
         return 0;
     }
     
-    // Source file is an .hpprgm file
+    /*
+     If the input file is a .hpprgm file, the output must be either .h or .bmp;
+     otherwise, the process is halted and an error is reported to the user.
+     */
     if (in_extension == ".hpprgm") {
         if (out_extension == ".h") {
             std::vector<uint8_t> data;
@@ -1158,27 +1198,36 @@ int main(int argc, const char * argv[])
             return 0;
         }
         
-        if (out_extension != ".bmp") out_filename.append(".bmp");
-        convertAdafruitFontToImage(in_filename, out_filename, name, columns, piXfont);
-        std::cout << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
-        return 0;
-    }
-    
-    // assume PBM, BMP or PNG and generate .h
-    
-    if (in_extension == ".pbm" || in_extension == ".bmp" || in_extension == ".png") {
-        if (out_extension != ".hpprgm" && out_extension != ".h") out_filename.append(".h");
-        
-        createNewFont(in_filename, out_filename, name, font, fixed, leftAlign, piXfont);
-        if (out_extension == ".h") {
-            std::cout << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+        if (out_extension == ".bmp") {
+            convertAdafruitFontToImage(in_filename, out_filename, name, columns, piXfont);
+            std::cout << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
         }
-        std::cout << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+        
+        std::cout << "Error: For ‘" << in_extension << "’ input file, the output file must have a ‘.h’ or ‘.bmp’ extension. Please choose a valid output file type.\n";
         return 0;
     }
     
-    std::cout << "Error file " << std::filesystem::path(in_filename).filename() << " not valid.\n";
+    /*
+     If the input file is a .bmp, .pbm or .png file, the output must be either .h or .hpprgm;
+     otherwise, the process is halted and an error is reported to the user.
+     */
+    if (in_extension == ".pbm" || in_extension == ".bmp" || in_extension == ".png") {
+        if (out_extension == ".hpprgm" || out_extension == ".h") {
+            createNewFont(in_filename, out_filename, name, font, fixed, leftAlign, piXfont);
+            if (out_extension == ".h") {
+                std::cout << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+                return 0;
+            }
+            std::cout << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+            return 0;
+        }
+        
+        std::cout << "Error: For ‘" << in_extension << "’ input file, the output file must have a ‘.h’ or ‘.hpprgm’ extension. Please choose a valid output file type.\n";
+        return 0;
+    }
+    
+    std::cout << "Error: The specified input ‘" << std::filesystem::path(in_filename).filename() << "‘ file is invalid or not supported. Please ensure the file exists and has a valid format.\n";
     
     return 0;
 }
