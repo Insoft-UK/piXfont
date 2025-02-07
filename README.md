@@ -101,4 +101,4 @@ e.g.
 00000000 #00h to 00000000 #00h := #00081C7E7F7F7F36:64h
 ```
 > [!NOTE]
-The only image file format currently supported by this utility tool is the Portable Bitmap (PBM) P4 and Bitmap (BMP) format.
+The only image file format currently supported by this utility tool is the Portable Network Graphic (**8-Bit PNG**), Portable Bitmap (**PBM**) P4 and Bitmap (**BMP**) format.
