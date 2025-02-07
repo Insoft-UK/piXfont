@@ -110,13 +110,13 @@ png::TImage png::load(const char *filename)
     return image;
 }
 
-void png::save(const char *filename, const TImage &image) {
+bool png::save(const char *filename, const TImage &image) {
 
     // Open file
     FILE* fp = fopen(filename, "wb");
     if (!fp) {
         std::cerr << "Error: Unable to open file for writing: " << filename << std::endl;
-        return;
+        return false;
     }
 
     // Create PNG write struct
@@ -124,7 +124,7 @@ void png::save(const char *filename, const TImage &image) {
     if (!png) {
         std::cerr << "Error: Unable to create PNG write struct." << std::endl;
         fclose(fp);
-        return;
+        return false;
     }
 
     // Create PNG info struct
@@ -133,7 +133,7 @@ void png::save(const char *filename, const TImage &image) {
         std::cerr << "Error: Unable to create PNG info struct." << std::endl;
         png_destroy_write_struct(&png, nullptr);
         fclose(fp);
-        return;
+        return false;
     }
 
     // Setup error handling
@@ -141,7 +141,7 @@ void png::save(const char *filename, const TImage &image) {
         std::cerr << "Error: Exception during PNG creation." << std::endl;
         png_destroy_write_struct(&png, &info);
         fclose(fp);
-        return;
+        return false;
     }
 
     // Initialize file I/O
@@ -163,7 +163,7 @@ void png::save(const char *filename, const TImage &image) {
             std::cerr << "Error: Unsupported bit width." << std::endl;
             png_destroy_write_struct(&png, &info);
             fclose(fp);
-            return;
+            return false;
     }
 
     png_set_IHDR(png, info, image.width, image.height, 8, color_type,
@@ -187,6 +187,6 @@ void png::save(const char *filename, const TImage &image) {
     fclose(fp);
 
     std::cout << "PNG file saved successfully: " << filename << std::endl;
-    return;
+    return true;
 }
 

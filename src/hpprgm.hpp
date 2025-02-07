@@ -1,18 +1,19 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2024-2025 Insoft. All rights reserved.
-// 
+// Originally created in 2025
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the Software), to deal
+// of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -20,9 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define VERSION_NUMBER        "1.0.8"
-#define VERSION_CODE          "A0I95-25B6"
-#define NUMERIC_BUILD          10895
-#define INTERNAL_BUILD_CODE   "A0I95"
-#define DATE                  "2025 February 07"
-#define YEAR                  "2025"
+#ifndef hpprgm_hpp
+#define hpprgm_hpp
+
+#include "font.hpp"
+
+namespace hpprgm {
+    std::string load(const std::string &filename);
+    bool decodeAdafruitFont(const std::string &utf8, font::TAdafruitFont &font);
+}
+
+#endif /* hpprgm_hpp */

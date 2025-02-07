@@ -48,7 +48,7 @@ namespace bmp {
      @param    filename The filename of the Bitmap (BMP) to be saved.
      @param    image A structure containing the bitmap image data.
      */
-    void save(const char *filename, const TImage &image);
+    bool save(const char *filename, const TImage &image);
 }
 
 #endif /* bmp_hpp */

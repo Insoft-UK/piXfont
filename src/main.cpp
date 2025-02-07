@@ -27,13 +27,16 @@
 #include <fstream>
 #include <iomanip>
 
-
-//#include <algorithm>
+#include "common.hpp"
+#include "hpprgm.hpp"
 
 #include "pbm.hpp"
 #include "png.hpp"
 #include "image.hpp"
 #include "font.hpp"
+
+using namespace cmn;
+
 
 #include "version_code.h"
 #define NAME "Adafruit GFX Pixel Font Creator"
@@ -86,7 +89,7 @@ void help(void) {
     std::cout << "  -2x                2x glyphs when generating a glyph atlas.\n";
     std::cout << "  -3x                3x glyphs when generating a glyph atlas.\n";
     std::cout << "  -4x                4x glyphs when generating a glyph atlas.\n";
-//    std::cout << "  -indices           Use glyph indices.\n";
+    std::cout << "  -indices           Use glyph indices.\n";
     std::cout << "  -i <value>         The color index used to represent a pixel in a glyph when using\n";
     std::cout << "                     a non-monochrome image, for monochrome image value is 0 or 1.\n";
     std::cout << "  -v                 Enable verbose output for detailed processing information.\n";
@@ -104,7 +107,6 @@ void help(void) {
 
 
 static bool verbose = false;
-//static bool PPL = false;
 
 enum Direction {
     DirectionHorizontal,
@@ -120,82 +122,8 @@ typedef struct {
     Direction direction;
     uint8_t indexColor;
     int scale;
+    bool indices;
 } TPiXfont;
-
-template <typename T>
-T swap_endian(T u)
-{
-    static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
-
-    union
-    {
-        T u;
-        unsigned char u8[sizeof(T)];
-    } source, dest;
-
-    source.u = u;
-
-    for (size_t k = 0; k < sizeof(T); k++)
-        dest.u8[k] = source.u8[sizeof(T) - k - 1];
-
-    return dest.u;
-}
-
-static std::ifstream::pos_type filesize(const char* filename)
-{
-    std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
-    std::ifstream::pos_type pos = in.tellg();
-    in.close();
-    return pos;
-}
-
-static bool isUTF16le(std::ifstream &infile)
-{
-    uint16_t byte_order_mark;
-    
-    std::ifstream::pos_type pos = infile.tellg();
-    
-    infile.seekg(0);
-    infile.read((char *)&byte_order_mark, sizeof(uint16_t));
-    
-#ifndef __LITTLE_ENDIAN__
-    byte_order_mark = byte_order_mark >> 8 | byte_order_mark << 8;
-#endif
-    if (byte_order_mark == 0xFEFF) return true;
-    
-    infile.seekg(pos);
-    return false;
-}
-
-static std::string utf16_to_utf8(const uint16_t* utf16_str, size_t utf16_size) {
-    std::string utf8_str;
-    
-    for (size_t i = 0; i < utf16_size; ++i) {
-        uint16_t utf16_char = utf16_str[i];
-        
-#ifndef __LITTLE_ENDIAN__
-        utf16_char = utf16_char >> 8 | utf16_char << 8;
-#endif
-
-        if (utf16_char < 0x0080) {
-            // 1-byte UTF-8
-            utf8_str += static_cast<char>(utf16_char);
-        }
-        else if (utf16_char < 0x0800) {
-            // 2-byte UTF-8
-            utf8_str += static_cast<char>(0xC0 | ((utf16_char >> 6) & 0x1F));
-            utf8_str += static_cast<char>(0x80 | (utf16_char & 0x3F));
-        }
-        else {
-            // 3-byte UTF-8
-            utf8_str += static_cast<char>(0xE0 | ((utf16_char >> 12) & 0x0F));
-            utf8_str += static_cast<char>(0x80 | ((utf16_char >> 6) & 0x3F));
-            utf8_str += static_cast<char>(0x80 | (utf16_char & 0x3F));
-        }
-    }
-    
-    return utf8_str;
-}
 
 // A list is limited to 10,000 elements. Attempting to create a longer list will result in error 38 (Insufficient memory) being thrown.
 static std::string pplList(const void *data, const size_t lengthInBytes, const int columns, bool le = true) {
@@ -277,7 +205,7 @@ void findImageBounds(int &top, int &left, int &bottom, int &right, const image::
     }
 }
 
-void appendImageData(std::vector<uint8_t> &data, const image::TImage &image, uint8_t indexColor = 1)
+void appendImageData(font::TAdafruitFont &adafruitFont, const image::TImage &image, uint8_t indexColor = 1)
 {
     uint8_t *p = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
@@ -289,12 +217,12 @@ void appendImageData(std::vector<uint8_t> &data, const image::TImage &image, uin
             byte |= bitPosition;
         bitPosition >>= 1;
         if (!bitPosition) {
-            data.push_back(byte);
+            adafruitFont.data.push_back(byte);
             byte = 0;
         }
     }
     if (bitPosition) {
-        data.push_back(byte);
+        adafruitFont.data.push_back(byte);
     }
 }
 
@@ -336,20 +264,19 @@ void getCellCoordinates(int cellIndex, int &outX, int &outY,
     }
 }
 
-void createUTF8File(const std::string &filename, std::ostringstream &os, std::string &name)
+void createUTF8File(const std::string &filename, const std::string &str)
 {
     std::ofstream outfile;
     
     outfile.open(filename, std::ios::out | std::ios::binary);
     if (outfile.is_open()) {
-        outfile.write(os.str().c_str(), os.str().length());
+        outfile.write(str.c_str(), str.length());
         outfile.close();
     }
 }
 
-void createUTF16LEFile(const std::string& filename, std::ostringstream &os, std::string &name) {
+void createUTF16LEFile(const std::string& filename, const std::string str) {
     std::ofstream outfile;
-    std::string str = os.str();
     
     outfile.open(filename, std::ios::out | std::ios::binary);
     if(!outfile.is_open()) {
@@ -398,60 +325,51 @@ void createUTF16LEFile(const std::string& filename, std::ostringstream &os, std:
     outfile.close();
 }
 
-#include <stdint.h>
-
-uint8_t mirror_byte(uint8_t b) {
-    b = ((b & 0xF0) >> 4) | ((b & 0x0F) << 4);  // Swap upper and lower 4 bits
-    b = ((b & 0xCC) >> 2) | ((b & 0x33) << 2);  // Swap pairs of bits
-    b = ((b & 0xAA) >> 1) | ((b & 0x55) << 1);  // Swap individual bits
-    return b;
-}
-
-void removeLeadingBlankGlyphs(font::TFont &font, std::vector<font::TGlyph> &glyphs)
+void removeLeadingBlankGlyphs(font::TAdafruitFont &adafruitFont)
 {
     /*
      Remove unnecessary blank glyph entries one by one from the beginning until
      a non-blank entry is found or the [space] (ASCII 32) glyph is reached, ensuring
      not to go past the last glyph, then stop.
     */
-    for (int i = font.first; i < font.last && i < 32; i++) {
+    for (int i = adafruitFont.first; i < adafruitFont.last && i < 32; i++) {
         // If width or height is zero, it's a blank entry.
-        if (glyphs.front().width) break;
+        if (adafruitFont.glyphs.front().width) break;
         
-        std::reverse(glyphs.begin(),glyphs.end());
-        glyphs.pop_back();
-        std::reverse(glyphs.begin(),glyphs.end());
-        font.first++;
+        std::reverse(adafruitFont.glyphs.begin(), adafruitFont.glyphs.end());
+        adafruitFont.glyphs.pop_back();
+        std::reverse(adafruitFont.glyphs.begin(), adafruitFont.glyphs.end());
+        adafruitFont.first++;
     }
 }
 
-void removeTrailingBlankGlyphs(font::TFont &font, std::vector<font::TGlyph> &glyphs)
+void removeTrailingBlankGlyphs(font::TAdafruitFont &adafruitFont)
 {
     /*
      Remove blank glyph entries from the end one by one until a non-blank entry
      is found or the first glyph is reached, then stop.
      */
-    for (int i = font.last; i > font.first; i--) {
+    for (int i = adafruitFont.last; i > adafruitFont.first; i--) {
         // If width or height is zero, it's a blank entry.
-        if (glyphs.back().width) break;
+        if (adafruitFont.glyphs.back().width) break;
         
-        glyphs.pop_back();
-        font.last--;
+        adafruitFont.glyphs.pop_back();
+        adafruitFont.last--;
     }
 }
 
-void trimBlankGlyphs(font::TFont &font, std::vector<font::TGlyph> &glyphs)
+void trimBlankGlyphs(font::TAdafruitFont &adafruitFont)
 {
-    removeLeadingBlankGlyphs(font, glyphs);
-    removeTrailingBlankGlyphs(font, glyphs);
+    removeLeadingBlankGlyphs(adafruitFont);
+    removeTrailingBlankGlyphs(adafruitFont);
 }
 
 
-void createHpprgmFile(const std::string &filename, font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs,  std::string &name)
+std::string createHpprgmAdafruitFont(font::TAdafruitFont &adafruitFont, std::string &name)
 {
     std::ostringstream os;
     
-    for (auto it = data.begin(); it < data.end(); it++) {
+    for (auto it = adafruitFont.data.begin(); it < adafruitFont.data.end(); it++) {
         *it = mirror_byte(*it);
     }
     
@@ -459,13 +377,16 @@ void createHpprgmFile(const std::string &filename, font::TFont &font, std::vecto
        << "// Generated by Insoft Adafruit GFX Pixel Font Creator version, " << VERSION_NUMBER << "\n"
        << "// Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n\n"
        << "EXPORT " << name << " := {\n"
-       << " {\n" << pplList(data.data(), data.size(), 16) << "\n"
+       << " {\n" << pplList(adafruitFont.data.data(), adafruitFont.data.size(), 16) << "\n"
        << " },{\n"
-       << pplList(glyphs.data(), glyphs.size() * sizeof(font::TGlyph), 16) << "\n"
-       << " }, " << (int)font.first << ", " << (int)font.last << ", " << (int)font.yAdvance << "\n"
+       << pplList(adafruitFont.glyphs.data(), adafruitFont.glyphs.size() * sizeof(font::TGlyph), 16) << "\n"
+       << " }, " << (int)adafruitFont.first << ", " << (int)adafruitFont.last << ", " << (int)adafruitFont.yAdvance << "\n"
        << "};";
-    createUTF16LEFile(filename, os, name);
+    
+    return os.str();
 }
+
+
 
 void drawAllGlyphsHorizontaly(const int rows, const int columns, const font::TFont &adafruitFont, const image::TImage &image, int scale)
 {
@@ -501,26 +422,26 @@ void drawAllGlyphsVerticaly(const int rows, const int columns, const font::TFont
     }
 }
 
-image::TImage createImageFromFont(font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs, const std::string &name, const int columns, const TPiXfont &piXfont)
+image::TImage createImageAdafruitFont(font::TAdafruitFont &adafruitFont, const int columns, const TPiXfont &piXfont)
 {
     image::TImage image;
     
-    font::TFont adafruitFont = {
-        .bitmap = data.data(),
-        .glyph = (font::TGlyph *)glyphs.data(),
-        .first = font.first,
-        .last = font.last,
-        .yAdvance = font.yAdvance
+    font::TFont font = {
+        .bitmap = adafruitFont.data.data(),
+        .glyph = (font::TGlyph *)adafruitFont.glyphs.data(),
+        .first = adafruitFont.first,
+        .last = adafruitFont.last,
+        .yAdvance = adafruitFont.yAdvance
     };
     
     int w = 0;
-    for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
+    for (auto it = adafruitFont.glyphs.begin(); it < adafruitFont.glyphs.end(); it++) {
         if (it->xAdvance > w) w = it->xAdvance;
         if (w - it->dX > w) w = w - it->dX;
     }
     
     int h = font.yAdvance;
-    for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
+    for (auto it = adafruitFont.glyphs.begin(); it < adafruitFont.glyphs.end(); it++) {
         if (it->dY + font.yAdvance + it->height > h) h = it->dY + font.yAdvance + it->height;
     }
     
@@ -530,15 +451,15 @@ image::TImage createImageFromFont(font::TFont &font, std::vector<uint8_t> &data,
     
     image = image::createImage(width, height, 8);
     if (piXfont.direction == DirectionHorizontal) {
-        drawAllGlyphsHorizontaly(rows, columns, adafruitFont, image, piXfont.scale);
+        drawAllGlyphsHorizontaly(rows, columns, font, image, piXfont.scale);
     } else {
-        drawAllGlyphsVerticaly(rows, columns, adafruitFont, image, piXfont.scale);
+        drawAllGlyphsVerticaly(rows, columns, font, image, piXfont.scale);
     }
     
     return image;
 }
 
-void createAdafruitFontFile(const std::string &filename, font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs,  std::string &name)
+std::string createHAdafruitFont(font::TAdafruitFont &adafruitFont,  std::string &name)
 {
     std::ostringstream os;
     
@@ -552,19 +473,19 @@ void createAdafruitFontFile(const std::string &filename, font::TFont &font, std:
        << "const uint8_t " << name << "_Bitmaps[] PROGMEM = {\n"
        << "    " << std::setfill('0') << std::setw(2) << std::hex;
     
-    for (int n = 0; n < data.size(); n++) {
+    for (int n = 0; n < adafruitFont.data.size(); n++) {
         if (n % 12) os << " ";
-        os << "0x" << std::setw(2) << (int)data.at(n);
-        if (n < data.size()-1) os << ",";
+        os << "0x" << std::setw(2) << (int)adafruitFont.data.at(n);
+        if (n < adafruitFont.data.size()-1) os << ",";
         if (n % 12 == 11) os << "\n    ";
     }
     os << "\n};\n\n";
     
     os << "const GFXglyph " << name << "_Glyphs[] PROGMEM = {\n";
     
-    for (auto it = glyphs.begin(); it < glyphs.end(); it++) {
-        size_t index = it - glyphs.begin();
-        char character = index + font.first;
+    for (auto it = adafruitFont.glyphs.begin(); it < adafruitFont.glyphs.end(); it++) {
+        size_t index = it - adafruitFont.glyphs.begin();
+        char character = index + adafruitFont.first;
         
         // Ensure character is at least a space if it's below ASCII 32
         if (character < ' ') {
@@ -581,10 +502,10 @@ void createAdafruitFontFile(const std::string &filename, font::TFont &font, std:
            << std::setw(4) << (int)it->dY << " }";
         
         // Add comma unless it's the last element
-        os << (it == glyphs.end() - 1 ? "  " : ", ");
+        os << (it == adafruitFont.glyphs.end() - 1 ? "  " : ", ");
         
         // Print the character and index in hex
-        os << " // 0x" << std::setfill('0') << std::setw(2) << std::hex << (int)index + font.first
+        os << " // 0x" << std::setfill('0') << std::setw(2) << std::hex << (int)index + adafruitFont.first
            << std::dec << " '" << character << "'";
         
         os << "\n";
@@ -594,14 +515,13 @@ void createAdafruitFontFile(const std::string &filename, font::TFont &font, std:
        << "const GFXfont " << name << " PROGMEM = {\n"
        << "    (uint8_t *) " << name << "_Bitmaps, \n"
        << "    (GFXglyph *) " << name << "_Glyphs, \n"
-       << "    " << (int)font.first << ", \n"
-       << "    " << (int)font.last << ", \n"
-       << "    " << (int)font.yAdvance << "\n"
+       << "    " << (int)adafruitFont.first << ", \n"
+       << "    " << (int)adafruitFont.last << ", \n"
+       << "    " << (int)adafruitFont.yAdvance << "\n"
        << "};\n\n"
        << "#endif /* " << name << "_h */\n";
     
-    
-    createUTF8File(filename, os, name);
+    return os.str();
 }
 
 std::string loadAdafruitFont(const std::string &filename)
@@ -617,7 +537,7 @@ std::string loadAdafruitFont(const std::string &filename)
         return str;
     }
     
-    if (isUTF16le(infile)) {
+    if (is_utf16le(infile)) {
         char c;
         while (!infile.eof()) {
             infile.get(c);
@@ -639,38 +559,7 @@ std::string loadAdafruitFont(const std::string &filename)
     return str;
 }
 
-static uint64_t parseHex(const std::string str) {
-    std::regex re(R"(^(?:0x)?([\da-fA-F]{1,16})$)");
-    std::smatch match;
-    
-    if (!regex_search(str, match, re)) return 0;
-    uint64_t number = 0;
-    for (int i = 0; i < match.str(1).length(); i++) {
-        char c = match.str(1).at(i);
-        if (c & 0b01000000) c += 9;
-        c &= 15;
-        number <<= 4;
-        number |= c;
-    }
-    return number;
-}
-
-static int parseNumber(const std::string &str)
-{
-    std::regex hexPattern("^0x[\\da-fA-F]+$");
-    std::regex decPattern("^[+-]?\\d+$");
-    std::regex octPattern("^0[0-8]+$");
-    std::regex binPattern("^0b[01]+$");
-    
-    if (std::regex_match(str, hexPattern)) return std::stoi(str, nullptr, 16);
-    if (std::regex_match(str, decPattern)) return std::stoi(str, nullptr, 10);
-    if (std::regex_match(str, octPattern)) return std::stoi(str, nullptr, 8);
-    if (std::regex_match(str, binPattern)) return std::stoi(str, nullptr, 2);
-    
-    return 0;
-}
-
-bool extractAdafruitFont(const std::string &filename, font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs)
+bool decodeHAdafruitFont(const std::string &filename, font::TAdafruitFont &font)
 {
     std::ifstream infile;
     std::string utf8;
@@ -688,7 +577,7 @@ bool extractAdafruitFont(const std::string &filename, font::TFont &font, std::ve
     if (match[1].matched) {
         auto s = match.str(1);
         while (std::regex_search(s, match, std::regex(R"((?:0x)?[\d[a-fA-F]{1,2})"))) {
-            data.push_back(parseNumber(match.str()));
+            font.data.push_back(parse_number(match.str()));
             s = match.suffix().str();
         }
     } else {
@@ -699,24 +588,24 @@ bool extractAdafruitFont(const std::string &filename, font::TFont &font, std::ve
     auto s = utf8;
     while (std::regex_search(s, match, std::regex(R"(\{ *((?:0x)?[\d[a-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *\})"))) {
         font::TGlyph glyph;
-        glyph.bitmapOffset = parseNumber(match.str(1));
-        glyph.width = parseNumber(match.str(2));
-        glyph.height = parseNumber(match.str(3));
-        glyph.xAdvance = parseNumber(match.str(4));
-        glyph.dX = parseNumber(match.str(5));
-        glyph.dY = parseNumber(match.str(6));
-        glyphs.push_back(glyph);
+        glyph.bitmapOffset = parse_number(match.str(1));
+        glyph.width = parse_number(match.str(2));
+        glyph.height = parse_number(match.str(3));
+        glyph.xAdvance = parse_number(match.str(4));
+        glyph.dX = parse_number(match.str(5));
+        glyph.dY = parse_number(match.str(6));
+        font.glyphs.push_back(glyph);
         s = match.suffix().str();
     }
-    if (glyphs.empty()) {
+    if (font.glyphs.empty()) {
         std::cout << "Failed to find <Glyph Table>.\n";
         return false;
     }
     
     if (std::regex_search(s, match, std::regex(R"(((?:0x)?[\da-fA-F]+)\s*,\s*((?:0x)?[\da-fA-F]+)\s*,\s*((?:0x)?[\da-fA-F]+)\s*\};)"))) {
-        font.first = parseNumber(match.str(1));
-        font.last = parseNumber(match.str(2));
-        font.yAdvance = parseNumber(match.str(3));
+        font.first = parse_number(match.str(1));
+        font.last = parse_number(match.str(2));
+        font.yAdvance = parse_number(match.str(3));
     } else {
         std::cout << "Failed to find <Font>.\n";
         return false;
@@ -727,107 +616,55 @@ bool extractAdafruitFont(const std::string &filename, font::TFont &font, std::ve
 
 
 
-bool extractAdafruitFontFromHpprgm(const std::string &filename, font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs)
+bool decodeHpprgmAdafruitFont(const std::string &filename, font::TAdafruitFont &font)
 {
-    std::ifstream infile;
-    std::string utf8;
     std::string str;
     
-    utf8 = loadAdafruitFont(filename);
+    str = loadAdafruitFont(filename);
     
     // Check if the file is successfully opened
-    if (utf8.empty()) {
+    if (str.empty()) {
         std::cerr << "Error opening file: " << filename << std::endl;
         return false;
     }
     
-    std::smatch match;
-    std::regex re(R"(\{([#0-9A-F:h\s,]*)\} *, *\{([#0-9A-F:h\s,]*)\} *, *(\d+) *, *(\d+) *, *(\d+) *\s*\};)");
-    
-    if (std::regex_search(utf8, match, re) == false) {
-        return false;
-    }
-    
-    re = R"(#([0-9A-F]{2,16}):64h)";
-    
-    str = match.str(1);
-    for (std::sregex_iterator it(str.begin(), str.end(), re), end; it != end; ++it) {
-        uint64_t number = parseHex(it->str(1));
-        for (int n = 0; n < 8; n++) {
-            uint8_t byte = number & 255;
-            data.push_back(mirror_byte(byte));
-            number >>= 8;
-        }
-    }
-
-    if (data.empty()) {
-        std::cout << "Failed to find <Bitmap Data>.\n";
-        return false;
-    }
-    
-    str = match.str(2);
-    for (std::sregex_iterator it(str.begin(), str.end(), re), end; it != end; ++it) {
-        uint64_t number = parseHex(it->str(1));
-        
-        font::TGlyph glyph;
-        
-        glyph.bitmapOffset = number & 0xFFFFF;
-        glyph.width = (number >> 16) & 255;
-        glyph.height = (number >> 24) & 255;
-        glyph.xAdvance = (number >> 32) & 255;
-        glyph.dX = (number >> 40) & 255;
-        glyph.dY = (number >> 48) & 255;
-        
-        glyphs.push_back(glyph);
-    }
-    if (glyphs.empty()) {
-        std::cout << "Failed to find <Glyph Table>.\n";
-        return false;
-    }
-    
-    font.first = parseNumber(match.str(3));
-    font.last = parseNumber(match.str(4));
-    font.yAdvance = parseNumber(match.str(5));
-    
-    return true;
+    return hpprgm::decodeAdafruitFont(str, font);
 }
 
 void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_filename, std::string &name)
 {
-    std::vector<uint8_t> data;
-    std::vector<font::TGlyph> glyphs;
-    font::TFont font;
+    font::TAdafruitFont adafruitFont;
+    std::string str;
     
-    if (!extractAdafruitFont(in_filename, font, data, glyphs)) {
+    if (!decodeHAdafruitFont(in_filename, adafruitFont)) {
         std::cout << "Failed to find valid Adafruit Font data.\n";
         exit(2);
     }
 
-    createHpprgmFile(out_filename, font, data, glyphs, name);
+    str = createHpprgmAdafruitFont(adafruitFont, name);
+    createUTF16LEFile(out_filename, str);
 }
 
-image::TImage convertAdafruitFontToImage(const std::string &in_filename, const std::string &name, const int glyphsPercolumn, const TPiXfont &piXfont)
+image::TImage convertAdafruitFontToImage(const std::string &in_filename, const int glyphsPercolumn, const TPiXfont &piXfont)
 {
-    std::vector<uint8_t> data;
-    std::vector<font::TGlyph> glyphs;
-    font::TFont font;
+    font::TAdafruitFont adafruitFont;
     
     if (std::filesystem::path(in_filename).extension() == ".hpprgm") {
-        if (!extractAdafruitFontFromHpprgm(in_filename, font, data, glyphs)) {
+        if (!decodeHpprgmAdafruitFont(in_filename, adafruitFont)) {
             std::cout << "Failed to find valid Adafruit Font data.\n";
             exit(2);
         }
     } else {
-        if (!extractAdafruitFont(in_filename, font, data, glyphs)) {
+        if (!decodeHAdafruitFont(in_filename, adafruitFont)) {
             std::cout << "Failed to find valid Adafruit Font data.\n";
             exit(2);
         }
     }
     
-    return createImageFromFont(font, data, glyphs, name, glyphsPercolumn, piXfont);
+    return createImageAdafruitFont(adafruitFont, glyphsPercolumn, piXfont);
 }
 
-void createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, font::TFont &font, bool fixed, bool leftAlign, const TPiXfont &piXfont)
+void createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, font::TAdafruitFont &adafruitFont, bool fixed, bool leftAlign, const TPiXfont &piXfont)
 {
     image::TImage image;
     image = image::loadImage(in_filename.c_str());
@@ -851,7 +688,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
         return;
     }
     
-    if ((piXfont.cellWidth + piXfont.cellHorizontalSpacing) * (piXfont.cellHeight + piXfont.cellVerticalSpacing) * (font.last - font.first + 1) > image.width * image.height) {
+    if ((piXfont.cellWidth + piXfont.cellHorizontalSpacing) * (piXfont.cellHeight + piXfont.cellVerticalSpacing) * (adafruitFont.last - adafruitFont.first + 1) > image.width * image.height) {
         std::cout << "The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
         return;
     }
@@ -861,8 +698,6 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
         image.bytes.at(i) = 0;
     }
     
-    std::vector<uint8_t> data;
-    std::vector<font::TGlyph> glyphs;
     uint16_t bitmapOffset = 0;
     
     image::TImage cellImage = image::createImage(piXfont.cellWidth, piXfont.cellHeight, image::Index256Colors);
@@ -870,7 +705,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
     
     int x, y;
     
-    for (int index = 0; index < font.last - font.first + 1; index++) {
+    for (int index = 0; index < adafruitFont.last - adafruitFont.first + 1; index++) {
         getCellCoordinates(index, x, y, image.width - piXfont.horizontalOffset, image.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing, piXfont.direction);
        
         x += piXfont.horizontalOffset;
@@ -885,7 +720,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
              insert a blank entry with xAdvance set to the cell width.
             */
             font::TGlyph glyph = {0, 0, 0, static_cast<uint8_t>(piXfont.cellWidth + piXfont.cursorAdvance), 0, 0};
-            glyphs.push_back(glyph);
+            adafruitFont.glyphs.push_back(glyph);
             continue;
         }
         
@@ -902,7 +737,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
             .dY = static_cast<int8_t>(-cellImage.height + top)
         };
     
-        appendImageData(data, extractedImage, piXfont.indexColor);
+        appendImageData(adafruitFont, extractedImage, piXfont.indexColor);
         
         if (leftAlign) {
             glyph.xAdvance -= glyph.dX;
@@ -918,17 +753,20 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
         
         glyph.bitmapOffset = bitmapOffset;
         bitmapOffset += (extractedImage.width * extractedImage.height + 7) / 8;
-        glyphs.push_back(glyph);
+        adafruitFont.glyphs.push_back(glyph);
     }
     
-    trimBlankGlyphs(font, glyphs);
+    trimBlankGlyphs(adafruitFont);
     
+    std::string str;
     
     if (std::filesystem::path(out_filename).extension() == ".hpprgm") {
-        createHpprgmFile(out_filename, font, data, glyphs, name);
+        str = createHpprgmAdafruitFont(adafruitFont, name);
+        createUTF16LEFile(out_filename, str);
         return;
     }
-    createAdafruitFontFile(out_filename, font, data, glyphs, name);
+    str = createHAdafruitFont(adafruitFont, name);
+    createUTF8File(out_filename, str);
 }
 
 int main(int argc, const char * argv[])
@@ -952,11 +790,15 @@ int main(int argc, const char * argv[])
     std::string in_filename, out_filename, name, prefix, sufix;
     int columns = 16;
     
-    font::TFont font = { 0, 0, .first = 0, .last = 255, .yAdvance = static_cast<uint8_t>(piXfont.cellHeight) };
     
     bool fixed = false;
     bool leftAlign = false;
     
+    font::TAdafruitFont adafruitFont = {
+        .first = 0,
+        .last = 255,
+        .yAdvance = 8
+    };
     
     for( int n = 1; n < argc; n++ ) {
         if (*argv[n] == '-') {
@@ -970,7 +812,7 @@ int main(int argc, const char * argv[])
             
             if (args == "-u") {
                 if (++n > argc) error();
-                piXfont.cursorAdvance = parseNumber(argv[n]);
+                piXfont.cursorAdvance = parse_number(argv[n]);
                 if (piXfont.cursorAdvance < 0) piXfont.cursorAdvance = 1;
                 continue;
             }
@@ -992,63 +834,63 @@ int main(int argc, const char * argv[])
             
             if (args == "-x") {
                 if (++n > argc) error();
-                piXfont.horizontalOffset = parseNumber(argv[n]);
+                piXfont.horizontalOffset = parse_number(argv[n]);
                 if (piXfont.horizontalOffset < 0) piXfont.horizontalOffset = 0;
                 continue;
             }
             
             if (args == "-y") {
                 if (++n > argc) error();
-                piXfont.verticalOffset = parseNumber(argv[n]);
+                piXfont.verticalOffset = parse_number(argv[n]);
                 if (piXfont.verticalOffset < 0) piXfont.verticalOffset = 0;
                 continue;
             }
             
             if (args == "-h") {
                 if (++n > argc) error();
-                piXfont.cellHeight = parseNumber(argv[n]);
+                piXfont.cellHeight = parse_number(argv[n]);
                 if (piXfont.cellHeight < 1) piXfont.cellHeight = 1;
-                font.yAdvance = piXfont.cellHeight;
+                adafruitFont.yAdvance = piXfont.cellHeight;
                 continue;
             }
             
             if (args == "-w") {
                 if (++n > argc) error();
-                piXfont.cellWidth = parseNumber(argv[n]);
+                piXfont.cellWidth = parse_number(argv[n]);
                 if (piXfont.cellWidth < 1) piXfont.cellWidth = 1;
                 continue;
             }
             
             if (args == "-c") {
                 if (++n > argc) error();
-                columns = parseNumber(argv[n]);
+                columns = parse_number(argv[n]);
                 if (columns < 1) columns = 1;
                 continue;
             }
             
             if (args == "-f") {
                 if (++n > argc) error();
-                font.first = parseNumber(argv[n]);
-                if (font.first < 0 || font.first > 255) font.first = 0;
+                adafruitFont.first = parse_number(argv[n]);
+                if (adafruitFont.first < 0 || adafruitFont.first > 255) adafruitFont.first = 0;
                 continue;
             }
             
             if (args == "-l") {
                 if (++n > argc) error();
-                font.last = parseNumber(argv[n]);
-                if (font.last < 0 || font.last > 255) font.last = 255;
+                adafruitFont.last = parse_number(argv[n]);
+                if (adafruitFont.last < 0 || adafruitFont.last > 255) adafruitFont.last = 255;
                 continue;
             }
             
             if (args == "-V") {
                 if (++n > argc) error();
-                piXfont.cellVerticalSpacing = parseNumber(argv[n]);
+                piXfont.cellVerticalSpacing = parse_number(argv[n]);
                 continue;
             }
             
             if (args == "-H") {
                 if (++n > argc) error();
-                piXfont.cellHorizontalSpacing = parseNumber(argv[n]);
+                piXfont.cellHorizontalSpacing = parse_number(argv[n]);
                 continue;
             }
             
@@ -1079,13 +921,18 @@ int main(int argc, const char * argv[])
             
             if (args == "-s") {
                 if (++n > argc) error();
-                piXfont.spaceAdvance = parseNumber(argv[n]);
+                piXfont.spaceAdvance = parse_number(argv[n]);
                 continue;
             }
             
             if (args == "-i") {
                 if (++n > argc) error();
-                piXfont.indexColor = parseNumber(argv[n]);
+                piXfont.indexColor = parse_number(argv[n]);
+                continue;
+            }
+            
+            if (args == "-indices") {
+                piXfont.indices = true;
                 continue;
             }
             
@@ -1123,9 +970,9 @@ int main(int argc, const char * argv[])
      We ensure that if an invalid ‘last’ or ‘first’ entry is provided, we
      revert to the default values for ‘last’ and ‘first’.
      */
-    if (font.last < font.first) {
-        font.first = 0;
-        font.last = 255;
+    if (adafruitFont.last < adafruitFont.first) {
+        adafruitFont.first = 0;
+        adafruitFont.last = 255;
     }
     
     /*
@@ -1192,7 +1039,7 @@ int main(int argc, const char * argv[])
         }
         
         if (out_extension == ".bmp" || out_extension == ".png") {
-            image::TImage image = convertAdafruitFontToImage(in_filename, name, columns, piXfont);
+            image::TImage image = convertAdafruitFontToImage(in_filename, columns, piXfont);
             saveImage(out_filename.c_str(), image);
             if (!filesize(out_filename.c_str())) {
                 std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
@@ -1212,19 +1059,15 @@ int main(int argc, const char * argv[])
      */
     if (in_extension == ".hpprgm") {
         if (out_extension == ".h") {
-            std::vector<uint8_t> data;
-            std::vector<font::TGlyph> glyphs;
-            font::TFont font;
-            extractAdafruitFontFromHpprgm(in_filename, font, data, glyphs);
-            createAdafruitFontFile(out_filename, font, data, glyphs, name);
+            decodeHpprgmAdafruitFont(in_filename, adafruitFont);
+            createHAdafruitFont(adafruitFont, name);
             std::cout << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
         }
         
         if (out_extension == ".bmp" || out_extension == ".png") {
-            image::TImage image = convertAdafruitFontToImage(in_filename, name, columns, piXfont);
-            saveImage(out_filename.c_str(), image);
-            if (!filesize(out_filename.c_str())) {
+            image::TImage image = convertAdafruitFontToImage(in_filename, columns, piXfont);
+            if (!saveImage(out_filename.c_str(), image)) {
                 std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
                 return 0;
             }
@@ -1242,7 +1085,7 @@ int main(int argc, const char * argv[])
      */
     if (in_extension == ".pbm" || in_extension == ".bmp" || in_extension == ".png") {
         if (out_extension == ".hpprgm" || out_extension == ".h") {
-            createNewFont(in_filename, out_filename, name, font, fixed, leftAlign, piXfont);
+            createNewFont(in_filename, out_filename, name, adafruitFont, fixed, leftAlign, piXfont);
             if (out_extension == ".h") {
                 std::cout << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
                 return 0;

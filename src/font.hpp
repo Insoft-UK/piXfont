@@ -56,6 +56,14 @@ namespace font {
      the last glyph in the font is always the last glyph entry.
      */
     
+    typedef struct {
+        std::vector<uint8_t> data;
+        std::vector<TGlyph> glyphs;
+        uint8_t first;
+        uint8_t last;
+        uint8_t yAdvance;
+    } TAdafruitFont;
+    
     /**
      @brief Draw a single character
      @param x Bottom left corner x coordinate

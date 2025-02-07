@@ -65,7 +65,7 @@ image::TImage image::loadImage(const char *filename)
     return image;
 }
 
-void image::saveImage(const char *filename, const image::TImage &image)
+bool image::saveImage(const char *filename, const image::TImage &image)
 {
     std::filesystem::path filePath(filename);
     std::string extension = filePath.extension();
@@ -78,7 +78,7 @@ void image::saveImage(const char *filename, const image::TImage &image)
             .palette = image.palette,
             .bytes = image.bytes
         };
-        bmp::save(filename, newImage);
+        return bmp::save(filename, newImage);
     }
     
     if (extension == ".png") {
@@ -90,8 +90,10 @@ void image::saveImage(const char *filename, const image::TImage &image)
             .bpp = 32,
             .bytes = RGBAImage.bytes
         };
-        png::save(filename, pngImage);
+        return png::save(filename, pngImage);
     }
+    
+    return false;
 }
 
 image::TImage image::createImage(int w, int h, uint8_t bpp)

@@ -58,7 +58,7 @@ namespace image {
      @param    filename The filename of the Bitmap (BMP)  to be saved.
      @param    image A structure containing the bitmap image data.
      */
-    void saveImage(const char *filename, const TImage &image);
+    bool saveImage(const char *filename, const TImage &image);
     
     /**
      @brief Creates a bitmap with the specified dimensions.

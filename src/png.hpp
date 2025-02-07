@@ -48,7 +48,7 @@ namespace png {
      @param    filename The filename of the Portable Network Graphics  (PNG) to be saved.
      @param    image A structure containing the bitmap image data.
      */
-    void save(const char *filename, const TImage &image);
+    bool save(const char *filename, const TImage &image);
 }
 
 #endif /* png_hpp */

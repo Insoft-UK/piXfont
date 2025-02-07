@@ -179,7 +179,7 @@ bmp::TImage bmp::load(const char *filename)
     return image;
 }
 
-void bmp::save(const char *filename, const TImage &image)
+bool bmp::save(const char *filename, const TImage &image)
 {
     BIPHeader bip_header = {
         .fileHeader = {
@@ -208,7 +208,7 @@ void bmp::save(const char *filename, const TImage &image)
     std::ofstream outfile;
     outfile.open(filename, std::ios::out | std::ios::binary);
     if (!outfile.is_open()) {
-        return;
+        return false;
     }
     
     outfile.write((char *)&bip_header, sizeof(BIPHeader));
@@ -235,6 +235,7 @@ void bmp::save(const char *filename, const TImage &image)
     
     
     outfile.close();
+    return true;
 }
 
 
