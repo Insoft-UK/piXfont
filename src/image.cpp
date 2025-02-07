@@ -82,12 +82,13 @@ void image::saveImage(const char *filename, const image::TImage &image)
     }
     
     if (extension == ".png") {
-        TImage newImage = convert256ColorImageToTrueColorImage(image);
+        TImage RGBAImage = convert256ColorImageToRGBAImage(image);
+        
         png::TImage pngImage = {
             .width = image.width,
             .height = image.height,
             .bpp = 32,
-            .bytes = newImage.bytes
+            .bytes = RGBAImage.bytes
         };
         png::save(filename, pngImage);
     }
@@ -114,8 +115,8 @@ image::TImage image::createImage(int w, int h, uint8_t bpp)
     image.palette.reserve(2);
     image.palette.resize(2);
     
-    image.palette.at(1) = 0;
-    image.palette.at(0) = 0x00FFFFFF;
+    image.palette.at(1) = 0xFF000000;
+    image.palette.at(0) = 0xFFFFFFFF;
 
     return image;
 }
@@ -188,17 +189,19 @@ image::TImage image::convert16ColorTo256Color(const TImage &image)
     return newImage;
 }
 
-image::TImage image::convert256ColorImageToTrueColorImage(const TImage &image)
+image::TImage image::convert256ColorImageToRGBAImage(const TImage &image)
 {
     TImage newImage;
     
     newImage = createImage(image.width, image.height, TrueColor);
+    if (image.bytes.empty()) return newImage;
     
+    uint32_t *dst = (uint32_t *)newImage.bytes.data();
     for (auto it = image.bytes.begin(); it < image.bytes.end(); it++) {
-        newImage.bytes.push_back(image.palette.at(*it));
+        *dst++ = image.palette.at(*it);
     }
     
-    newImage.bpp = TrueColor;
+    newImage.bpp = 32;
     
     return newImage;
 }

@@ -62,6 +62,7 @@
 		13CDF2262D5309530005D2EA /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		13CDF22E2D53096F0005D2EA /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpng.a; sourceTree = "<group>"; };
 		13CDF2302D53098A0005D2EA /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
+		13CDF2512D5580970005D2EA /* graphics.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics.hpp; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* piXfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piXfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -70,6 +71,7 @@
 		13148B5D2D41818200849C73 /* hpprgm */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = hpprgm; sourceTree = "<group>"; };
 		13148BA72D4830E500849C73 /* examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = examples; sourceTree = "<group>"; };
 		13CDF24E2D53B70B0005D2EA /* fonts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = fonts; path = assets/fonts; sourceTree = "<group>"; };
+		13CDF2502D5580300005D2EA /* New Folder */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "New Folder"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -195,6 +197,7 @@
 				13CDF24E2D53B70B0005D2EA /* fonts */,
 				13148B5D2D41818200849C73 /* hpprgm */,
 				13148BA72D4830E500849C73 /* examples */,
+				13CDF2502D5580300005D2EA /* New Folder */,
 				84764227189579CD00AFBE9C /* src */,
 				13CDF1AF2D4C2FD10005D2EA /* Frameworks */,
 				84764226189579CD00AFBE9C /* Products */,
@@ -228,6 +231,7 @@
 				13CDF1A12D4C20AC0005D2EA /* png.cpp */,
 				13CDF1CD2D4EA5EF0005D2EA /* delta.hpp */,
 				13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */,
+				13CDF2512D5580970005D2EA /* graphics.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -297,7 +301,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "./version_code\nmv version_code.h src/version_code.h\n";
+			shellScript = "./version_code\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -95,7 +95,7 @@ namespace image {
      */
     TImage convert16ColorTo256Color(const TImage &image);
     
-    TImage convert256ColorImageToTrueColorImage(const TImage &image);
+    TImage convert256ColorImageToRGBAImage(const TImage &image);
     
     /**
      @brief Takes an input image and identifies if the image contains an actual image at the specified section.

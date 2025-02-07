@@ -28,7 +28,7 @@
 #include <sstream>
 #include <cstdint>
 
-#include "image.hpp"
+#include "graphics.hpp"
 
 namespace font {
     
@@ -48,40 +48,59 @@ namespace font {
         uint8_t    yAdvance;        // Newline distance in the y-axis.
     } TFont;
     
-    
-
+    /*!
+       @brief   Draw a single character
+        @param    x   Bottom left corner x coordinate
+        @param    y   Bottom left corner y coordinate
+        @param    c   The 8-bit font-indexed character (likely ascii)
+        @param    color Color to draw chraracter with
+        @param    sizeX  Font magnification level in X-axis, 1 is 'original' size
+        @param    sizeY  Font magnification level in Y-axis, 1 is 'original' size
+    */
+    /**************************************************************************/
     template <typename T >
-    int drawGlyph(int16_t x, int16_t y, const uint8_t asciiCode, T color, const TFont &font, const image::TImage &image)
+    static void drawChar(int16_t x, int16_t y, unsigned char c, const T color, uint8_t sizeX, uint8_t sizeY, const TFont &font, const image::TImage &image)
     {
-        uint8_t *dst = (uint8_t *)image.bytes.data();
-        TGlyph *glyph = &font.glyph[(int)asciiCode - font.first];
+        const TGlyph *glyph = &font.glyph[c - font.first];
+        uint8_t *bitmap = font.bitmap + glyph->bitmapOffset;
         
-        int height = glyph->height;
-        int width = glyph->width;
-       
+        int h = glyph->height;
+        int w = glyph->width;
+        
         x += glyph->dX;
         y += glyph->dY + font.yAdvance;
         
-        uint8_t *bitmap = font.bitmap + glyph->bitmapOffset;
-        uint8_t bitPosition = 1 << 7;
-        while (height--) {
-            for (int xx=0; xx<width; xx++) {
-                if (!bitPosition) {
-                    bitPosition = 1 << 7;
-                    bitmap++;
+        int bitPosition = 0;
+        uint8_t bits = 0;
+        
+        for (int yy = 0; yy < h; yy++) {
+            for (int xx = 0; xx < w; xx++) {
+                if (!(bitPosition++ & 7)) {
+                    bits = *bitmap++;
                 }
-                if (*bitmap & bitPosition) {
-                    dst[x + xx + y * image.width * sizeof(T)] = color;
+                if (bits & 0x80) {
+                    if (sizeX == 1 && sizeY == 1) {
+                        graphics::setPixel(x + xx, y + yy, color, image);
+                    } else {
+                        graphics::drawFillRect(x + xx * sizeX, y + yy * sizeY, sizeX, sizeY, color, image);
+                    }
                 }
-                bitPosition >>= 1;
+                bits <<= 1;
             }
-            y++;
         }
+    }
+
+    template <typename T >
+    int drawGlyph(int16_t x, int16_t y, const uint8_t asciiCode, const T color, const TFont &font, const image::TImage &image)
+    {
+        if (asciiCode < font.first || asciiCode > font.last) return 0;
+        const TGlyph *glyph = &font.glyph[(int)asciiCode - font.first];
+        drawChar(x, y, asciiCode, color, 1, 1, font, image);
         return glyph->xAdvance;
     }
 
     template <typename T>
-    int print(int16_t x, int16_t y, const char *s, T color, const TFont &font, const image::TImage &image)
+    int print(int16_t x, int16_t y, const char *s, const T color, const TFont &font, const image::TImage &image)
     {
         uint8_t *c = (uint8_t *)s;
         uint8_t asciiCode;
