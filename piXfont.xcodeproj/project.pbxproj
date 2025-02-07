@@ -36,7 +36,6 @@
 /* Begin PBXFileReference section */
 		13148B602D42B5E800849C73 /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
 		13148B612D42B69200849C73 /* version_code.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_code.h; sourceTree = "<group>"; };
-		1328C27F2BC61D03003C4B3A /* GFXFont.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GFXFont.h; sourceTree = "<group>"; };
 		1328C2822BC6E355003C4B3A /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
 		1328C2832BC6E355003C4B3A /* image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
 		1328C2962BCB4908003C4B3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -219,7 +218,6 @@
 				13CDF2292D5309530005D2EA /* libz */,
 				13148B612D42B69200849C73 /* version_code.h */,
 				84764228189579CD00AFBE9C /* main.cpp */,
-				1328C27F2BC61D03003C4B3A /* GFXFont.h */,
 				13CDCDAC2D4910130005D2EA /* bmp.hpp */,
 				13CDCDAD2D4910130005D2EA /* bmp.cpp */,
 				13CDCDAE2D4910130005D2EA /* pbm.hpp */,

@@ -30,8 +30,6 @@
 
 //#include <algorithm>
 
-
-#include "GFXFont.h"
 #include "pbm.hpp"
 #include "png.hpp"
 #include "image.hpp"
@@ -409,7 +407,7 @@ uint8_t mirror_byte(uint8_t b) {
     return b;
 }
 
-void removeLeadingBlankGlyphs(TFont &font, std::vector<TGlyph> &glyphs)
+void removeLeadingBlankGlyphs(font::TFont &font, std::vector<font::TGlyph> &glyphs)
 {
     /*
      Remove unnecessary blank glyph entries one by one from the beginning until
@@ -427,7 +425,7 @@ void removeLeadingBlankGlyphs(TFont &font, std::vector<TGlyph> &glyphs)
     }
 }
 
-void removeTrailingBlankGlyphs(TFont &font, std::vector<TGlyph> &glyphs)
+void removeTrailingBlankGlyphs(font::TFont &font, std::vector<font::TGlyph> &glyphs)
 {
     /*
      Remove blank glyph entries from the end one by one until a non-blank entry
@@ -442,14 +440,14 @@ void removeTrailingBlankGlyphs(TFont &font, std::vector<TGlyph> &glyphs)
     }
 }
 
-void trimBlankGlyphs(TFont &font, std::vector<TGlyph> &glyphs)
+void trimBlankGlyphs(font::TFont &font, std::vector<font::TGlyph> &glyphs)
 {
     removeLeadingBlankGlyphs(font, glyphs);
     removeTrailingBlankGlyphs(font, glyphs);
 }
 
 
-void createHpprgmFile(const std::string &filename, TFont &font, std::vector<uint8_t> &data, std::vector<TGlyph> &glyphs,  std::string &name)
+void createHpprgmFile(const std::string &filename, font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs,  std::string &name)
 {
     std::ostringstream os;
     
@@ -463,7 +461,7 @@ void createHpprgmFile(const std::string &filename, TFont &font, std::vector<uint
        << "EXPORT " << name << " := {\n"
        << " {\n" << pplList(data.data(), data.size(), 16) << "\n"
        << " },{\n"
-       << pplList(glyphs.data(), glyphs.size() * sizeof(TGlyph), 16) << "\n"
+       << pplList(glyphs.data(), glyphs.size() * sizeof(font::TGlyph), 16) << "\n"
        << " }, " << (int)font.first << ", " << (int)font.last << ", " << (int)font.yAdvance << "\n"
        << "};";
     createUTF16LEFile(filename, os, name);
@@ -503,7 +501,7 @@ void drawAllGlyphsVerticaly(const int rows, const int columns, const font::TFont
     }
 }
 
-image::TImage createImageFromFont(TFont &font, std::vector<uint8_t> &data, std::vector<TGlyph> &glyphs, const std::string &name, const int columns, const TPiXfont &piXfont)
+image::TImage createImageFromFont(font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs, const std::string &name, const int columns, const TPiXfont &piXfont)
 {
     image::TImage image;
     
@@ -540,7 +538,7 @@ image::TImage createImageFromFont(TFont &font, std::vector<uint8_t> &data, std::
     return image;
 }
 
-void createAdafruitFontFile(const std::string &filename, TFont &font, std::vector<uint8_t> &data, std::vector<TGlyph> &glyphs,  std::string &name)
+void createAdafruitFontFile(const std::string &filename, font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs,  std::string &name)
 {
     std::ostringstream os;
     
@@ -672,7 +670,7 @@ static int parseNumber(const std::string &str)
     return 0;
 }
 
-bool extractAdafruitFont(const std::string &filename, TFont &font, std::vector<uint8_t> &data, std::vector<TGlyph> &glyphs)
+bool extractAdafruitFont(const std::string &filename, font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs)
 {
     std::ifstream infile;
     std::string utf8;
@@ -700,7 +698,7 @@ bool extractAdafruitFont(const std::string &filename, TFont &font, std::vector<u
     
     auto s = utf8;
     while (std::regex_search(s, match, std::regex(R"(\{ *((?:0x)?[\d[a-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *, *(-?[xb\da-fA-F]+) *\})"))) {
-        TGlyph glyph;
+        font::TGlyph glyph;
         glyph.bitmapOffset = parseNumber(match.str(1));
         glyph.width = parseNumber(match.str(2));
         glyph.height = parseNumber(match.str(3));
@@ -729,7 +727,7 @@ bool extractAdafruitFont(const std::string &filename, TFont &font, std::vector<u
 
 
 
-bool extractAdafruitFontFromHpprgm(const std::string &filename, TFont &font, std::vector<uint8_t> &data, std::vector<TGlyph> &glyphs)
+bool extractAdafruitFontFromHpprgm(const std::string &filename, font::TFont &font, std::vector<uint8_t> &data, std::vector<font::TGlyph> &glyphs)
 {
     std::ifstream infile;
     std::string utf8;
@@ -771,7 +769,7 @@ bool extractAdafruitFontFromHpprgm(const std::string &filename, TFont &font, std
     for (std::sregex_iterator it(str.begin(), str.end(), re), end; it != end; ++it) {
         uint64_t number = parseHex(it->str(1));
         
-        TGlyph glyph;
+        font::TGlyph glyph;
         
         glyph.bitmapOffset = number & 0xFFFFF;
         glyph.width = (number >> 16) & 255;
@@ -797,8 +795,8 @@ bool extractAdafruitFontFromHpprgm(const std::string &filename, TFont &font, std
 void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_filename, std::string &name)
 {
     std::vector<uint8_t> data;
-    std::vector<TGlyph> glyphs;
-    TFont font;
+    std::vector<font::TGlyph> glyphs;
+    font::TFont font;
     
     if (!extractAdafruitFont(in_filename, font, data, glyphs)) {
         std::cout << "Failed to find valid Adafruit Font data.\n";
@@ -811,8 +809,8 @@ void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_file
 image::TImage convertAdafruitFontToImage(const std::string &in_filename, const std::string &name, const int glyphsPercolumn, const TPiXfont &piXfont)
 {
     std::vector<uint8_t> data;
-    std::vector<TGlyph> glyphs;
-    TFont font;
+    std::vector<font::TGlyph> glyphs;
+    font::TFont font;
     
     if (std::filesystem::path(in_filename).extension() == ".hpprgm") {
         if (!extractAdafruitFontFromHpprgm(in_filename, font, data, glyphs)) {
@@ -829,7 +827,7 @@ image::TImage convertAdafruitFontToImage(const std::string &in_filename, const s
     return createImageFromFont(font, data, glyphs, name, glyphsPercolumn, piXfont);
 }
 
-void createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, TFont &font, bool fixed, bool leftAlign, const TPiXfont &piXfont)
+void createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, font::TFont &font, bool fixed, bool leftAlign, const TPiXfont &piXfont)
 {
     image::TImage image;
     image = image::loadImage(in_filename.c_str());
@@ -864,7 +862,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
     }
     
     std::vector<uint8_t> data;
-    std::vector<TGlyph> glyphs;
+    std::vector<font::TGlyph> glyphs;
     uint16_t bitmapOffset = 0;
     
     image::TImage cellImage = image::createImage(piXfont.cellWidth, piXfont.cellHeight, image::Index256Colors);
@@ -886,7 +884,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
              If the image does not contain a glyph for a character,
              insert a blank entry with xAdvance set to the cell width.
             */
-            TGlyph glyph = {0, 0, 0, static_cast<uint8_t>(piXfont.cellWidth + piXfont.cursorAdvance), 0, 0};
+            font::TGlyph glyph = {0, 0, 0, static_cast<uint8_t>(piXfont.cellWidth + piXfont.cursorAdvance), 0, 0};
             glyphs.push_back(glyph);
             continue;
         }
@@ -895,7 +893,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
         int top, left, bottom, right;
         findImageBounds(top, left, bottom, right, cellImage);
         
-        TGlyph glyph = {
+        font::TGlyph glyph = {
             .bitmapOffset = 0,
             .width = static_cast<uint8_t>(right - left + 1),
             .height = static_cast<uint8_t>(bottom - top + 1),
@@ -954,7 +952,7 @@ int main(int argc, const char * argv[])
     std::string in_filename, out_filename, name, prefix, sufix;
     int columns = 16;
     
-    TFont font = { 0, 0, .first = 0, .last = 255, .yAdvance = static_cast<uint8_t>(piXfont.cellHeight) };
+    font::TFont font = { 0, 0, .first = 0, .last = 255, .yAdvance = static_cast<uint8_t>(piXfont.cellHeight) };
     
     bool fixed = false;
     bool leftAlign = false;
@@ -1215,8 +1213,8 @@ int main(int argc, const char * argv[])
     if (in_extension == ".hpprgm") {
         if (out_extension == ".h") {
             std::vector<uint8_t> data;
-            std::vector<TGlyph> glyphs;
-            TFont font;
+            std::vector<font::TGlyph> glyphs;
+            font::TFont font;
             extractAdafruitFontFromHpprgm(in_filename, font, data, glyphs);
             createAdafruitFontFile(out_filename, font, data, glyphs, name);
             std::cout << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
