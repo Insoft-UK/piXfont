@@ -17,23 +17,23 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 [BBC.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
 [BBC.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.hpprgm)
 
-### CP437
+### PC CP437 9x16
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.bmp" >
 
 [CP437.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.h)
 [CP437.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.hpprgm)
 
-### CGA
+### CGA 8x8
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.bmp" >
 
 [CGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.h)
 [CGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.hpprgm)
 
-### IBM
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.bmp" >
+### IBM EGA 8x14
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.bmp" >
 
-[IBM.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.h)
-[IBM.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.hpprgm)
+[EGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.h)
+[EGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.hpprgm)
 
 ### ARCADE
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
