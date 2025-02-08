@@ -100,7 +100,7 @@ Additional Commands:
 ```
 pxfnt HD44780.h -o HD44780.hpprgm
 ```
-The HP Prime stores its data as a list of 64-bit unsigned integers. The bitmap, however, is stored in a specific bit order (little-endian) where each byte of the 64-bit value is mirror-flipped.
+The HP Prime stores its data as a list of 64-bit unsigned integers. The bitmap, however, is stored in a specific bit order (little-endian) and where each byte of the 64-bit value is mirror-flipped.
 
 e.g.
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/Hart.png" width="128" >
@@ -114,5 +114,12 @@ e.g.
 00010000 #10h to 00001000 #08h
 00000000 #00h to 00000000 #00h := #00081C7E7F7F7F36:64h
 ```
+
+### Little-Endian
+`#00081C7E7F7F7F36:64h`
+
+### Big-Endian
+`#3CFEFEFE7E381000:64h`
+
 > [!NOTE]
 The only image file format currently supported by this utility tool is the Portable Network Graphic (**8-Bit PNG**), Portable Bitmap (**PBM**) P4 and Bitmap (**BMP**) format.
