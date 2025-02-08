@@ -73,15 +73,15 @@ void help(void) {
     std::cout << "  -h <value>         Maximum glyph height in pixels.\n";
     std::cout << "  -c <columns>       Number of glyphs per column when generating a glyph atlas.\n";
     std::cout << "  -n <name>          Font name.\n";
-    std::cout << "  -f <value>         First ASCII value of the first character.\n";
-    std::cout << "  -l <value>         Last ASCII value of the last character.\n";
+    std::cout << "  -f <value>         First UTF8 value of the first character.\n";
+    std::cout << "  -l <value>         Last UTF8 value of the last character.\n";
     std::cout << "  -a                 Auto left-align glyphs.\n";
     std::cout << "  -x <x-offset>      X-axis offset where glyphs start within the image file.\n";
     std::cout << "  -y <y-offset>      Y-axis offset where glyphs start within the image file.\n";
     std::cout << "  -u <value>         Cursor advance distance in the x-axis from the\n";
     std::cout << "                     right edge of the glyph (default: 1).\n";
     std::cout << "  -g <h/v>           Set the glyph layout direction, horizontal or vertical.\n";
-    std::cout << "  -s <value>         Cursor advance distance in the x-axis for ASCII\n";
+    std::cout << "  -s <value>         Cursor advance distance in the x-axis for UTF8\n";
     std::cout << "                     character 32 (space), if not using fixed width.\n";
     std::cout << "  -H <value>         Horizontal padding in pixels between glyphs.\n";
     std::cout << "  -V <value>         Vertical padding in pixels between glyphs.\n";

@@ -43,9 +43,9 @@ namespace font {
     typedef struct {
         uint8_t   *bitmap;          // Glyph bitmaps, concatenated.
         TGlyph    *glyph;           // Glyph array.
-        uint8_t   *indices;         // ASCII indice of glyphs.
-        uint8_t    first;           // The first ASCII value of your first character.
-        uint8_t    last;            // The last ASCII value of your last character.
+        uint8_t   *indices;         // Indices of glyphs.
+        uint16_t   first;           // The first ASCII value of your first character.
+        uint16_t   last;            // The last ASCII value of your last character.
         uint8_t    yAdvance;        // Newline distance in the y-axis.
     } TFont;
     
@@ -59,8 +59,8 @@ namespace font {
     typedef struct {
         std::vector<uint8_t> data;
         std::vector<TGlyph> glyphs;
-        uint8_t first;
-        uint8_t last;
+        uint16_t first;
+        uint16_t last;
         uint8_t yAdvance;
     } TAdafruitFont;
     
