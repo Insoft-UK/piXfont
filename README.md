@@ -123,7 +123,7 @@ e.g.
 ### Big-Endian
 `#3CFEFEFE7E381000:64h`
 #### Glyphs
-`#0000WWHHAAXXYY--:64h = #0000:16h #00:8h #00:8h #00:8h #00:8h #00:8h #--:8h`
+`#--0000WWHHAAXXYY:64h =  #--:8h #0000:16h #00:8h #00:8h #00:8h #00:8h #00:8h`
 
 
 > [!NOTE]
