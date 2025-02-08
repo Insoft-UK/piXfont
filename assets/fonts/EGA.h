@@ -5,10 +5,10 @@
     #define PROGMEM /* None Arduino */
 #endif
 
-#ifndef IBM_h
-#define IBM_h
+#ifndef EGA_h
+#define EGA_h
 
-const uint8_t IBM_Bitmaps[] PROGMEM = {
+const uint8_t EGA_Bitmaps[] PROGMEM = {
     0x7e, 0x81, 0xa5, 0x81, 0x81, 0xbd, 0x99, 0x81, 0x7e, 0x7e, 0xff, 0xdb,
     0xff, 0xff, 0xc3, 0xe7, 0xff, 0x7e, 0x6d, 0xff, 0xff, 0xff, 0xef, 0x8e,
     0x08, 0x10, 0x71, 0xf7, 0xf7, 0xc7, 0x04, 0x00, 0x18, 0x3c, 0x3c, 0xe7,
@@ -167,7 +167,7 @@ const uint8_t IBM_Bitmaps[] PROGMEM = {
     0xff, 0xff, 0xfc
 };
 
-const GFXglyph IBM_Glyphs[] PROGMEM = {
+const GFXglyph EGA_Glyphs[] PROGMEM = {
     {     0,   8,   9,   8,   0, -12 },  // 0x01 ' '
     {     9,   8,   9,   8,   0, -12 },  // 0x02 ' '
     {    18,   7,   8,   8,   1, -11 },  // 0x03 ' '
@@ -424,12 +424,12 @@ const GFXglyph IBM_Glyphs[] PROGMEM = {
     {  1859,   5,   6,   8,   2, -10 }   // 0xfe ' '
 };
 
-const GFXfont IBM PROGMEM = {
-    (uint8_t *) IBM_Bitmaps, 
-    (GFXglyph *) IBM_Glyphs, 
+const GFXfont EGA PROGMEM = {
+    (uint8_t *) EGA_Bitmaps, 
+    (GFXglyph *) EGA_Glyphs, 
     1, 
     254, 
     14
 };
 
-#endif /* IBM_h */
+#endif /* EGA_h */
