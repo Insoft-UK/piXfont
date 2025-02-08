@@ -5,7 +5,7 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 
 **Fonts**
 
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.bmp" >&nbsp;&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.bmp" ><img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
 
 ### HD44780
 [HD44780.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.h)
@@ -17,10 +17,20 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 
 [BBC.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.hpprgm)
 
-### C437
-[C437.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.h)
+### CP437
+[CP437.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.h)
 
-[C437.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/C437.hpprgm)
+[CP437.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.hpprgm)
+
+### CGA
+[CGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.h)
+
+[CGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.hpprgm)
+
+### IBM
+[IBM.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.h)
+
+[IBM.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.hpprgm)
 
 ### ARCADE
 [ARCADE.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.h)
