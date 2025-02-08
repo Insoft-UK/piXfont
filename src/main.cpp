@@ -37,7 +37,7 @@
 
 using namespace cmn;
 
-// TODO:
+// TODO: Impliment "Indices of glyphs"
 
 
 #include "version_code.h"
