@@ -19,12 +19,12 @@ pxfnt assets/fonts/ARCADE.h -o assets/fonts/ARCADE.hpprgm
 pxfnt assets/fonts/HD44780.h -o assets/fonts/HD44780.hpprgm
 pxfnt assets/fonts/CGA.h -o assets/fonts/CGA.hpprgm
 
-pxfnt assets/fonts/BBC.hpprgm -o assets/fonts/BBC.bmp
-pxfnt assets/fonts/CP437.hpprgm -o assets/fonts/CP437.bmp
-pxfnt assets/fonts/IBM.hpprgm -o assets/fonts/IBM.bmp
-pxfnt assets/fonts/ARCADE.hpprgm -o assets/fonts/ARCADE.bmp
-pxfnt assets/fonts/HD44780.hpprgm -o assets/fonts/HD44780.bmp -g v
-pxfnt assets/fonts/CGA.hpprgm -o assets/fonts/CGA.bmp
+pxfnt assets/fonts/BBC.hpprgm -o assets/fonts/BBC.bmp -c 128
+pxfnt assets/fonts/CP437.hpprgm -o assets/fonts/CP437.bmp -c 128
+pxfnt assets/fonts/IBM.hpprgm -o assets/fonts/IBM.bmp -c 128
+pxfnt assets/fonts/ARCADE.hpprgm -o assets/fonts/ARCADE.bmp -c 128
+pxfnt assets/fonts/HD44780.hpprgm -o assets/fonts/HD44780.bmp -g v -c 14
+pxfnt assets/fonts/CGA.hpprgm -o assets/fonts/CGA.bmp -c 128
 
 
 read -p "DONE! Press Enter to close window."
