@@ -50,8 +50,8 @@ namespace font {
     } TFont;
     
     /*
-     The ASCII table stores the index of each glyph within the glyph table, indicating where the glyph entry
-     for a particular ASCII character resides. The table does not include entries for the first and last glyph
+     The UTF8 table stores the index of each glyph within the glyph table, indicating where the glyph entry
+     for a particular UTF8 character resides. The table does not include entries for the first and last glyph
      indices, as they are unnecessary: the first glyph index always corresponds to the first glyph entry, and
      the last glyph in the font is always the last glyph entry.
      */
