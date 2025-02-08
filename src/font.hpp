@@ -44,14 +44,14 @@ namespace font {
         uint8_t   *bitmap;          // Glyph bitmaps, concatenated.
         TGlyph    *glyph;           // Glyph array.
         uint8_t   *indices;         // Indices of glyphs.
-        uint16_t   first;           // The first UTF8 value of your first character.
-        uint16_t   last;            // The last UTF8 value of your last character.
+        uint16_t   first;           // The first UTF16 value of your first character.
+        uint16_t   last;            // The last UTF16 value of your last character.
         uint8_t    yAdvance;        // Newline distance in the y-axis.
     } TFont;
     
     /*
      The UTF8 table stores the index of each glyph within the glyph table, indicating where the glyph entry
-     for a particular UTF8 character resides. The table does not include entries for the first and last glyph
+     for a particular UTF16 character resides. The table does not include entries for the first and last glyph
      indices, as they are unnecessary: the first glyph index always corresponds to the first glyph entry, and
      the last glyph in the font is always the last glyph entry.
      */
