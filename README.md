@@ -3,31 +3,41 @@ This is a handy utility that goes well with the original [fontconvert](https://g
 
 This utility tool provides the ability to generate an Adafruit_GFX `.h` format from an image file.
 
-**Fonts**
-
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.bmp" >&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.bmp" >&nbsp;&nbsp;<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.bmp" ><img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
+## Fonts
 
 ### HD44780
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.bmp" >
+
 [HD44780.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.h)
 [HD44780.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.hpprgm)
 
 ### BBC
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.bmp" >
+
 [BBC.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
 [BBC.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.hpprgm)
 
 ### CP437
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.bmp" >
+
 [CP437.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.h)
 [CP437.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.hpprgm)
 
 ### CGA
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.bmp" >
+
 [CGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.h)
 [CGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.hpprgm)
 
 ### IBM
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.bmp" >
+
 [IBM.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.h)
 [IBM.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.hpprgm)
 
 ### ARCADE
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
+
 [ARCADE.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.h)
 [ARCADE.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.hpprgm)
 
@@ -90,7 +100,7 @@ Additional Commands:
 ```
 pxfnt HD44780.h -o HD44780.hpprgm
 ```
-The HP Prime stores its data as a list of 64-bit unsigned integers. The bitmap, however, is stored in a specific bit order (little-endian) where each byte of the 64-bit value is mirror-flipped.
+The HP Prime stores its data as a list of 64-bit unsigned integers. The bitmap, however, is stored in a specific bit order (little-endian) and where each byte of the 64-bit value is mirror-flipped.
 
 e.g.
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/Hart.png" width="128" >
@@ -104,5 +114,17 @@ e.g.
 00010000 #10h to 00001000 #08h
 00000000 #00h to 00000000 #00h := #00081C7E7F7F7F36:64h
 ```
+
+### Little-Endian
+`#00081C7E7F7F7F36:64h`
+#### Glyphs
+`#--YYXXAAHHWWOOOO:64h = #--:8h #00:8h #00:8h #00:8h #00:8h #00:8h #0000:16h`
+
+### Big-Endian
+`#3CFEFEFE7E381000:64h`
+#### Glyphs
+`#--0000WWHHAAXXYY:64h =  #--:8h #0000:16h #00:8h #00:8h #00:8h #00:8h #00:8h`
+
+
 > [!NOTE]
 The only image file format currently supported by this utility tool is the Portable Network Graphic (**8-Bit PNG**), Portable Bitmap (**PBM**) P4 and Bitmap (**BMP**) format.
