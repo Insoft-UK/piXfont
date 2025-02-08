@@ -9,32 +9,26 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 
 ### HD44780
 [HD44780.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.h)
-
 [HD44780.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.hpprgm)
 
 ### BBC
 [BBC.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
-
 [BBC.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.hpprgm)
 
 ### CP437
 [CP437.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.h)
-
 [CP437.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.hpprgm)
 
 ### CGA
 [CGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.h)
-
 [CGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.hpprgm)
 
 ### IBM
 [IBM.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.h)
-
 [IBM.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/IBM.hpprgm)
 
 ### ARCADE
 [ARCADE.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.h)
-
 [ARCADE.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.hpprgm)
 
 e.g.
