@@ -117,9 +117,14 @@ e.g.
 
 ### Little-Endian
 `#00081C7E7F7F7F36:64h`
+#### Glyphs
+`#--YYXXAAHHWWOOOO:64h = #--:8h #00:8h #00:8h #00:8h #00:8h #00:8h #0000:16h`
 
 ### Big-Endian
 `#3CFEFEFE7E381000:64h`
+#### Glyphs
+`#0000WWHHAAXXYY--:64h = #0000:16h #00:8h #00:8h #00:8h #00:8h #00:8h #--:8h`
+
 
 > [!NOTE]
 The only image file format currently supported by this utility tool is the Portable Network Graphic (**8-Bit PNG**), Portable Bitmap (**PBM**) P4 and Bitmap (**BMP**) format.
