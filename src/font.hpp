@@ -44,8 +44,8 @@ namespace font {
         uint8_t   *bitmap;          // Glyph bitmaps, concatenated.
         TGlyph    *glyph;           // Glyph array.
         uint8_t   *indices;         // Indices of glyphs.
-        uint16_t   first;           // The first ASCII value of your first character.
-        uint16_t   last;            // The last ASCII value of your last character.
+        uint16_t   first;           // The first UTF8 value of your first character.
+        uint16_t   last;            // The last UTF8 value of your last character.
         uint8_t    yAdvance;        // Newline distance in the y-axis.
     } TFont;
     
