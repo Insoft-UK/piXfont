@@ -20,9 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define VERSION_NUMBER        "1.0.8"
-#define VERSION_CODE          "A0I95-25B6"
-#define NUMERIC_BUILD          10895
-#define INTERNAL_BUILD_CODE   "A0I95"
-#define DATE                  "2025 February 07"
+#define VERSION_NUMBER        "1.0.9"
+#define VERSION_CODE          "A0J04-25B7"
+#define NUMERIC_BUILD          10904
+#define INTERNAL_BUILD_CODE   "A0J04"
+#define DATE                  "2025 February 08"
 #define YEAR                  "2025"

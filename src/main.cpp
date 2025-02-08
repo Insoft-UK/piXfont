@@ -83,8 +83,8 @@ void help(void) {
     std::cout << "  -g <h/v>           Set the glyph layout direction, horizontal or vertical.\n";
     std::cout << "  -s <value>         Cursor advance distance in the x-axis for ASCII\n";
     std::cout << "                     character 32 (space), if not using fixed width.\n";
-    std::cout << "  -H <value>         Horizontal spacing in pixels between glyphs.\n";
-    std::cout << "  -V <value>         Vertical spacing in pixels between glyphs.\n";
+    std::cout << "  -H <value>         Horizontal padding in pixels between glyphs.\n";
+    std::cout << "  -V <value>         Vertical padding in pixels between glyphs.\n";
     std::cout << "  -F                 Use fixed glyph width.\n";
     std::cout << "  -2x                2x glyphs when generating a glyph atlas.\n";
     std::cout << "  -3x                3x glyphs when generating a glyph atlas.\n";
@@ -114,16 +114,16 @@ enum Direction {
 };
 
 typedef struct {
-    int cellWidth, cellHeight;
+    int w, h;
     int cursorAdvance;
     int spaceAdvance;
-    int horizontalOffset, verticalOffset;
-    int cellHorizontalSpacing, cellVerticalSpacing;
+    int xOffset, yOffset;
+    int HPadding, VPadding;
     Direction direction;
-    uint8_t indexColor;
+    uint8_t color;
     int scale;
     bool indices;
-} TPiXfont;
+} TOptions;
 
 // A list is limited to 10,000 elements. Attempting to create a longer list will result in error 38 (Insufficient memory) being thrown.
 static std::string pplList(const void *data, const size_t lengthInBytes, const int columns, bool le = true) {
@@ -205,7 +205,7 @@ void findImageBounds(int &top, int &left, int &bottom, int &right, const image::
     }
 }
 
-void appendImageData(font::TAdafruitFont &adafruitFont, const image::TImage &image, uint8_t indexColor = 1)
+void appendImageData(font::TAdafruitFont &adafruitFont, const image::TImage &image, uint8_t color = 1)
 {
     uint8_t *p = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
@@ -213,7 +213,7 @@ void appendImageData(font::TAdafruitFont &adafruitFont, const image::TImage &ima
     
     for (int i = 0; i < image.width * image.height; i++) {
         if(!bitPosition) bitPosition = 1 << 7;
-        if (p[i] == indexColor)
+        if (p[i] == color)
             byte |= bitPosition;
         bitPosition >>= 1;
         if (!bitPosition) {
@@ -422,7 +422,7 @@ void drawAllGlyphsVerticaly(const int rows, const int columns, const font::TFont
     }
 }
 
-image::TImage createImageAdafruitFont(font::TAdafruitFont &adafruitFont, const int columns, const TPiXfont &piXfont)
+image::TImage createImageAdafruitFont(font::TAdafruitFont &adafruitFont, const int columns, const TOptions &options)
 {
     image::TImage image;
     
@@ -446,14 +446,14 @@ image::TImage createImageAdafruitFont(font::TAdafruitFont &adafruitFont, const i
     }
     
     int rows = ceil((float)(font.last - font.first + 1) / (float)columns);
-    int height = rows * h * piXfont.scale;
-    int width = columns * w * piXfont.scale;
+    int height = rows * h * options.scale;
+    int width = columns * w * options.scale;
     
     image = image::createImage(width, height, 8);
-    if (piXfont.direction == DirectionHorizontal) {
-        drawAllGlyphsHorizontaly(rows, columns, font, image, piXfont.scale);
+    if (options.direction == DirectionHorizontal) {
+        drawAllGlyphsHorizontaly(rows, columns, font, image, options.scale);
     } else {
-        drawAllGlyphsVerticaly(rows, columns, font, image, piXfont.scale);
+        drawAllGlyphsVerticaly(rows, columns, font, image, options.scale);
     }
     
     return image;
@@ -645,7 +645,7 @@ void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_file
     createUTF16LEFile(out_filename, str);
 }
 
-image::TImage convertAdafruitFontToImage(const std::string &in_filename, const int glyphsPercolumn, const TPiXfont &piXfont)
+image::TImage convertAdafruitFontToImage(const std::string &in_filename, const int glyphsPercolumn, const TOptions &options)
 {
     font::TAdafruitFont adafruitFont;
     
@@ -661,22 +661,22 @@ image::TImage convertAdafruitFontToImage(const std::string &in_filename, const i
         }
     }
     
-    return createImageAdafruitFont(adafruitFont, glyphsPercolumn, piXfont);
+    return createImageAdafruitFont(adafruitFont, glyphsPercolumn, options);
 }
 
-void createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, font::TAdafruitFont &adafruitFont, bool fixed, bool leftAlign, const TPiXfont &piXfont)
+bool createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, font::TAdafruitFont &adafruitFont, bool fixed, bool leftAlign, const TOptions &options)
 {
     image::TImage image;
     image = image::loadImage(in_filename.c_str());
     
     if (image.bytes.empty()) {
-        std::cout << "Failed to load the monochrome bitmap file." << in_filename << ".\n";
-        return;
+        std::cout << "Error: Failed to load the monochrome bitmap file." << in_filename << ".\n";
+        return false;
     }
     
     if (image.bpp == 1) {
         image = image::convertMonochromeToGrayScale(image);
-        if (piXfont.indexColor == 0) {
+        if (options.color == 0) {
             for (int i = 0; i < image.width * image.height; i++) {
                 image.bytes.at(i) = !image.bytes.at(i);
             }
@@ -684,34 +684,35 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
     }
     
     if (image.bpp != 8) {
-        std::cout << "Failed to load a monochrome, grayscale or 256 color bitmap file." << in_filename << ".\n";
-        return;
+        std::cout << "Error: Failed to load a monochrome, grayscale or 256 color bitmap file." << in_filename << ".\n";
+        return false;
     }
     
-    int limit = (image.width + piXfont.cellVerticalSpacing) * (image.height + piXfont.cellHorizontalSpacing);
-    
-    if ((piXfont.cellWidth + piXfont.cellHorizontalSpacing) * (piXfont.cellHeight + piXfont.cellVerticalSpacing) * (adafruitFont.last - adafruitFont.first + 1) > limit) {
-        std::cout << "The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
-        return;
+    int cols = (image.width + options.HPadding) / (options.w + options.HPadding);
+    int rows = (image.height + options.VPadding) / (options.h + options.VPadding);
+
+    if (adafruitFont.last - adafruitFont.first + 1 > cols * rows) {
+        std::cout << "Error: The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
+        return false;
     }
     
     for (int i = 1; i < image.width * image.height; i++) {
-        if (image.bytes.at(i) == piXfont.indexColor) continue;
+        if (image.bytes.at(i) == options.color) continue;
         image.bytes.at(i) = 0;
     }
     
     uint16_t bitmapOffset = 0;
     
-    image::TImage cellImage = image::createImage(piXfont.cellWidth, piXfont.cellHeight, image::Index256Colors);
+    image::TImage cellImage = image::createImage(options.w, options.h, image::Index256Colors);
     
     
     int x, y;
     
     for (int index = 0; index < adafruitFont.last - adafruitFont.first + 1; index++) {
-        getCellCoordinates(index, x, y, image.width - piXfont.horizontalOffset, image.height - piXfont.verticalOffset, piXfont.cellWidth + piXfont.cellHorizontalSpacing, piXfont.cellHeight + piXfont.cellVerticalSpacing, piXfont.direction);
+        getCellCoordinates(index, x, y, image.width - options.xOffset, image.height - options.yOffset, options.w + options.HPadding, options.h + options.VPadding, options.direction);
        
-        x += piXfont.horizontalOffset;
-        y += piXfont.verticalOffset;
+        x += options.xOffset;
+        y += options.yOffset;
         
         copyImage(cellImage, 0, 0, image, x, y, cellImage.width, cellImage.height);
         
@@ -721,7 +722,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
              If the image does not contain a glyph for a character,
              insert a blank entry with xAdvance set to the cell width.
             */
-            font::TGlyph glyph = {0, 0, 0, static_cast<uint8_t>(piXfont.cellWidth + piXfont.cursorAdvance), 0, 0};
+            font::TGlyph glyph = {0, 0, 0, static_cast<uint8_t>(options.w + options.cursorAdvance), 0, 0};
             adafruitFont.glyphs.push_back(glyph);
             continue;
         }
@@ -739,7 +740,7 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
             .dY = static_cast<int8_t>(-cellImage.height + top)
         };
     
-        appendImageData(adafruitFont, extractedImage, piXfont.indexColor);
+        appendImageData(adafruitFont, extractedImage, options.color);
         
         if (leftAlign) {
             glyph.xAdvance -= glyph.dX;
@@ -747,9 +748,9 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
         }
         
         if (fixed) {
-            glyph.xAdvance = piXfont.cellWidth + piXfont.cursorAdvance;
+            glyph.xAdvance = options.w + options.cursorAdvance;
         } else {
-            glyph.xAdvance += piXfont.cursorAdvance;
+            glyph.xAdvance += options.cursorAdvance;
         }
         
         
@@ -765,10 +766,11 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
     if (std::filesystem::path(out_filename).extension() == ".hpprgm") {
         str = createHpprgmAdafruitFont(adafruitFont, name);
         createUTF16LEFile(out_filename, str);
-        return;
+        return true;
     }
     str = createHAdafruitFont(adafruitFont, name);
     createUTF8File(out_filename, str);
+    return true;
 }
 
 int main(int argc, const char * argv[])
@@ -780,12 +782,12 @@ int main(int argc, const char * argv[])
     
     std::string args(argv[0]);
     
-    TPiXfont piXfont{
+    TOptions options{
         .spaceAdvance = 8,
         .cursorAdvance = 1,
-        .cellHeight = 8,
-        .cellWidth = 8,
-        .indexColor = 1,
+        .h = 8,
+        .w = 8,
+        .color = 1,
         .scale = 1
     };
     
@@ -814,8 +816,8 @@ int main(int argc, const char * argv[])
             
             if (args == "-u") {
                 if (++n > argc) error();
-                piXfont.cursorAdvance = parse_number(argv[n]);
-                if (piXfont.cursorAdvance < 0) piXfont.cursorAdvance = 1;
+                options.cursorAdvance = parse_number(argv[n]);
+                if (options.cursorAdvance < 0) options.cursorAdvance = 1;
                 continue;
             }
             
@@ -823,7 +825,7 @@ int main(int argc, const char * argv[])
                 if (++n > argc) error();
                 args = argv[n];
                 if (args!="h" && args!="v") error();
-                piXfont.direction = args=="h" ? DirectionHorizontal : DirectionVertical;
+                options.direction = args=="h" ? DirectionHorizontal : DirectionVertical;
                 continue;
             }
             
@@ -836,30 +838,30 @@ int main(int argc, const char * argv[])
             
             if (args == "-x") {
                 if (++n > argc) error();
-                piXfont.horizontalOffset = parse_number(argv[n]);
-                if (piXfont.horizontalOffset < 0) piXfont.horizontalOffset = 0;
+                options.xOffset = parse_number(argv[n]);
+                if (options.xOffset < 0) options.xOffset = 0;
                 continue;
             }
             
             if (args == "-y") {
                 if (++n > argc) error();
-                piXfont.verticalOffset = parse_number(argv[n]);
-                if (piXfont.verticalOffset < 0) piXfont.verticalOffset = 0;
+                options.yOffset = parse_number(argv[n]);
+                if (options.yOffset < 0) options.yOffset = 0;
                 continue;
             }
             
             if (args == "-h") {
                 if (++n > argc) error();
-                piXfont.cellHeight = parse_number(argv[n]);
-                if (piXfont.cellHeight < 1) piXfont.cellHeight = 1;
-                adafruitFont.yAdvance = piXfont.cellHeight;
+                options.h = parse_number(argv[n]);
+                if (options.h < 1) options.h = 1;
+                adafruitFont.yAdvance = options.h;
                 continue;
             }
             
             if (args == "-w") {
                 if (++n > argc) error();
-                piXfont.cellWidth = parse_number(argv[n]);
-                if (piXfont.cellWidth < 1) piXfont.cellWidth = 1;
+                options.w = parse_number(argv[n]);
+                if (options.w < 1) options.w = 1;
                 continue;
             }
             
@@ -886,13 +888,13 @@ int main(int argc, const char * argv[])
             
             if (args == "-V") {
                 if (++n > argc) error();
-                piXfont.cellVerticalSpacing = parse_number(argv[n]);
+                options.VPadding = parse_number(argv[n]);
                 continue;
             }
             
             if (args == "-H") {
                 if (++n > argc) error();
-                piXfont.cellHorizontalSpacing = parse_number(argv[n]);
+                options.HPadding = parse_number(argv[n]);
                 continue;
             }
             
@@ -902,17 +904,17 @@ int main(int argc, const char * argv[])
             }
             
             if (args == "-2x") {
-                piXfont.scale = 2;
+                options.scale = 2;
                 continue;
             }
             
             if (args == "-3x") {
-                piXfont.scale = 3;
+                options.scale = 3;
                 continue;
             }
             
             if (args == "-4x") {
-                piXfont.scale = 4;
+                options.scale = 4;
                 continue;
             }
             
@@ -923,18 +925,18 @@ int main(int argc, const char * argv[])
             
             if (args == "-s") {
                 if (++n > argc) error();
-                piXfont.spaceAdvance = parse_number(argv[n]);
+                options.spaceAdvance = parse_number(argv[n]);
                 continue;
             }
             
             if (args == "-i") {
                 if (++n > argc) error();
-                piXfont.indexColor = parse_number(argv[n]);
+                options.color = parse_number(argv[n]);
                 continue;
             }
             
             if (args == "-indices") {
-                piXfont.indices = true;
+                options.indices = true;
                 continue;
             }
             
@@ -1041,7 +1043,7 @@ int main(int argc, const char * argv[])
         }
         
         if (out_extension == ".bmp" || out_extension == ".png") {
-            image::TImage image = convertAdafruitFontToImage(in_filename, columns, piXfont);
+            image::TImage image = convertAdafruitFontToImage(in_filename, columns, options);
             saveImage(out_filename.c_str(), image);
             if (!filesize(out_filename.c_str())) {
                 std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
@@ -1068,7 +1070,7 @@ int main(int argc, const char * argv[])
         }
         
         if (out_extension == ".bmp" || out_extension == ".png") {
-            image::TImage image = convertAdafruitFontToImage(in_filename, columns, piXfont);
+            image::TImage image = convertAdafruitFontToImage(in_filename, columns, options);
             if (!saveImage(out_filename.c_str(), image)) {
                 std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
                 return 0;
@@ -1087,7 +1089,9 @@ int main(int argc, const char * argv[])
      */
     if (in_extension == ".pbm" || in_extension == ".bmp" || in_extension == ".png") {
         if (out_extension == ".hpprgm" || out_extension == ".h") {
-            createNewFont(in_filename, out_filename, name, adafruitFont, fixed, leftAlign, piXfont);
+            if (createNewFont(in_filename, out_filename, name, adafruitFont, fixed, leftAlign, options) == false) {
+                return 0;
+            }
             if (out_extension == ".h") {
                 std::cout << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
                 return 0;
