@@ -688,7 +688,9 @@ void createNewFont(const std::string &in_filename, const std::string &out_filena
         return;
     }
     
-    if ((piXfont.cellWidth + piXfont.cellHorizontalSpacing) * (piXfont.cellHeight + piXfont.cellVerticalSpacing) * (adafruitFont.last - adafruitFont.first + 1) > image.width * image.height) {
+    int limit = (image.width + piXfont.cellVerticalSpacing) * (image.height + piXfont.cellHorizontalSpacing);
+    
+    if ((piXfont.cellWidth + piXfont.cellHorizontalSpacing) * (piXfont.cellHeight + piXfont.cellVerticalSpacing) * (adafruitFont.last - adafruitFont.first + 1) > limit) {
         std::cout << "The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
         return;
     }
