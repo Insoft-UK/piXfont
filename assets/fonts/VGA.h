@@ -5,10 +5,10 @@
     #define PROGMEM /* None Arduino */
 #endif
 
-#ifndef CP437_h
-#define CP437_h
+#ifndef VGA_h
+#define VGA_h
 
-const uint8_t CP437_Bitmaps[] PROGMEM = {
+const uint8_t VGA_Bitmaps[] PROGMEM = {
     0x7e, 0x81, 0xa5, 0x81, 0x81, 0xbd, 0x99, 0x81, 0x81, 0x7e, 0x7e, 0xff,
     0xdb, 0xff, 0xff, 0xc3, 0xe7, 0xff, 0xff, 0x7e, 0x6d, 0xff, 0xff, 0xff,
     0xef, 0x8e, 0x08, 0x10, 0x71, 0xf7, 0xf7, 0xc7, 0x04, 0x00, 0x18, 0x3c,
@@ -186,7 +186,7 @@ const uint8_t CP437_Bitmaps[] PROGMEM = {
     0xff, 0xff, 0xff, 0xe0
 };
 
-const GFXglyph CP437_Glyphs[] PROGMEM = {
+const GFXglyph VGA_Glyphs[] PROGMEM = {
     {     0,   8,  10,   9,   0, -14 },  // 0x01 ' '
     {    10,   8,  10,   9,   0, -14 },  // 0x02 ' '
     {    20,   7,   8,   9,   0, -12 },  // 0x03 ' '
@@ -443,12 +443,12 @@ const GFXglyph CP437_Glyphs[] PROGMEM = {
     {  2087,   5,   7,   9,   1, -12 }   // 0xfe ' '
 };
 
-const GFXfont CP437 PROGMEM = {
-    (uint8_t *) CP437_Bitmaps, 
-    (GFXglyph *) CP437_Glyphs, 
+const GFXfont VGA PROGMEM = {
+    (uint8_t *) VGA_Bitmaps, 
+    (GFXglyph *) VGA_Glyphs, 
     1, 
     254, 
     16
 };
 
-#endif /* CP437_h */
+#endif /* VGA_h */
