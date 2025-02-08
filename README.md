@@ -17,12 +17,6 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 [BBC.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
 [BBC.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.hpprgm)
 
-### IBM VGA CP437 9x16
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.bmp" >
-
-[VGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.h)
-[VGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.hpprgm)
-
 ### IBM CGA CP437 8x8
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.bmp" >
 
@@ -34,6 +28,12 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 
 [EGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.h)
 [EGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.hpprgm)
+
+### IBM VGA CP437 9x16
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.bmp" >
+
+[VGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.h)
+[VGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.hpprgm)
 
 ### ARCADE
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
