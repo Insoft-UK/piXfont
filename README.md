@@ -17,19 +17,19 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 [BBC.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
 [BBC.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.hpprgm)
 
-### PC CP437 9x16
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.bmp" >
+### IBM VGA CP437 9x16
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.bmp" >
 
-[CP437.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.h)
-[CP437.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CP437.hpprgm)
+[VGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.h)
+[VGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.hpprgm)
 
-### CGA 8x8
+### IBM CGA CP437 8x8
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.bmp" >
 
 [CGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.h)
 [CGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.hpprgm)
 
-### IBM EGA 8x14
+### IBM EGA CP437 8x14
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.bmp" >
 
 [EGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.h)
