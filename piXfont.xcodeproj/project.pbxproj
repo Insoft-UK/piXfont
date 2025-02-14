@@ -68,8 +68,18 @@
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		13CDF2B82D583BF80005D2EA /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				HPFront.pp,
+			);
+			target = 84764224189579CD00AFBE9C /* piXfont */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		13148B5D2D41818200849C73 /* hpprgm */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = hpprgm; sourceTree = "<group>"; };
+		13148B5D2D41818200849C73 /* hpprgm */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (13CDF2B82D583BF80005D2EA /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = hpprgm; sourceTree = "<group>"; };
 		13148BA72D4830E500849C73 /* examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = examples; sourceTree = "<group>"; };
 		13CDF24E2D53B70B0005D2EA /* fonts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = fonts; path = assets/fonts; sourceTree = "<group>"; };
 		13CDF2502D5580300005D2EA /* New Folder */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "New Folder"; sourceTree = "<group>"; };
