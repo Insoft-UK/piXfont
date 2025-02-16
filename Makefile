@@ -4,18 +4,7 @@ BUILD := installer/package-root/Applications/HP/PrimeSDK/bin
 SRC := src
 ARCH := $(shell arch)
 
-all:
-	g++ -arch arm64 -arch x86_64 -std=c++20 \
-	    -I$(SRC)/libpng/include \
-	    -I$(SRC)/libz/include \
-	    $(SRC)/*.cpp \
-	    $(SRC)/libpng/lib/arm64/libpng.a \
-	    $(SRC)/libz/lib/arm64/libz.a \
-		$(SRC)/libpng/lib/x86_64/libpng.a \
-		$(SRC)/libz/lib/x86_64/libz.a \
-	    -o $(BUILD)/$(NAME) \
-	    -Os -fno-ident \
-	    -fno-asynchronous-unwind-tables
+all: arm64 x86_64
 	    
 arm64:
 	mkdir -p build/arm64

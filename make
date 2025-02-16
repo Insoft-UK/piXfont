@@ -7,7 +7,10 @@ BUILD=installer/package-root/Applications/HP/PrimeSDK/bin
 IDENTITY=$(security find-identity -v -p codesigning | grep "Developer ID Application" | awk '{print $2}')
 
 make -j$(sysctl -n hw.ncpu) all
-codesign -s "$IDENTITY" ./$BUILD/*
+codesign -s "$IDENTITY" ./build/arm64/*
+codesign -s "$IDENTITY" ./build/x86_64/*
+
+cp -p -rf ./build/* $BUILD
 
 read -p "Press Enter to exit!"
 
