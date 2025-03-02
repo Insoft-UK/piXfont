@@ -60,6 +60,8 @@ namespace image {
      */
     bool saveImage(const char *filename, const TImage &image);
     
+    void setPaletteToRGB332(image::TImage &image);
+    
     /**
      @brief Creates a bitmap with the specified dimensions.
      @param w The width of the bitmap.

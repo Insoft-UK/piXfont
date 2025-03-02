@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1328C2842BC6E8FD003C4B3A /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1328C2832BC6E355003C4B3A /* image.cpp */; };
+		1395B1D92D72613E002B28CF /* calctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1395B1D82D72613E002B28CF /* calctype.cpp */; };
 		13CDCDB02D4910130005D2EA /* bmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDCDAD2D4910130005D2EA /* bmp.cpp */; };
 		13CDCDB12D4910130005D2EA /* pbm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDCDAF2D4910130005D2EA /* pbm.cpp */; };
 		13CDF1A22D4C20AC0005D2EA /* png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF1A12D4C20AC0005D2EA /* png.cpp */; };
@@ -39,6 +40,8 @@
 		1328C2962BCB4908003C4B3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1328C2972BCB4910003C4B3A /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		138F54D32C977594009357F9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		1395B1D72D72613E002B28CF /* calctype.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = calctype.hpp; sourceTree = "<group>"; };
+		1395B1D82D72613E002B28CF /* calctype.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = calctype.cpp; sourceTree = "<group>"; };
 		13CDCDAC2D4910130005D2EA /* bmp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = bmp.hpp; sourceTree = "<group>"; };
 		13CDCDAD2D4910130005D2EA /* bmp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bmp.cpp; sourceTree = "<group>"; };
 		13CDCDAE2D4910130005D2EA /* pbm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = pbm.hpp; sourceTree = "<group>"; };
@@ -68,21 +71,8 @@
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		13CDF2B82D583BF80005D2EA /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				HPFront.pp,
-			);
-			target = 84764224189579CD00AFBE9C /* piXfont */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		13148B5D2D41818200849C73 /* hpprgm */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (13CDF2B82D583BF80005D2EA /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = hpprgm; sourceTree = "<group>"; };
-		13148BA72D4830E500849C73 /* examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = examples; sourceTree = "<group>"; };
 		13CDF24E2D53B70B0005D2EA /* fonts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = fonts; path = assets/fonts; sourceTree = "<group>"; };
-		13CDF2502D5580300005D2EA /* New Folder */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "New Folder"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,9 +192,6 @@
 				13148B602D42B5E800849C73 /* version.txt */,
 				1328C2972BCB4910003C4B3A /* Makefile */,
 				13CDF24E2D53B70B0005D2EA /* fonts */,
-				13148B5D2D41818200849C73 /* hpprgm */,
-				13148BA72D4830E500849C73 /* examples */,
-				13CDF2502D5580300005D2EA /* New Folder */,
 				84764227189579CD00AFBE9C /* src */,
 				13CDF1AF2D4C2FD10005D2EA /* Frameworks */,
 				84764226189579CD00AFBE9C /* Products */,
@@ -242,6 +229,8 @@
 				13CDF2572D56502E0005D2EA /* hpprgm.cpp */,
 				13CDF2592D5657360005D2EA /* common.hpp */,
 				13CDF25A2D5657360005D2EA /* common.cpp */,
+				1395B1D72D72613E002B28CF /* calctype.hpp */,
+				1395B1D82D72613E002B28CF /* calctype.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -322,6 +311,7 @@
 			files = (
 				84764229189579CD00AFBE9C /* main.cpp in Sources */,
 				13CDCDB02D4910130005D2EA /* bmp.cpp in Sources */,
+				1395B1D92D72613E002B28CF /* calctype.cpp in Sources */,
 				13CDCDB12D4910130005D2EA /* pbm.cpp in Sources */,
 				1328C2842BC6E8FD003C4B3A /* image.cpp in Sources */,
 				13CDF25B2D5657360005D2EA /* common.cpp in Sources */,

@@ -49,6 +49,15 @@ namespace graphics {
         uint8_t *dst = (uint8_t *)image.bytes.data();
         dst[x + y * image.width * sizeof(T)] = color;
     }
+    
+    template <typename T >
+    void getPixel(int16_t x, int16_t y, const T &color, const image::TImage &image)
+    {
+        if (x < 0 || y < 0) return;
+        if (x >= image.width || y >= image.height) return;
+        uint8_t *dst = (uint8_t *)image.bytes.data();
+        *color = dst[x + y * image.width * sizeof(T)];
+    }
 }
 
 #endif /* graphics_hpp */

@@ -25,6 +25,7 @@
 
 #include <fstream>
 
+
 #include "pbm.hpp"
 #include "bmp.hpp"
 #include "png.hpp"
@@ -96,6 +97,29 @@ bool image::saveImage(const char *filename, const image::TImage &image)
     return false;
 }
 
+void image::setPaletteToRGB332(image::TImage &image)
+{
+    image.palette.resize(0);
+    
+    static const uint32_t R[] = {
+        0, 36, 73, 109, 146, 182, 219, 255
+    };
+    
+    static const uint32_t G[] = {
+        0, 36, 73, 109, 146, 182, 219, 255
+    };
+    
+    static const uint32_t B[] = {
+        0, 109, 182, 255
+    };
+    
+    for (int i = 0; i < 256; i++) {
+        uint32_t color;
+        color = 0xFF000000 | B[i & 3] << 16 | G[i >> 3 & 7] << 8 | R[i >> 5];
+        image.palette.push_back(color);
+    }
+}
+
 image::TImage image::createImage(int w, int h, uint8_t bpp)
 {
     TImage image = {
@@ -111,8 +135,14 @@ image::TImage image::createImage(int w, int h, uint8_t bpp)
     if (bpp == 16) length *= 2;
     if (bpp == 32) length *= sizeof(uint32_t);
     
+    
     image.bytes.reserve(length);
     image.bytes.resize(length);
+    
+//    if (bpp == 16) {
+//        memset(image.bytes.data(), 255, image.width * image.height * 2);
+//        return image;
+//    }
     
     image.palette.reserve(2);
     image.palette.resize(2);

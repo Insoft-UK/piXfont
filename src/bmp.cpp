@@ -189,13 +189,13 @@ bool bmp::save(const char *filename, const TImage &image)
         },
             .biSize = sizeof(BIPHeader) - sizeof(BMPHeader),
             .biWidth = image.width,
-            .biHeight = -image.height,
+            .biHeight = image.height,
             .biPlanes = 1,
-            .biCompression = 0,
+            .biCompression = static_cast<uint32_t>(image.bpp == 16 ? 3 : 0),
             .biBitCount = image.bpp,
             .biSizeImage = static_cast<uint32_t>((image.width * image.bpp + 31) / 32 * 4 * (image.height)),
-            .biClrUsed = static_cast<uint32_t>(image.palette.size()),
-            .biClImportant = static_cast<uint32_t>(image.palette.size())
+            .biClrUsed = image.bpp == 16 ? 0 : static_cast<uint32_t>(image.palette.size()),
+            .biClImportant = image.bpp == 16 ? 0 : static_cast<uint32_t>(image.palette.size())
     };
     
     bip_header.biSizeImage = (bip_header.biWidth * bip_header.biBitCount + 31) / 32 * 4 * abs(bip_header.biHeight);
@@ -212,10 +212,14 @@ bool bmp::save(const char *filename, const TImage &image)
     }
     
     outfile.write((char *)&bip_header, sizeof(BIPHeader));
-    outfile.write((char *)image.palette.data(), image.palette.size() * sizeof(uint32_t));
+    if (bip_header.biClrUsed) {
+        outfile.write((char *)image.palette.data(), bip_header.biClrUsed * sizeof(uint32_t));
+    }
     
     int bytesPerLine = (float)image.width / (8.0 / (float)image.bpp);
     char *pixelData = (char *)image.bytes.data();
+    
+    flipBitmapImageVertically(image);
     
     for (int line = 0; line < image.height; line++) {
         outfile.write(pixelData, bytesPerLine);
