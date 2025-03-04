@@ -43,7 +43,7 @@ namespace font {
     typedef struct {
         uint8_t   *bitmap;          // Glyph bitmaps, concatenated.
         TGlyph    *glyph;           // Glyph array.
-        uint8_t   *indices;         // Indices of glyphs.
+//        uint8_t   *indices;         // Indices of glyphs.
         uint16_t   first;           // The first UTF16 value of your first character.
         uint16_t   last;            // The last UTF16 value of your last character.
         uint8_t    yAdvance;        // Newline distance in the y-axis.
@@ -73,61 +73,10 @@ namespace font {
      @param sizeX Font magnification level in X-axis, 1 is 'original' size
      @param sizeY Font magnification level in Y-axis, 1 is 'original' size
      */
-    template <typename T >
-    static void drawChar(int16_t x, int16_t y, unsigned char c, const T color, uint8_t sizeX, uint8_t sizeY, const TFont &font, const image::TImage &image)
-    {
-        const TGlyph *glyph = &font.glyph[c - font.first];
-        
-        int h = glyph->height;
-        int w = glyph->width;
-        
-        x += glyph->dX;
-        y += (glyph->dY + font.yAdvance) * sizeY;
-        
-        uint8_t *bitmap = font.bitmap + glyph->bitmapOffset;
-        int bitPosition = 0;
-        uint8_t bits = 0;
-        
-        while (h--) {
-            for (int xx = 0; xx < w; xx++) {
-                if (!(bitPosition++ & 7)) {
-                    bits = *bitmap++;
-                }
-                if (bits & 0x80) {
-                    if (sizeX == 1 && sizeY == 1) {
-                        graphics::setPixel(x + xx, y, color, image);
-                    } else {
-                        graphics::drawFillRect(x + xx * sizeX, y, sizeX, sizeY, color, image);
-                    }
-                }
-                bits <<= 1;
-            }
-            y+=sizeY;
-        }
-    }
+    uint8_t drawGlyph(int16_t x, int16_t y, unsigned char c, const uint8_t color, uint8_t sizeX, uint8_t sizeY, const TFont &font, const image::TImage &image);
+    uint8_t drawGlyph(int16_t x, int16_t y, unsigned char c, const uint32_t color, uint8_t sizeX, uint8_t sizeY, const TFont &font, const image::TImage &image);
 
-    template <typename T >
-    int drawGlyph(int16_t x, int16_t y, const uint8_t asciiCode, const T color, const TFont &font, const image::TImage &image)
-    {
-        if (asciiCode < font.first || asciiCode > font.last) return 0;
-        const TGlyph *glyph = &font.glyph[(int)asciiCode - font.first];
-        drawChar(x, y, asciiCode, color, 1, 1, font, image);
-        return glyph->xAdvance;
-    }
-
-    template <typename T>
-    int print(int16_t x, int16_t y, const char *s, const T color, const TFont &font, const image::TImage &image)
-    {
-        uint8_t *c = (uint8_t *)s;
-        uint8_t asciiCode;
-        while (*c) {
-            asciiCode = *c++;
-            if (asciiCode < font.first || asciiCode > font.last) {
-                continue;
-            }
-            x += drawGlyph(x, y, asciiCode, color, font, image);
-        }
-        return x;
-    }
+    int print(int16_t x, int16_t y, const char *s, const uint8_t color, const TFont &font, const image::TImage &image);
+    int print(int16_t x, int16_t y, const char *s, const uint32_t color, const TFont &font, const image::TImage &image);
 }
 

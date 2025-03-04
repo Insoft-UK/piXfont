@@ -139,11 +139,6 @@ image::TImage image::createImage(int w, int h, uint8_t bpp)
     image.bytes.reserve(length);
     image.bytes.resize(length);
     
-//    if (bpp == 16) {
-//        memset(image.bytes.data(), 255, image.width * image.height * 2);
-//        return image;
-//    }
-    
     image.palette.reserve(2);
     image.palette.resize(2);
     

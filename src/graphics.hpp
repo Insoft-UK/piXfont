@@ -27,35 +27,18 @@
 #include "image.hpp"
 
 namespace graphics {
-    template <typename T >
-    void drawFillRect(int16_t x, int16_t y, uint16_t w, uint16_t h, const T color, const image::TImage &image)
-    {
-        uint8_t *dst = (uint8_t *)image.bytes.data();
-        while (h--) {
-            if (y >= image.height) return;
-            for (int i = 0; i < w; i++) {
-                if (x + i >= image.width) break;
-                dst[x + i + y * image.width * sizeof(T)] = color;
-            }
-            y++;
-        }
-    }
+    void drawFillRect(int16_t x, int16_t y, uint16_t w, uint16_t h, const uint8_t color, const image::TImage &image);
+    void drawFillRect(int16_t x, int16_t y, uint16_t w, uint16_t h, const uint32_t color, const image::TImage &image);
     
-    template <typename T >
-    void setPixel(int16_t x, int16_t y, const T color, const image::TImage &image)
-    {
-        if (x < 0 || y < 0) return;
-        if (x >= image.width || y >= image.height) return;
-        uint8_t *dst = (uint8_t *)image.bytes.data();
-        dst[x + y * image.width * sizeof(T)] = color;
-    }
+    void setPixel(int16_t x, int16_t y, const uint8_t color, const image::TImage &image);
+    void setPixel(int16_t x, int16_t y, const uint32_t color, const image::TImage &image);
     
     template <typename T >
     void getPixel(int16_t x, int16_t y, const T &color, const image::TImage &image)
     {
         if (x < 0 || y < 0) return;
         if (x >= image.width || y >= image.height) return;
-        uint8_t *dst = (uint8_t *)image.bytes.data();
+        T *dst = (T *)image.bytes.data();
         *color = dst[x + y * image.width * sizeof(T)];
     }
 }

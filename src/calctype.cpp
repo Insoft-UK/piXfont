@@ -30,8 +30,46 @@
 #include <regex>
 using namespace cmn;
 
-bool calctype::decodeFont(const std::string &utf8, TCalcTypeFont &font)
+static std::string load(const std::string &filename)
 {
+    std::ifstream infile;
+    std::string str;
+    
+    // Open the file in text mode
+    infile.open(filename, std::ios::in);
+    
+    // Check if the file is successfully opened
+    if (!infile.is_open()) {
+        return str;
+    }
+    
+    if (is_utf16le(infile)) {
+        char c;
+        while (!infile.eof()) {
+            infile.get(c);
+            str += c;
+            infile.peek();
+        }
+        
+        uint16_t *utf16_str = (uint16_t *)str.c_str();
+        str = utf16_to_utf8(utf16_str, str.size() / 2);
+    } else {
+        // Use a stringstream to read the file's content into the string
+        std::stringstream buffer;
+        buffer << infile.rdbuf();
+        str = buffer.str();
+    }
+
+    infile.close();
+    
+    return str;
+}
+
+bool calctype::decodeFont(const std::string &filename, TCalcTypeFont &font)
+{
+    std::string utf8;
+    utf8 = load(filename);
+    
     std::string str;
     std::string s;
     std::regex re;
@@ -128,11 +166,63 @@ void calctype::drawGlyph(calctype::TCalcTypeGlyphData *glyph, int x, int y, uint
             rgb = ~rgb;
             invRgb888 = redMapping[R_CHANNEL(rgb)] | greenMapping[G_CHANNEL(rgb)] | blueMapping[B_CHANNEL(rgb)];
          
-            *dest++ = (color & rgb888) | (currentPixel & invRgb888);
+            *dest++ = (color & rgb888) | (currentPixel & invRgb888) | 0xFF000000;
         }
         dest += image.width - glyph->width;
     }
 }
+
+void calctype::drawRawGlyph(calctype::TCalcTypeGlyphData *glyph, int x, int y, const image::TImage &image)
+{
+    static const uint32_t redMapping[8] =
+    {
+        0x00000000, // 0
+        0x00000024, // 36
+        0x00000049, // 73
+        0x0000006D, // 109
+        0x00000092, // 146
+        0x000000B6, // 182
+        0x000000DB, // 219
+        0x000000FF  // 255
+    };
+    
+    static const uint32_t greenMapping[8] =
+    {
+        0x00000000, // 0
+        0x00002400, // 36
+        0x00004900, // 73
+        0x00006D00, // 109
+        0x00009200, // 146
+        0x0000B600, // 182
+        0x0000DB00, // 219
+        0x0000FF00  // 255
+    };
+
+    static const uint32_t blueMapping[4] =
+    {
+        0x00000000, // 0
+        0x006D0000, // 109
+        0x00B60000, // 182
+        0x00FF0000  // 255
+    };
+    
+    uint32_t *dest = ((uint32_t *)image.bytes.data());
+    dest += x + y * image.width;
+    
+    unsigned char *data = (unsigned char *)glyph + sizeof(calctype::TCalcTypeGlyphData);
+
+    for (y = 0; y < glyph->height; y++) {
+        for (x = 0; x < glyph->width; x++) {
+            uint8_t rgb = *data++;
+            
+            *dest++ = redMapping[R_CHANNEL(rgb)] | 0xFF000000;
+            *dest++ = greenMapping[G_CHANNEL(rgb)] | 0xFF000000;
+            *dest++ = blueMapping[B_CHANNEL(rgb)] | 0xFF000000;
+        }
+        dest += image.width - glyph->width * 3;
+    }
+}
+
 
 unsigned int calctype::glyphWidth(const TCalcTypeFont &font, const char charactor)
 {
@@ -183,5 +273,19 @@ void calctype::drawString(const TCalcTypeFont &font, const char *str, int x, int
                 break;
         }
     }
+}
+
+bool calctype::isCalcType(const std::string &filename)
+{
+    std::smatch match;
+    std::regex re;
+    std::string str;
+    
+    str = load(filename);
+
+    re = R"(\bconst unsigned char _[A-Z]\w*\[\]  *= *\{\s*([^}]*)\s*\};\s*const *TCalcTypeFont *[A-Z]\w* *= *\{\s*.height *= *(\d+),\s*\.base *= *(-\d+),\s*\.space *= *(\d+),\s*\.glyphData *= *_[A-Z]\w*,\s*\.glyphOffset *= *\{\s*([^\}]*)\}\s*\};)";
+    bool result = std::regex_search(str, match, re);
+    
+    return result;
 }
 

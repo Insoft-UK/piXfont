@@ -30,6 +30,7 @@
 #include "common.hpp"
 #include "hpprgm.hpp"
 #include "calctype.hpp"
+#include "HD44780.h"
 
 #include "pbm.hpp"
 #include "png.hpp"
@@ -87,10 +88,12 @@ void help(void) {
     std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
     std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
     std::cout << "\n";
-    std::cout << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-i] [-v]\n";
+    std::cout << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-calctype] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-i] [-v]\n";
     std::cout << "\n";
     std::cout << "Options:\n";
     std::cout << "  -o <output-file>   Specify the filename for generated .bmp, .h or .hpprgm file.\n";
+    std::cout << "  -calctype          Specify the type of .h output file is of type CalcType.\n";
+//    std::cout << "  -xtype             Specify the type of .h output file is of type XType.\n";
     std::cout << "  -w <value>         Maximum glyph width in pixels.\n";
     std::cout << "  -h <value>         Maximum glyph height in pixels.\n";
     std::cout << "  -c <columns>       Number of glyphs per column when generating a glyph atlas.\n";
@@ -367,20 +370,6 @@ std::string loadTextFile(const std::string &filename)
     return str;
 }
 
-bool isHeaderCalcTypeFont(const std::string &str)
-{
-    std::smatch match;
-    std::regex re;
-
-    re = R"(\bconst unsigned char _[A-Z]\w*\[\]  *= *\{\s*([^}]*)\s*\};\s*const *TCalcTypeFont *[A-Z]\w* *= *\{\s*.height *= *(\d+),\s*\.base *= *(-\d+),\s*\.space *= *(\d+),\s*\.glyphData *= *_[A-Z]\w*,\s*\.glyphOffset *= *\{\s*([^\}]*)\}\s*\};)";
-    bool result = std::regex_search(str, match, re);
-    
-    return result;
-    
-//    return true;
-}
-
-
 // MARK: - Deleaing with Glyphs
 
 void removeLeadingBlankGlyphs(font::TAdafruitFont &adafruitFont)
@@ -436,7 +425,7 @@ void drawAllGlyphsHorizontaly(const int rows, const int columns, const font::TFo
             x = 0;
             y += yAdvance;
         }
-        font::drawChar(x, y, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
+        font::drawGlyph(x, y, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
     }
 }
 
@@ -453,7 +442,7 @@ void drawAllGlyphsVerticaly(const int rows, const int columns, const font::TFont
             y = 0;
             x += xAdvance;
         }
-        font::drawChar(x, y, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
+        font::drawGlyph(x, y, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
     }
 }
 
@@ -480,103 +469,52 @@ std::string createHpprgmAdafruitFont(font::TAdafruitFont &adafruitFont, std::str
     return os.str();
 }
 
-image::TImage createImageCalcTypeFont(calctype::TCalcTypeFont &calcTypeFont, const int columns, const TOptions &options)
+image::TImage createImageCalcTypeFont(calctype::TCalcTypeFont &font, const int columns, const TOptions &options)
 {
     image::TImage image;
-    uint8_t *glyphData = (uint8_t *)calcTypeFont.glyphData.data();
+    uint8_t *glyphData = (uint8_t *)font.glyphData.data();
     
     int maxGlyphWidth = 0;
-    int maxGlyphHeight = calcTypeFont.height + 1;
+    int maxGlyphHeight = font.height + 1;
     
     for (int i = 0; i < 224; i++) {
-        uint16_t offset = calcTypeFont.glyphOffset[i];
+        uint16_t offset = font.glyphOffset[i];
         if (offset == 65535) continue;
         
         calctype::TCalcTypeGlyphData *glyph = (calctype::TCalcTypeGlyphData *)&glyphData[offset];
         
-        if ((glyph->xAdvance + 3) / 3 < maxGlyphWidth) continue;
-        maxGlyphWidth = (glyph->xAdvance + 3) / 3;
+        if (glyph->xAdvance < maxGlyphWidth) continue;
+        maxGlyphWidth = glyph->xAdvance;
     }
-    maxGlyphWidth += 3;
+    maxGlyphWidth += 9;
     
     if (options.scale == 3) {
-        image = image::createImage(maxGlyphWidth * 16 * 3, maxGlyphHeight * 14, 32);
+        image = image::createImage(maxGlyphWidth * 16, maxGlyphHeight * 14 + HD44780.yAdvance * 2, 32);
     } else {
-        image = image::createImage(maxGlyphWidth * 16, maxGlyphHeight * 14, 32);
+        image = image::createImage(maxGlyphWidth / 3 * 16, maxGlyphHeight * 14 + HD44780.yAdvance * 2, 32);
     }
-
-    static const uint32_t redMapping[8] =
-    {
-        0x00000000, // 0
-        0x00000024, // 36
-        0x00000049, // 73
-        0x0000006D, // 109
-        0x00000092, // 146
-        0x000000B6, // 182
-        0x000000DB, // 219
-        0x000000FF  // 255
-    };
-    
-    static const uint32_t greenMapping[8] =
-    {
-        0x00000000, // 0
-        0x00002400, // 36
-        0x00004900, // 73
-        0x00006D00, // 109
-        0x00009200, // 146
-        0x0000B600, // 182
-        0x0000DB00, // 219
-        0x0000FF00  // 255
-    };
-
-    static const uint32_t blueMapping[4] =
-    {
-        0x00000000, // 0
-        0x006D0000, // 109
-        0x00B60000, // 182
-        0x00FF0000  // 255
-    };
     
     for (int i = 0; i < 224; i++) {
         int xOffset = i % 16 * maxGlyphWidth;
         int yOffset = i / 16 * maxGlyphHeight;
     
-        uint16_t offset = calcTypeFont.glyphOffset[i];
+        uint16_t offset = font.glyphOffset[i];
         if (offset == 65535) continue;
         
-        uint8_t *data = &glyphData[offset + sizeof(calctype::TCalcTypeGlyphData)];
         calctype::TCalcTypeGlyphData *glyph = (calctype::TCalcTypeGlyphData *)&glyphData[offset];
         
-        if (options.color == 0 && options.scale != 3) {
-            calctype::drawGlyph(glyph, xOffset, yOffset, 0xFFFFFFFF, image);
+        if (options.scale != 3) {
+            calctype::drawGlyph(glyph, (xOffset + glyph->xOffset) / 3, yOffset + glyph->yOffset, 0xFFFFFFFF, image);
             continue;
         }
         
-        uint32_t *dest = ((uint32_t *)image.bytes.data());
-        dest += xOffset * 3 + yOffset * image.width;
-        uint32_t rgb888;
-        
-        for (int y = 0; y < glyph->height; y++) {
-            for (int x = 0; x < glyph->width; x++) {
-                uint8_t rgb = *data++;
-                
-                if (options.scale == 3) {
-                    *dest++ = redMapping[R_CHANNEL(rgb)] | 0xFF000000;
-                    *dest++ = greenMapping[G_CHANNEL(rgb)] | 0xFF000000;
-                    *dest++ = blueMapping[B_CHANNEL(rgb)] | 0xFF000000;
-                } else {
-                    rgb888 = redMapping[R_CHANNEL(rgb)] | greenMapping[G_CHANNEL(rgb)] | blueMapping[B_CHANNEL(rgb)];
-                    *dest++ = rgb888 | 0xFF000000;
-                }
-            }
-            if (options.scale == 3) {
-                dest += image.width - glyph->width * 3;
-            } else {
-                dest += image.width - glyph->width;
-            }
-        }
+        calctype::drawRawGlyph(glyph, xOffset + glyph->xOffset, yOffset + glyph->yOffset, image);
     }
-
+    
+    uint32_t color = 0xFFFFFFFF;
+    std::ostringstream os;
+    os << " CalcType Font\n H:" << (options.scale != 3 ? maxGlyphWidth / 3 : maxGlyphWidth) << " V:" << maxGlyphHeight << " height:" << (int)font.height << " space:" << (int)font.space;
+    font::print(0, image.height - 11, os.str().c_str(), color, HD44780, image);
     return image;
 }
 
@@ -881,6 +819,8 @@ void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_file
     createUTF16LEFile(out_filename, str);
 }
 
+
+
 image::TImage convertAdafruitFontToImage(const std::string &in_filename, const int glyphsPercolumn, const TOptions &options)
 {
     font::TAdafruitFont adafruitFont;
@@ -891,23 +831,22 @@ image::TImage convertAdafruitFontToImage(const std::string &in_filename, const i
             exit(2);
         }
     } else {
-        // TODO: refractor this messy code.
-        std::string str;
-        str = loadTextFile(in_filename);
-        if (isHeaderCalcTypeFont(str)) {
-            calctype::TCalcTypeFont calcTypeFont;
-            calctype::decodeFont(str, calcTypeFont);
-            return createImageCalcTypeFont(calcTypeFont, glyphsPercolumn, options);
-        } else {
-            if (!decodeHAdafruitFont(in_filename, adafruitFont)) {
-                std::cout << "Failed to find valid Adafruit Font data.\n";
-                exit(2);
-            }
+        if (!decodeHAdafruitFont(in_filename, adafruitFont)) {
+            std::cout << "Failed to find valid Adafruit Font data.\n";
+            exit(2);
         }
     }
     
     return createImageAdafruitFont(adafruitFont, glyphsPercolumn, options);
 }
+
+image::TImage convertCalcTypeFontToImage(const std::string &in_filename, const int glyphsPercolumn, const TOptions &options)
+{
+    calctype::TCalcTypeFont calcTypeFont;
+    calctype::decodeFont(in_filename, calcTypeFont);
+    return createImageCalcTypeFont(calcTypeFont, glyphsPercolumn, options);
+}
+
 
 // MARK: - Main
 
@@ -1181,7 +1120,14 @@ int main(int argc, const char * argv[])
         }
         
         if (out_extension == ".bmp" || out_extension == ".png") {
-            image::TImage image = convertAdafruitFontToImage(in_filename, columns, options);
+            image::TImage image;
+            
+            if (calctype::isCalcType(in_filename)) {
+                image = convertCalcTypeFontToImage(in_filename, columns, options);
+            } else {
+                image = convertAdafruitFontToImage(in_filename, columns, options);
+            }
+            
             saveImage(out_filename.c_str(), image);
             if (!filesize(out_filename.c_str())) {
                 std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";

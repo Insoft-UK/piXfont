@@ -50,10 +50,12 @@ namespace calctype {
         uint16_t glyphOffset[224];
     } TCalcTypeFont;
     
-    bool decodeFont(const std::string &utf8, TCalcTypeFont &font);
+    bool decodeFont(const std::string &filename, TCalcTypeFont &font);
     unsigned int glyphWidth(const TCalcTypeFont &font, const char charactor);
     void drawGlyph(calctype::TCalcTypeGlyphData *glyph, int x, int y, uint32_t color, const image::TImage &image);
+    void drawRawGlyph(calctype::TCalcTypeGlyphData *glyph, int x, int y, const image::TImage &image);
     void drawString(const TCalcTypeFont &font, const char *str, int x, int y, uint32_t color, const image::TImage &image);
+    bool isCalcType(const std::string &filename);
 }
 
 #endif /* calctype_hpp */
