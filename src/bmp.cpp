@@ -194,8 +194,8 @@ bool bmp::save(const char *filename, const TImage &image)
             .biCompression = static_cast<uint32_t>(image.bpp == 16 ? 3 : 0),
             .biBitCount = image.bpp,
             .biSizeImage = static_cast<uint32_t>((image.width * image.bpp + 31) / 32 * 4 * (image.height)),
-            .biClrUsed = image.bpp == 16 ? 0 : static_cast<uint32_t>(image.palette.size()),
-            .biClImportant = image.bpp == 16 ? 0 : static_cast<uint32_t>(image.palette.size())
+            .biClrUsed = image.bpp >= 16 ? 0 : static_cast<uint32_t>(image.palette.size()),
+            .biClImportant = image.bpp >= 16 ? 0 : static_cast<uint32_t>(image.palette.size())
     };
     
     bip_header.biSizeImage = (bip_header.biWidth * bip_header.biBitCount + 31) / 32 * 4 * abs(bip_header.biHeight);

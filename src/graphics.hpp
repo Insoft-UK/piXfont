@@ -33,14 +33,7 @@ namespace graphics {
     void setPixel(int16_t x, int16_t y, const uint8_t color, const image::TImage &image);
     void setPixel(int16_t x, int16_t y, const uint32_t color, const image::TImage &image);
     
-    template <typename T >
-    void getPixel(int16_t x, int16_t y, const T &color, const image::TImage &image)
-    {
-        if (x < 0 || y < 0) return;
-        if (x >= image.width || y >= image.height) return;
-        T *dst = (T *)image.bytes.data();
-        *color = dst[x + y * image.width * sizeof(T)];
-    }
+    uint8_t getPixel(int16_t x, int16_t y, const image::TImage &image);
 }
 
 #endif /* graphics_hpp */

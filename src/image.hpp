@@ -84,11 +84,19 @@ namespace image {
     void copyImage(const TImage &dst, int dx, int dy, const TImage &src, int x, int y, uint16_t w, uint16_t h);
     
     /**
+     @brief Converts a monochrome bitmap to a grayscale pixmap, where each pixel is represented by a single byte.
+     @param monochrome The monochrome bitmap to be converted to a grayscale pixmap bitmap.
+     @return A structure containing the bitmap image data.
+     */
+    TImage convertMonochromeToGrayScale(const TImage monochrome);
+    
+    
+    /**
      @brief Converts a monochrome bitmap to a pixmap, where each pixel is represented by a single byte.
      @param monochrome The monochrome bitmap to be converted to a pixmap bitmap.
      @return A structure containing the bitmap image data.
      */
-    TImage convertMonochromeToGrayScale(const TImage monochrome);
+    TImage convertMonochromeToIndex(const TImage monochrome);
     
     /**
      @brief Converts a monochrome bitmap to a pixmap, where each pixel is represented by a single byte.
@@ -114,4 +122,10 @@ namespace image {
      @param image The input image from which a section containing an actual image will be extracted.
      */
     TImage extractImageSection(TImage &image);
+    
+    /**
+     @brief Takes an input image and inverts it.
+     @param image The input image that will to inverte.
+     */
+    void invertImage(TImage &image);
 }

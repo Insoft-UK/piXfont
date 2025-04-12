@@ -27,8 +27,15 @@
 #include "font.hpp"
 
 namespace hpprgm {
-    std::string load(const std::string &filename);
-    bool decodeAdafruitFont(const std::string &utf8, font::TAdafruitFont &font);
+
+    /**
+     @brief    Parse an Adafruit .hpprgm file.
+     @param    utf8 The utf8 string of the .hpprgm file.
+     @return   Return true if succeful else faile.
+     */
+    bool parseAdafruitFontFile(const std::string &filename, font::TAdafruitFont &font);
+    
+    std::string buildHpprgmAdafruitFont(font::TAdafruitFont &adafruitFont, std::string &name);
 }
 
 #endif /* hpprgm_hpp */

@@ -166,21 +166,65 @@ void image::copyImage(const TImage &dst, int dx, int dy, const TImage &src, int 
 
 image::TImage image::convertMonochromeToGrayScale(const TImage monochrome)
 {
-    TImage grayscale;
+    TImage image;
     
-    if (monochrome.bpp != 1) return grayscale;
+    if (monochrome.bpp != 1) return image;
 
-    grayscale.bpp = 8;
-    grayscale.width = monochrome.width;
-    grayscale.height = monochrome.height;
+    image.bpp = 8;
+    image.width = monochrome.width;
+    image.height = monochrome.height;
     size_t length = (size_t)monochrome.width * (size_t)monochrome.height;
-    grayscale.bytes.reserve(length);
-    grayscale.bytes.resize(length);
+    image.bytes.reserve(length);
+    image.bytes.resize(length);
+    
+   
+    
+    for (uint32_t color = 0xFF000000; image.palette.size() != 256; color += 0x010101) {
+        image.palette.push_back(color);
+    }
     
     uint8_t *src = (uint8_t *)monochrome.bytes.data();
-    uint8_t *dest = (uint8_t *)grayscale.bytes.data();
+    uint8_t *dest = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
     
+    int x, y;
+    for (y=0; y<monochrome.height; y++) {
+        bitPosition = 1 << 7;
+        for (x=0; x<monochrome.width; x++) {
+            *dest++ = (*src & bitPosition ? 0 : 255);
+            if (bitPosition == 1) {
+                src++;
+                bitPosition = 1 << 7;
+            } else {
+                bitPosition >>= 1;
+            }
+        }
+        if (x & 7) src++;
+    }
+    
+    return image;
+}
+
+image::TImage image::convertMonochromeToIndex(const TImage monochrome)
+{
+    TImage image;
+
+    if (monochrome.bpp != 1) return image;
+
+    image.bpp = 8;
+    image.width = monochrome.width;
+    image.height = monochrome.height;
+    size_t length = (size_t)monochrome.width * (size_t)monochrome.height;
+    image.bytes.reserve(length);
+    image.bytes.resize(length);
+    
+    image.palette.push_back(0x0);
+    image.palette.push_back(0xFFFFFFFF);
+
+    uint8_t *src = (uint8_t *)monochrome.bytes.data();
+    uint8_t *dest = (uint8_t *)image.bytes.data();
+    uint8_t bitPosition = 1 << 7;
+
     int x, y;
     for (y=0; y<monochrome.height; y++) {
         bitPosition = 1 << 7;
@@ -195,8 +239,8 @@ image::TImage image::convertMonochromeToGrayScale(const TImage monochrome)
         }
         if (x & 7) src++;
     }
-    
-    return grayscale;
+
+    return image;
 }
 
 image::TImage image::convert16ColorTo256Color(const TImage &image)
@@ -287,4 +331,14 @@ image::TImage image::extractImageSection(TImage &image)
     copyImage(extractedImage, 0, 0, image, minX, minY, width, height);
     
     return extractedImage;
+}
+
+void image::invertImage(TImage &image)
+{
+    size_t length = (size_t)((float)image.width / (8.0 / (float)image.bpp)) * image.height;
+    uint8_t *bytes = image.bytes.data();
+    while (length--) {
+        *bytes = ~*bytes;
+        bytes++;
+    }
 }

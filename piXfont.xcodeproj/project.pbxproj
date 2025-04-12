@@ -19,6 +19,7 @@
 		13CDF26E2D569FE50005D2EA /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13CDF2262D5309530005D2EA /* libz.a */; };
 		13D0DCC12D75438C00595D10 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13D0DCC02D75438C00595D10 /* graphics.cpp */; };
 		13D0DCC42D754A3D00595D10 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13D0DCC32D754A3D00595D10 /* font.cpp */; };
+		13D0DCC82D7903E600595D10 /* sub-pixel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13D0DCC72D7903E600595D10 /* sub-pixel.cpp */; };
 		84764229189579CD00AFBE9C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84764228189579CD00AFBE9C /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +73,9 @@
 		13D0DCBF2D753F7300595D10 /* HD44780.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HD44780.h; sourceTree = "<group>"; };
 		13D0DCC02D75438C00595D10 /* graphics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics.cpp; sourceTree = "<group>"; };
 		13D0DCC32D754A3D00595D10 /* font.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = font.cpp; sourceTree = "<group>"; };
+		13D0DCC52D78E54E00595D10 /* result.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = result.bmp; path = assets/result.bmp; sourceTree = "<group>"; };
+		13D0DCC62D7903E600595D10 /* sub-pixel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "sub-pixel.hpp"; sourceTree = "<group>"; };
+		13D0DCC72D7903E600595D10 /* sub-pixel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "sub-pixel.cpp"; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* piXfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piXfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -196,6 +200,7 @@
 				1328C2962BCB4908003C4B3A /* README.md */,
 				13148B602D42B5E800849C73 /* version.txt */,
 				1328C2972BCB4910003C4B3A /* Makefile */,
+				13D0DCC52D78E54E00595D10 /* result.bmp */,
 				13CDF24E2D53B70B0005D2EA /* fonts */,
 				84764227189579CD00AFBE9C /* src */,
 				13CDF1AF2D4C2FD10005D2EA /* Frameworks */,
@@ -218,6 +223,8 @@
 				13CDF2292D5309530005D2EA /* libz */,
 				13148B612D42B69200849C73 /* version_code.h */,
 				13D0DCBF2D753F7300595D10 /* HD44780.h */,
+				13D0DCC62D7903E600595D10 /* sub-pixel.hpp */,
+				13D0DCC72D7903E600595D10 /* sub-pixel.cpp */,
 				84764228189579CD00AFBE9C /* main.cpp */,
 				13CDCDAC2D4910130005D2EA /* bmp.hpp */,
 				13CDCDAD2D4910130005D2EA /* bmp.cpp */,
@@ -295,8 +302,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		1328C28A2BC83B5A003C4B3A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 12;
+			buildActionMask = 8;
 			files = (
 			);
 			inputFileListPaths = (
@@ -307,7 +313,7 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
 			shellScript = "./version_code\n";
 		};
@@ -321,6 +327,7 @@
 				84764229189579CD00AFBE9C /* main.cpp in Sources */,
 				13CDCDB02D4910130005D2EA /* bmp.cpp in Sources */,
 				1395B1D92D72613E002B28CF /* calctype.cpp in Sources */,
+				13D0DCC82D7903E600595D10 /* sub-pixel.cpp in Sources */,
 				13CDCDB12D4910130005D2EA /* pbm.cpp in Sources */,
 				13D0DCC42D754A3D00595D10 /* font.cpp in Sources */,
 				13D0DCC12D75438C00595D10 /* graphics.cpp in Sources */,
