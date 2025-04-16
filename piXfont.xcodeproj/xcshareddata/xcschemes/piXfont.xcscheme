@@ -77,8 +77,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/HD44780.h"
-            isEnabled = "YES">
+            argument = "$(PROJECT_DIR)/examples/HD44780.h -g v"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_24pt0xXX.h"
@@ -110,7 +110,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_18pt0x7FXX.h"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

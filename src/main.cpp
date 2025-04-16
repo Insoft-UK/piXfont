@@ -360,37 +360,39 @@ void trimBlankGlyphs(font::TAdafruitFont &adafruitFont)
 }
 
 
-void drawAllGlyphsHorizontaly(const int rows, const int columns, const font::TFont &adafruitFont, const image::TImage &image, int scale)
+void drawAllGlyphsHorizontaly(const font::TFont &adafruitFont, const image::TImage &image, int scale)
 {
     int x, y, xAdvance, yAdvance;
     
     x = 0; y = 0;
-    xAdvance = image.width / columns;
-    yAdvance = image.height / rows;
+    xAdvance = image.width / 16;
+    yAdvance = image.height / 16;
     
-    for (int i = adafruitFont.first; i <= adafruitFont.last; i++, x += xAdvance) {
+    for (int i = 0; i <= 255; i++, x += xAdvance) {
         if (x > image.width - 1) {
             x = 0;
             y += yAdvance;
         }
-        font::drawGlyph(x, y, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
+        if (i < adafruitFont.first || i > adafruitFont.last) continue;
+        font::drawGlyph(x, y + yAdvance, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
     }
 }
 
-void drawAllGlyphsVerticaly(const int rows, const int columns, const font::TFont &adafruitFont, const image::TImage &image, int scale)
+void drawAllGlyphsVerticaly(const font::TFont &adafruitFont, const image::TImage &image, int scale)
 {
     int x, y, xAdvance, yAdvance;
     
     x = 0; y = 0;
-    xAdvance = image.width / columns;
-    yAdvance = image.height / rows;
+    xAdvance = image.width / 16;
+    yAdvance = image.height / 16;
     
-    for (int i = adafruitFont.first; i <= adafruitFont.last; i++, y += yAdvance) {
+    for (int i = 0; i <= 255; i++, y += yAdvance) {
         if (y > image.height - 1) {
             y = 0;
             x += xAdvance;
         }
-        font::drawGlyph(x, y, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
+        if (i < adafruitFont.first || i > adafruitFont.last) continue;
+        font::drawGlyph(x, y + yAdvance, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
     }
 }
 
@@ -505,7 +507,7 @@ image::TImage createImageCalcTypeFont(calctype::TCalcTypeFont &font, const int c
     return image;
 }
 
-image::TImage createImageAdafruitFont(font::TAdafruitFont &adafruitFont, const int columns, const TOptions &options)
+image::TImage createImageAdafruitFont(font::TAdafruitFont &adafruitFont, const TOptions &options)
 {
     image::TImage image;
     
@@ -528,15 +530,14 @@ image::TImage createImageAdafruitFont(font::TAdafruitFont &adafruitFont, const i
         if (it->dY + font.yAdvance + it->height > h) h = it->dY + font.yAdvance + it->height;
     }
     
-    int rows = ceil((float)(font.last - font.first + 1) / (float)columns);
-    int height = rows * h * options.scale;
-    int width = columns * w * options.scale;
-    
+    int height = 16 * h * options.scale;
+    int width = 16 * w * options.scale;
+
     image = image::createImage(width, height, 8);
     if (options.direction == DirectionHorizontal) {
-        drawAllGlyphsHorizontaly(rows, columns, font, image, options.scale);
+        drawAllGlyphsHorizontaly(font, image, options.scale);
     } else {
-        drawAllGlyphsVerticaly(rows, columns, font, image, options.scale);
+        drawAllGlyphsVerticaly(font, image, options.scale);
     }
     
     return image;
@@ -808,7 +809,7 @@ image::TImage convertAdafruitFontToImage(const std::string &in_filename, const i
         }
     }
     
-    return createImageAdafruitFont(adafruitFont, glyphsPercolumn, options);
+    return createImageAdafruitFont(adafruitFont, options);
 }
 
 image::TImage convertCalcTypeFontToImage(const std::string &in_filename, const int glyphsPercolumn, const TOptions &options)
