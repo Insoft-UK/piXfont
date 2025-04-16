@@ -35,32 +35,40 @@ image::TImage image::loadImage(const char *filename)
 {
     TImage image;
     
-    auto bmp = bmp::load(filename);
-    if (!bmp.bytes.empty()) {
-        image.width = bmp.width;
-        image.height = bmp.height;
-        image.bpp = bmp.bpp;
-        image.palette = bmp.palette;
-        image.bytes = bmp.bytes;
-        return image;
+    auto type = std::filesystem::path(filename).extension().string();
+    
+    if (type == ".bmp") {
+        auto bmp = bmp::load(filename);
+        if (!bmp.bytes.empty()) {
+            image.width = bmp.width;
+            image.height = bmp.height;
+            image.bpp = bmp.bpp;
+            image.palette = bmp.palette;
+            image.bytes = bmp.bytes;
+            return image;
+        }
     }
     
-    auto pbm = pbm::load(filename);
-    if (!pbm.bytes.empty()) {
-        image.width = pbm.width;
-        image.height = pbm.height;
-        image.bpp = 1;
-        image.bytes = pbm.bytes;
-        return image;
+    if (type == ".pbm") {
+        auto pbm = pbm::load(filename);
+        if (!pbm.bytes.empty()) {
+            image.width = pbm.width;
+            image.height = pbm.height;
+            image.bpp = 1;
+            image.bytes = pbm.bytes;
+            return image;
+        }
     }
 
-    auto png = png::load(filename);
-    if (!png.bytes.empty()) {
-        image.width = pbm.width;
-        image.height = pbm.height;
-        image.bpp = bmp.bpp;
-        image.bytes = bmp.bytes;
-        return image;
+    if (type == ".png") {
+        auto png = png::load(filename);
+        if (!png.bytes.empty()) {
+            image.width = png.width;
+            image.height = png.height;
+            image.bpp = png.bpp;
+            image.bytes = png.bytes;
+            return image;
+        }
     }
 
     return image;

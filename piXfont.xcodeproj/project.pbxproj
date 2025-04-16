@@ -37,7 +37,6 @@
 
 /* Begin PBXFileReference section */
 		13148B602D42B5E800849C73 /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
-		13148B612D42B69200849C73 /* version_code.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_code.h; sourceTree = "<group>"; };
 		1328C2822BC6E355003C4B3A /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
 		1328C2832BC6E355003C4B3A /* image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
 		1328C2962BCB4908003C4B3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -81,7 +80,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		13CDF24E2D53B70B0005D2EA /* fonts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = fonts; path = assets/fonts; sourceTree = "<group>"; };
+		130842F02DAFFEC300CD8EC4 /* examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = examples; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,7 +200,7 @@
 				13148B602D42B5E800849C73 /* version.txt */,
 				1328C2972BCB4910003C4B3A /* Makefile */,
 				13D0DCC52D78E54E00595D10 /* result.bmp */,
-				13CDF24E2D53B70B0005D2EA /* fonts */,
+				130842F02DAFFEC300CD8EC4 /* examples */,
 				84764227189579CD00AFBE9C /* src */,
 				13CDF1AF2D4C2FD10005D2EA /* Frameworks */,
 				84764226189579CD00AFBE9C /* Products */,
@@ -221,7 +220,6 @@
 			children = (
 				13CDF2202D5309530005D2EA /* libpng */,
 				13CDF2292D5309530005D2EA /* libz */,
-				13148B612D42B69200849C73 /* version_code.h */,
 				13D0DCBF2D753F7300595D10 /* HD44780.h */,
 				13D0DCC62D7903E600595D10 /* sub-pixel.hpp */,
 				13D0DCC72D7903E600595D10 /* sub-pixel.cpp */,
@@ -278,7 +276,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1630;
 				ORGANIZATIONNAME = Insoft;
 			};
 			buildConfigurationList = 84764220189579CD00AFBE9C /* Build configuration list for PBXProject "piXfont" */;
@@ -302,7 +300,8 @@
 /* Begin PBXShellScriptBuildPhase section */
 		1328C28A2BC83B5A003C4B3A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 8;
+			alwaysOutOfDate = 1;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -313,7 +312,7 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "./version_code\n";
 		};
@@ -448,6 +447,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
 				DEAD_CODE_STRIPPING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = "";
 				HEADER_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = (
@@ -470,6 +470,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
 				DEAD_CODE_STRIPPING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = "";
 				HEADER_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = (

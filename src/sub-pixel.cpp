@@ -56,8 +56,10 @@ static void applyOneNinthFilter(uint8_t *input, uint8_t *output, const int width
 
 void processSubPixels(uint8_t *input, uint32_t *output, const int width)
 {
-    uint8_t filteredOneThird[width];
-    uint8_t filteredOneNinth[width];
+//    std::array<uint8_t, 100> filteredOneThird;
+//    std::array<uint8_t, 100> filteredOneNinth;
+    uint8_t filteredOneThird[100];
+    uint8_t filteredOneNinth[100];
 
     // 1/3 Filtering
     applyOneThirdFilter(input, filteredOneThird, width);

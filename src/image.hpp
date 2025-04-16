@@ -26,7 +26,8 @@
 
 #include <iostream>
 #include <sstream>
-#include <stdint.h>
+#include <cstdint>
+#include <vector>
 
 namespace image {
     typedef struct {

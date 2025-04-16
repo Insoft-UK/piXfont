@@ -62,7 +62,7 @@ typedef struct {
 // TODO: Impliment "Indices of glyphs"
 
 
-#include "version_code.h"
+#include "../version_code.h"
 #define NAME "Adafruit GFX Pixel Font Creator"
 #define COMMAND_NAME "pxfnt"
 
@@ -553,7 +553,7 @@ std::string buildHAdafruitFont(font::TAdafruitFont &adafruitFont,  std::string &
        << "#endif\n\n"
        << "#ifndef " << name << "_h\n"
        << "#define " << name << "_h\n\n"
-       << "const uint8_t " << name << "_Bitmaps[] PROGMEM = {\n"
+       << "const unsigned char " << name << "_Bitmaps[] PROGMEM = {\n"
        << "    " << std::setfill('0') << std::setw(2) << std::hex;
     
     for (int n = 0; n < adafruitFont.data.size(); n++) {
@@ -596,7 +596,7 @@ std::string buildHAdafruitFont(font::TAdafruitFont &adafruitFont,  std::string &
     os << std::dec
        << "};\n\n"
        << "const GFXfont " << name << " PROGMEM = {\n"
-       << "    (uint8_t *) " << name << "_Bitmaps, \n"
+       << "    (unsigned char *) " << name << "_Bitmaps, \n"
        << "    (GFXglyph *) " << name << "_Glyphs, \n"
        << "    " << (int)adafruitFont.first << ", \n"
        << "    " << (int)adafruitFont.last << ", \n"
@@ -634,10 +634,10 @@ bool createNewFont(const std::string &in_filename, const std::string &out_filena
     int cols = (image.width + options.HPadding) / (options.w + options.HPadding);
     int rows = (image.height + options.VPadding) / (options.h + options.VPadding);
 
-    if (adafruitFont.last - adafruitFont.first + 1 > cols * rows) {
-        std::cout << "Error: The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
-        return false;
-    }
+//    if (adafruitFont.last - adafruitFont.first + 1 > cols * rows) {
+//        std::cout << "Error: The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
+//        return false;
+//    }
     
     for (int i = 1; i < image.width * image.height; i++) {
         if (image.bytes.at(i) == options.color) continue;
@@ -732,7 +732,7 @@ bool parseHAdafruitFont(const std::string &filename, font::TAdafruitFont &font)
     }
     
     std::smatch match;
-    std::regex_search(utf8, match, std::regex(R"(const uint8_t \w+\[\] PROGMEM = \{([^}]*))"));
+    std::regex_search(utf8, match, std::regex(R"(const (?:unsigned )?[\w]+ \w+\[\] PROGMEM = \{([^}]*))"));
     if (match[1].matched) {
         auto s = match.str(1);
         while (std::regex_search(s, match, std::regex(R"((?:0x)?[\d[a-fA-F]{1,2})"))) {
@@ -761,7 +761,7 @@ bool parseHAdafruitFont(const std::string &filename, font::TAdafruitFont &font)
         return false;
     }
     
-    if (std::regex_search(s, match, std::regex(R"(((?:0x)?[\da-fA-F]+)\s*,\s*((?:0x)?[\da-fA-F]+)\s*,\s*((?:0x)?[\da-fA-F]+)\s*\};)"))) {
+    if (std::regex_search(s, match, std::regex(R"(((?:0x)?[\da-fA-F]+)\s*,\s*(?:\.\w+ *= *)?((?:0x)?[\da-fA-F]+)\s*,\s*(?:\.\w+ *= *)?((?:0x)?[\da-fA-F]+)\s*\};)"))) {
         font.first = parse_number(match.str(1));
         font.last = parse_number(match.str(2));
         font.yAdvance = parse_number(match.str(3));
@@ -1041,6 +1041,8 @@ int main(int argc, const char * argv[])
         out_filename = std::filesystem::path(in_filename).parent_path();
         out_filename.append("/");
         out_filename.append(std::filesystem::path(in_filename).stem().string());
+        
+        auto type = std::filesystem::path(in_filename).extension().string();
     }
     
     std::string in_extension = std::filesystem::path(in_filename).extension();
@@ -1055,8 +1057,8 @@ int main(int argc, const char * argv[])
      */
     if (std::filesystem::path(out_filename).extension().empty()) {
         if (in_extension == ".bmp") out_filename.append(".h");
-        if (in_extension == ".h") out_filename.append(".hpprgm");
-        if (in_extension == ".hpprgm") out_filename.append(".h");
+        if (in_extension == ".h") out_filename.append(".bmp");
+        if (in_extension == ".hpprgm") out_filename.append(".bmp");
     }
     
     std::string out_extension = std::filesystem::path(out_filename).extension();
