@@ -91,13 +91,15 @@ bool image::saveImage(const char *filename, const image::TImage &image)
     }
     
     if (extension == ".png") {
-        TImage RGBAImage = convert256ColorImageToRGBAImage(image);
+        
+        TImage newImage = image;
+        convertIndexedToRGBA(newImage);
         
         png::TImage pngImage = {
             .width = image.width,
             .height = image.height,
             .bpp = 32,
-            .bytes = RGBAImage.bytes
+            .bytes = newImage.bytes
         };
         return png::save(filename, pngImage);
     }
@@ -172,52 +174,11 @@ void image::copyImage(const TImage &dst, int dx, int dy, const TImage &src, int 
     }
 }
 
-image::TImage image::convertMonochromeToGrayScale(const TImage monochrome)
-{
-    TImage image;
-    
-    if (monochrome.bpp != 1) return image;
-
-    image.bpp = 8;
-    image.width = monochrome.width;
-    image.height = monochrome.height;
-    size_t length = (size_t)monochrome.width * (size_t)monochrome.height;
-    image.bytes.reserve(length);
-    image.bytes.resize(length);
-    
-   
-    
-    for (uint32_t color = 0xFF000000; image.palette.size() != 256; color += 0x010101) {
-        image.palette.push_back(color);
-    }
-    
-    uint8_t *src = (uint8_t *)monochrome.bytes.data();
-    uint8_t *dest = (uint8_t *)image.bytes.data();
-    uint8_t bitPosition = 1 << 7;
-    
-    int x, y;
-    for (y=0; y<monochrome.height; y++) {
-        bitPosition = 1 << 7;
-        for (x=0; x<monochrome.width; x++) {
-            *dest++ = (*src & bitPosition ? 0 : 255);
-            if (bitPosition == 1) {
-                src++;
-                bitPosition = 1 << 7;
-            } else {
-                bitPosition >>= 1;
-            }
-        }
-        if (x & 7) src++;
-    }
-    
-    return image;
-}
-
-image::TImage image::convertMonochromeToIndex(const TImage monochrome)
+void image::convertMonochromeToIndexed(TImage &monochrome)
 {
     TImage image;
 
-    if (monochrome.bpp != 1) return image;
+    if (monochrome.bpp != 1) return;
 
     image.bpp = 8;
     image.width = monochrome.width;
@@ -248,7 +209,7 @@ image::TImage image::convertMonochromeToIndex(const TImage monochrome)
         if (x & 7) src++;
     }
 
-    return image;
+    monochrome = image;
 }
 
 image::TImage image::convert16ColorTo256Color(const TImage &image)
@@ -268,25 +229,25 @@ image::TImage image::convert16ColorTo256Color(const TImage &image)
     return newImage;
 }
 
-image::TImage image::convert256ColorImageToRGBAImage(const TImage &image)
+void image::convertIndexedToRGBA(TImage &image)
 {
-    TImage newImage;
+    TImage RGBAImage;
     
-    newImage = createImage(image.width, image.height, TrueColor);
-    if (image.bytes.empty()) return newImage;
+    RGBAImage = createImage(image.width, image.height, TrueColor);
+    if (image.bytes.empty()) return;
     
-    uint32_t *dst = (uint32_t *)newImage.bytes.data();
+    uint32_t *dst = (uint32_t *)RGBAImage.bytes.data();
     for (auto it = image.bytes.begin(); it < image.bytes.end(); it++) {
         *dst++ = image.palette.at(*it);
     }
     
-    newImage.bpp = 32;
+    RGBAImage.bpp = 32;
     
-    return newImage;
+    image = RGBAImage;
 }
 
 
-bool image::containsImage(const TImage &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+bool image::containsRegion(const TImage &image, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
     if (image.bytes.empty()) return false;
     if (x + w > image.width || y + h > image.height) return false;
@@ -302,7 +263,7 @@ bool image::containsImage(const TImage &image, uint16_t x, uint16_t y, uint16_t 
     return false;
 }
 
-image::TImage image::extractImageSection(TImage &image)
+image::TImage image::cropToContent(const TImage &image)
 {
     TImage extractedImage;
     
@@ -349,4 +310,19 @@ void image::invertImage(TImage &image)
         *bytes = ~*bytes;
         bytes++;
     }
+}
+
+void image::binarizeImageByIndexWithValue(TImage &image, uint8_t index, uint8_t value)
+{
+    size_t length = (size_t)((float)image.width / (8.0 / (float)image.bpp)) * image.height;
+    uint8_t *bytes = image.bytes.data();
+    while (length--) {
+        *bytes = (*bytes == index) ? value : 0;
+        bytes++;
+    }
+}
+
+void image::binarizeImageByIndex(TImage &image, uint8_t index)
+{
+    binarizeImageByIndexWithValue(image, index, 1);
 }

@@ -57,19 +57,19 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/BBC.bmp -f 32 -l 255 -w 8 -h 16 -y 16 -H 8 -F -u 0"
+            argument = "$(PROJECT_DIR)/examples/BBC.bmp -w 8 -h 16 -H 8 -F -u 0 -i 0"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/VGA.pbm -f 0 -l 255 -w 9 -h 16 -F -u 0 -s 9"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/VGA.bmp -f 0 -l 255 -w 9 -h 16 -F -u 0 -s 9"
+            argument = "$(PROJECT_DIR)/examples/EGA.pbm -f 0 -l 255 -w 8 -h 14 -V 2 -F -u 0 -s 8"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/EGA.bmp -f 0 -l 255 -w 8 -h 14 -V 2 -F -u 0 -s 8"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/CGA.bmp -f 0 -l 255 -w 8 -h 8 -F -u 0 -s 8"
+            argument = "$(PROJECT_DIR)/examples/CGA.pbm -f 0 -l 255 -w 8 -h 8 -F -u 0 -s 8"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -110,7 +110,55 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_18pt0x7FXX.h"
-            isEnabled = "YES">
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_16pt0xXX.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_16pt0xE5XX.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_16pt0xE6XX.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_16pt0x7FXX.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_10pt0xXX.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_10pt0xE5XX.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_10pt0xE6XX.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/fx-CG50/fxCG50_10pt0x7FXX.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/VGA.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/EGA.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/CGA.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/BMP.h"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

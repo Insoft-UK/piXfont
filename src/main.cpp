@@ -104,7 +104,7 @@ void help(void) {
     std::cout << "  -y <y-offset>      Y-axis offset where glyphs start within the image file.\n";
     std::cout << "  -u <value>         Cursor advance distance in the x-axis from the\n";
     std::cout << "                     right edge of the glyph (default: 1).\n";
-    std::cout << "  -g <h/v>           Set the glyph layout direction, horizontal or vertical.\n";
+    std::cout << "  -g <h/v>           Glyph layout direction, horizontal or vertical.\n";
     std::cout << "  -s <value>         Cursor advance distance in the x-axis for UTF16\n";
     std::cout << "                     character 32 (space), if not using fixed width.\n";
     std::cout << "  -H <value>         Horizontal padding in pixels between glyphs.\n";
@@ -115,7 +115,7 @@ void help(void) {
     std::cout << "  -4x                4x glyphs when generating a glyph atlas.\n";
     std::cout << "  -indices           Use glyph indices.\n";
     std::cout << "  -i <value>         The color index used to represent a pixel in a glyph when using\n";
-    std::cout << "                     a non-monochrome image, for monochrome image value is 0 or 1.\n";
+    std::cout << "                     a non-monochrome image. For monochrome image, color is 0 or 1.\n";
     std::cout << "  -v                 Enable verbose output for detailed processing information.\n";
     std::cout << "\n";
     std::cout << "Verbose Flags:\n";
@@ -161,7 +161,7 @@ void findImageBounds(int &top, int &left, int &bottom, int &right, const image::
     }
 }
 
-void appendImageData(font::TAdafruitFont &adafruitFont, const image::TImage &image, uint8_t color = 1)
+void appendImageData(font::TAdafruitFont &adafruitFont, const image::TImage &image)
 {
     uint8_t *p = (uint8_t *)image.bytes.data();
     uint8_t bitPosition = 1 << 7;
@@ -169,7 +169,7 @@ void appendImageData(font::TAdafruitFont &adafruitFont, const image::TImage &ima
     
     for (int i = 0; i < image.width * image.height; i++) {
         if(!bitPosition) bitPosition = 1 << 7;
-        if (p[i] == color)
+        if (p[i] == 1)
             byte |= bitPosition;
         bitPosition >>= 1;
         if (!bitPosition) {
@@ -414,8 +414,9 @@ image::TImage createImageSubTypeFont(const std::string in_filename, const TOptio
         return image;
     }
     
-    grayscale = image::convertMonochromeToGrayScale(image);
-    
+    image::convertMonochromeToIndexed(image);
+    image::binarizeImageByIndexWithValue(image, 1, 255);
+    grayscale = image;
     
     if (grayscale.bpp != 8) {
         std::cout << "Error: Failed to convert monochrome to grayscale.\n";
@@ -618,32 +619,18 @@ bool createNewFont(const std::string &in_filename, const std::string &out_filena
         return false;
     }
     
-    if (image.bpp == 1) {
-        image = image::convertMonochromeToIndex(image);
-        if (options.color == 0) {
-            for (int i = 0; i < image.width * image.height; i++) {
-                image.bytes.at(i) = !image.bytes.at(i);
-            }
-        }
-    }
+    image::convertMonochromeToIndexed(image);
+    image::binarizeImageByIndex(image, options.color);
     
-    if (image.bpp != 8) {
-        std::cout << "Error: Failed to load a monochrome, grayscale or 256 color bitmap file." << in_filename << ".\n";
-        return false;
-    }
-    
-    int cols = (image.width + options.HPadding) / (options.w + options.HPadding);
-    int rows = (image.height + options.VPadding) / (options.h + options.VPadding);
+//    int cols = (image.width + options.HPadding) / (options.w + options.HPadding);
+//    int rows = (image.height + options.VPadding) / (options.h + options.VPadding);
 
 //    if (adafruitFont.last - adafruitFont.first + 1 > cols * rows) {
 //        std::cout << "Error: The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
 //        return false;
 //    }
     
-    for (int i = 1; i < image.width * image.height; i++) {
-        if (image.bytes.at(i) == options.color) continue;
-        image.bytes.at(i) = 0;
-    }
+    
     
     uint16_t bitmapOffset = 0;
     
@@ -658,10 +645,7 @@ bool createNewFont(const std::string &in_filename, const std::string &out_filena
         x += options.xOffset;
         y += options.yOffset;
         
-        copyImage(cellImage, 0, 0, image, x, y, cellImage.width, cellImage.height);
-        
-        image::TImage extractedImage = image::extractImageSection(cellImage);
-        if (extractedImage.bytes.empty()) {
+        if (!image::containsRegion(image, x, y, cellImage.width, cellImage.height)) {
             /*
              If the image does not contain a glyph for a character,
              insert a blank entry with xAdvance set to the cell width.
@@ -670,6 +654,11 @@ bool createNewFont(const std::string &in_filename, const std::string &out_filena
             adafruitFont.glyphs.push_back(glyph);
             continue;
         }
+        
+        copyImage(cellImage, 0, 0, image, x, y, cellImage.width, cellImage.height);
+        
+        image::TImage extractedImage = image::cropToContent(cellImage);
+
         
         
         int top, left, bottom, right;
@@ -684,7 +673,7 @@ bool createNewFont(const std::string &in_filename, const std::string &out_filena
             .dY = static_cast<int8_t>(-cellImage.height + top)
         };
     
-        appendImageData(adafruitFont, extractedImage, options.color);
+        appendImageData(adafruitFont, extractedImage);
         
         if (leftAlign) {
             glyph.xAdvance -= glyph.dX;
@@ -1057,7 +1046,7 @@ int main(int argc, const char * argv[])
      • For an input file with a .hpprgm extension, the default output extension is .h.
      */
     if (std::filesystem::path(out_filename).extension().empty()) {
-        if (in_extension == ".bmp") out_filename.append(".h");
+        if (in_extension == ".bmp" || in_extension == ".pbm" || in_extension == ".png") out_filename.append(".h");
         if (in_extension == ".h") out_filename.append(".bmp");
         if (in_extension == ".hpprgm") out_filename.append(".bmp");
     }
