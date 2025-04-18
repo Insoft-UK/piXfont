@@ -161,4 +161,20 @@ namespace image {
      @param index  The index value to preserve; all others will be set to 0.
      */
     void binarizeImageByIndex(TImage &image, uint8_t index);
+    
+    /**
+     @brief Converts a subpixel-rendered grayscale image into a standard RGBA image.
+     
+     This function interprets the input image as a horizontally 3x-scaled subpixel mask,
+     where each group of three grayscale pixels (0 or 255) represents a single RGB pixel.
+     It reconstructs a standard-resolution 32-bit RGBA image by mapping each set of
+     three subpixels (red, green, blue) to one output pixel, improving clarity on LCD screens.
+     
+     The original image is modified in-place with the resulting RGBA data.
+     
+     @param image  The input image containing subpixel-rendered mask data.
+     */
+    void convertSubpixel(TImage &image);
+    
+    void pasteImage(const TImage &image, const TImage &destImage, int x, int y);
 }

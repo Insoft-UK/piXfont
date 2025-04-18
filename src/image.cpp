@@ -30,6 +30,68 @@
 #include "bmp.hpp"
 #include "png.hpp"
 
+static void applyOneThirdFilter(uint8_t *input, uint8_t *output, const int width)
+{
+    // Handle the first pixel separately (no left neighbor)
+    *output++ = (*input + *input + *(input + 1)) / 3;
+    input++;
+
+    // Process all middle pixels
+    for (int i = 1; i < width - 1; i++) {
+        *output++ = (*(input - 1) + *input + *(input + 1)) / 3;
+        input++;
+    }
+
+    // Handle the last pixel separately (no right neighbor)
+    *output = (*(input - 1) + *input + *input) / 3;
+}
+
+static void applyOneNinthFilter(uint8_t *input, uint8_t *output, const int width)
+{
+    for (int i = 0; i < width; i++) {
+        int sum = 0;
+        for (int j = -1; j <= 1; j++) {   // Use 3-pixel neighborhood
+            int idx = i + j;
+            if (idx >= 0 && idx < width) {
+                sum += input[idx];
+            } else {
+                sum += input[i];  // Edge case: replicate borders
+            }
+        }
+        *output++ = sum / 3;  // Apply 1/9 filter
+    }
+}
+
+void subpixelsToRGBA(uint8_t *input, uint32_t *output, const int width)
+{
+    std::vector<uint8_t> filteredOneThird;
+    std::vector<uint8_t> filteredOneNinth;
+    
+    filteredOneThird.reserve(width);
+    filteredOneThird.resize(width);
+    
+    filteredOneNinth.reserve(width);
+    filteredOneNinth.resize(width);
+    
+
+    // 1/3 Filtering
+    applyOneThirdFilter(input, filteredOneThird.data(), width);
+
+    // 1/9 Filtering
+    applyOneNinthFilter(filteredOneThird.data(), filteredOneNinth.data(), width);
+  
+    uint8_t *filter = filteredOneNinth.data();
+
+    // Convert filtered sub-pixels into final pixels
+    for (int i = 0; i < width; i += 3) {
+        uint8_t r = *filter++;
+        uint8_t g = *filter++;
+        uint8_t b = *filter++;
+
+        // ARGB
+        *output++ = (0xFF << 24) | (r << 16) | (g << 8) | b;
+    }
+}
 
 image::TImage image::loadImage(const char *filename)
 {
@@ -326,3 +388,27 @@ void image::binarizeImageByIndex(TImage &image, uint8_t index)
 {
     binarizeImageByIndexWithValue(image, index, 1);
 }
+
+void image::convertSubpixel(TImage &image)
+{
+    TImage outImage = createImage(image.width / 3, image.height, TrueColor);
+
+    uint8_t *input = image.bytes.data();
+    uint32_t *output = (uint32_t *)outImage.bytes.data();
+    
+    for (int y = 0; y < image.height; y++) {
+        subpixelsToRGBA(input, output, image.width);
+        input += image.width;
+        output += outImage.width;
+    }
+    
+    image = outImage;
+}
+
+
+
+void image::pasteImage(const TImage &image, const TImage &destImage, int x, int y)
+{
+    
+}
+

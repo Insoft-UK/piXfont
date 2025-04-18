@@ -53,8 +53,12 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/HD44780.bmp -f 32 -w 5 -h 10 -F -i 3 -g v -H 1 -V 1 -x 1 -y 1"
+            argument = "$(PROJECT_DIR)/examples/subpixel/debug.pbm -o debug.bmp"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/HD44780.bmp -f 32 -w 5 -h 10 -F -i 3 -g v -H 1 -V 1 -x 1 -y 1"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/BBC.pbm -w 8 -h 16 -H 8 -F -u 0 -i 0"

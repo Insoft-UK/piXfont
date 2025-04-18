@@ -31,7 +31,6 @@
 #include "hpprgm.hpp"
 #include "calctype.hpp"
 #include "HD44780.h"
-#include "sub-pixel.hpp"
 
 #include "pbm.hpp"
 #include "png.hpp"
@@ -55,8 +54,8 @@ typedef struct {
     int HPadding, VPadding;
     Direction direction;
     uint8_t color;
-    int scale;
-    bool indices;
+    unsigned short scale;
+    bool subpixel;
     int columns;
 } TOptions;
 
@@ -69,11 +68,12 @@ typedef struct {
 
 // MARK: - Command Line
 void version(void) {
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
-    std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
-    std::cout << "Built on: " << DATE << "\n";
-    std::cout << "Licence: MIT License\n\n";
-    std::cout << "For more information, visit: http://www.insoft.uk\n";
+    std::cout 
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
+    << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n"
+    << "Built on: " << DATE << "\n"
+    << "Licence: MIT License\n\n"
+    << "For more information, visit: http://www.insoft.uk\n";
 }
 
 void error(void) {
@@ -82,51 +82,51 @@ void error(void) {
 }
 
 void info(void) {
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n";
-    std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n\n";
+    std::cout 
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n"
+    << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n\n";
 }
 
 void help(void) {
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
-    std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
-    std::cout << "\n";
-    std::cout << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-calctype] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-i] [-v]\n";
-    std::cout << "\n";
-    std::cout << "Options:\n";
-    std::cout << "  -o <output-file>   Specify the filename for generated .bmp, .h or .hpprgm file.\n";
-    std::cout << "  -w <value>         Maximum glyph width in pixels.\n";
-    std::cout << "  -h <value>         Maximum glyph height in pixels.\n";
-    std::cout << "  -c <columns>       Number of glyphs per column when generating a glyph atlas.\n";
-    std::cout << "  -n <name>          Font name.\n";
-    std::cout << "  -f <value>         First UTF16 value of the first character.\n";
-    std::cout << "  -l <value>         Last UTF16 value of the last character.\n";
-    std::cout << "  -a                 Auto left-align glyphs.\n";
-    std::cout << "  -x <x-offset>      X-axis offset where glyphs start within the image file.\n";
-    std::cout << "  -y <y-offset>      Y-axis offset where glyphs start within the image file.\n";
-    std::cout << "  -u <value>         Cursor advance distance in the x-axis from the\n";
-    std::cout << "                     right edge of the glyph (default: 1).\n";
-    std::cout << "  -g <h/v>           Glyph layout direction, horizontal or vertical.\n";
-    std::cout << "  -s <value>         Cursor advance distance in the x-axis for UTF16\n";
-    std::cout << "                     character 32 (space), if not using fixed width.\n";
-    std::cout << "  -H <value>         Horizontal padding in pixels between glyphs.\n";
-    std::cout << "  -V <value>         Vertical padding in pixels between glyphs.\n";
-    std::cout << "  -F                 Use fixed glyph width.\n";
-    std::cout << "  -2x                2x glyphs when generating a glyph atlas.\n";
-    std::cout << "  -3x                3x glyphs when generating a glyph atlas.\n";
-    std::cout << "  -4x                4x glyphs when generating a glyph atlas.\n";
-    std::cout << "  -indices           Use glyph indices.\n";
-    std::cout << "  -i <value>         The color index used to represent a pixel in a glyph when using\n";
-    std::cout << "                     a non-monochrome image. For monochrome image, color is 0 or 1.\n";
-    std::cout << "  -v                 Enable verbose output for detailed processing information.\n";
-    std::cout << "\n";
-    std::cout << "Verbose Flags:\n";
-    std::cout << "  f                  Font details.\n";
-    std::cout << "  g                  Glyph details.\n";
-    std::cout << "\n";
-    std::cout << "Additional Commands:\n";
-    std::cout << "  " << COMMAND_NAME << " {--version | --help}\n";
-    std::cout << "    --version        Display version information.\n";
-    std::cout << "    --help           Show this help message.\n";
+    std::cout 
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
+    << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n"
+    << "\n"
+    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-calctype] -w <value> -h <value> [-c <columns>] [-n <name>] [-f <value>] [-l <value>] [-a] [-x <x-offset>] [-y <y-offset>] [-u <value>] [-g <h/v>] [-s <value>] [-H <value>] [-V <value>] [-F] [-i] [-v]\n"
+    << "\n"
+    << "Options:\n"
+    << "  -o <output-file>   Specify the filename for generated .bmp, .h or .hpprgm file.\n"
+    << "  -w <value>         Maximum glyph width in pixels.\n"
+    << "  -h <value>         Maximum glyph height in pixels.\n"
+    << "  -c <columns>       Number of glyphs per column when generating a glyph atlas.\n"
+    << "  -n <name>          Font name.\n"
+    << "  -f <value>         First ASCII value of the first character.\n"
+    << "  -l <value>         Last ASCII value of the last character.\n"
+    << "  -a                 Auto left-align glyphs.\n"
+    << "  -x <x-offset>      X-axis offset where glyphs start within the image file.\n"
+    << "  -y <y-offset>      Y-axis offset where glyphs start within the image file.\n"
+    << "  -u <value>         Cursor advance distance in the x-axis from the\n"
+    << "                     right edge of the glyph (default: 1).\n"
+    << "  -g <h/v>           Glyph layout direction, horizontal or vertical.\n"
+    << "  -s <value>         Cursor advance distance in the x-axis for ASCII\n"
+    << "                     character 32 (space), if not using fixed width.\n"
+    << "  -H <value>         Horizontal padding in pixels between glyphs.\n"
+    << "  -V <value>         Vertical padding in pixels between glyphs.\n"
+    << "  -F                 Use fixed glyph width.\n"
+    << "  --scale <value>    Scale glyphs when generating a glyph atlas.\n"
+    << "  --subpixel         Subpixel glyphs when generating a glyph atlas.\n"
+    << "  -i <value>         The color index used to represent a pixel in a glyph when using\n"
+    << "                     a non-monochrome image. For monochrome image, color is 0 or 1.\n"
+    << "  -v                 Enable verbose output for detailed processing information.\n"
+    << "\n"
+    << "Verbose Flags:\n"
+    << "  f                  Font details.\n"
+    << "  g                  Glyph details.\n"
+    << "\n"
+    << "Additional Commands:\n"
+    << "  " << COMMAND_NAME << " {--version | --help}\n"
+    << "    --version        Display version information.\n"
+    << "    --help           Show this help message.\n";
 }
 
 // MARK: -
@@ -401,7 +401,7 @@ void drawAllGlyphsVerticaly(const font::TFont &adafruitFont, const image::TImage
 
 image::TImage createImageSubTypeFont(const std::string in_filename, const TOptions &options)
 {
-    image::TImage grayscale, image;
+    image::TImage image;
     
     image = image::loadImage(in_filename.c_str());
     
@@ -417,48 +417,13 @@ image::TImage createImageSubTypeFont(const std::string in_filename, const TOptio
     
     image::convertMonochromeToIndexed(image);
     image::binarizeImageByIndexWithValue(image, 1, 255);
-    grayscale = image;
+    image::invertImage(image);
     
-    if (grayscale.bpp != 8) {
-        std::cout << "Error: Failed to convert monochrome to grayscale.\n";
-        return image;
-    }
-    
-    image = image::createImage(grayscale.width / 3, grayscale.height, image::TrueColor);
-    
-    uint8_t *input = (uint8_t *)grayscale.bytes.data();
-    uint32_t *output = (uint32_t *)image.bytes.data();
-  
-    
-    for (int y = 0; y < grayscale.height; y++) {
-        processSubPixels(input, output, grayscale.width);
-        input += grayscale.width;
-        output += image.width;
-    }
-    
+    image::convertSubpixel(image);
     return image;
+   
 }
 
-//std::string createHpprgmAdafruitFont(font::TAdafruitFont &adafruitFont, std::string &name)
-//{
-//    std::ostringstream os;
-//    
-//    for (auto it = adafruitFont.data.begin(); it < adafruitFont.data.end(); it++) {
-//        *it = mirror_byte(*it);
-//    }
-//    
-//    os << "#pragma mode( separator(.,;) integer(h64) )\n\n"
-//       << "// Generated by Insoft Adafruit GFX Pixel Font Creator version, " << VERSION_NUMBER << "\n"
-//       << "// Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n\n"
-//       << "EXPORT " << name << " := {\n"
-//       << " {\n" << pplList(adafruitFont.data.data(), adafruitFont.data.size(), 16) << "\n"
-//       << " },{\n"
-//       << pplList(adafruitFont.glyphs.data(), adafruitFont.glyphs.size() * sizeof(font::TGlyph), 16) << "\n"
-//       << " }, " << (int)adafruitFont.first << ", " << (int)adafruitFont.last << ", " << (int)adafruitFont.yAdvance << "\n"
-//       << "};";
-//    
-//    return os.str();
-//}
 
 image::TImage createImageCalcTypeFont(calctype::TCalcTypeFont &font, const TOptions &options)
 {
@@ -947,20 +912,14 @@ int main(int argc, const char * argv[])
                 continue;
             }
             
-            if (args == "-2x") {
-                options.scale = 2;
+            if (args == "--scale") {
+                if (++n > argc) error();
+                options.scale = parse_number(argv[n]);
+                if (options.scale < 2 || options.scale >= 10) options.scale = 1;
                 continue;
             }
             
-            if (args == "-3x") {
-                options.scale = 3;
-                continue;
-            }
-            
-            if (args == "-4x") {
-                options.scale = 4;
-                continue;
-            }
+           
             
             if (args == "-a") {
                 leftAlign = true;
@@ -979,8 +938,8 @@ int main(int argc, const char * argv[])
                 continue;
             }
             
-            if (args == "-indices") {
-                options.indices = true;
+            if (args == "--subpixel") {
+                options.subpixel = true;
                 continue;
             }
             
