@@ -57,6 +57,7 @@ typedef struct {
     uint8_t color;
     int scale;
     bool indices;
+    int columns;
 } TOptions;
 
 // TODO: Impliment "Indices of glyphs"
@@ -360,13 +361,13 @@ void trimBlankGlyphs(font::TAdafruitFont &adafruitFont)
 }
 
 
-void drawAllGlyphsHorizontaly(const font::TFont &adafruitFont, const image::TImage &image, int scale)
+void drawAllGlyphsHorizontaly(const font::TFont &adafruitFont, const image::TImage &image, const TOptions &options)
 {
     int x, y, xAdvance, yAdvance;
     
     x = 0; y = 0;
-    xAdvance = image.width / 16;
-    yAdvance = image.height / 16;
+    xAdvance = image.width / options.columns;
+    yAdvance = image.height / (int)ceil(256 / (float)options.columns);
     
     for (int i = 0; i <= 255; i++, x += xAdvance) {
         if (x > image.width - 1) {
@@ -374,17 +375,17 @@ void drawAllGlyphsHorizontaly(const font::TFont &adafruitFont, const image::TIma
             y += yAdvance;
         }
         if (i < adafruitFont.first || i > adafruitFont.last) continue;
-        font::drawGlyph(x, y + yAdvance, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
+        font::drawGlyph(x, y + yAdvance, (char)i, (uint8_t)1, options.scale, options.scale, adafruitFont, image);
     }
 }
 
-void drawAllGlyphsVerticaly(const font::TFont &adafruitFont, const image::TImage &image, int scale)
+void drawAllGlyphsVerticaly(const font::TFont &adafruitFont, const image::TImage &image, const TOptions &options)
 {
     int x, y, xAdvance, yAdvance;
     
     x = 0; y = 0;
-    xAdvance = image.width / 16;
-    yAdvance = image.height / 16;
+    xAdvance = image.width / options.columns;
+    yAdvance = image.height / (int)ceil(256 / (float)options.columns);
     
     for (int i = 0; i <= 255; i++, y += yAdvance) {
         if (y > image.height - 1) {
@@ -392,7 +393,7 @@ void drawAllGlyphsVerticaly(const font::TFont &adafruitFont, const image::TImage
             x += xAdvance;
         }
         if (i < adafruitFont.first || i > adafruitFont.last) continue;
-        font::drawGlyph(x, y + yAdvance, (char)i, (uint8_t)1, scale, scale, adafruitFont, image);
+        font::drawGlyph(x, y + yAdvance, (char)i, (uint8_t)1, options.scale, options.scale, adafruitFont, image);
     }
 }
 
@@ -459,7 +460,7 @@ image::TImage createImageSubTypeFont(const std::string in_filename, const TOptio
 //    return os.str();
 //}
 
-image::TImage createImageCalcTypeFont(calctype::TCalcTypeFont &font, const int columns, const TOptions &options)
+image::TImage createImageCalcTypeFont(calctype::TCalcTypeFont &font, const TOptions &options)
 {
     image::TImage image;
     uint8_t *glyphData = (uint8_t *)font.glyphData.data();
@@ -531,14 +532,18 @@ image::TImage createImageAdafruitFont(font::TAdafruitFont &adafruitFont, const T
         if (it->dY + font.yAdvance + it->height > h) h = it->dY + font.yAdvance + it->height;
     }
     
-    int height = 16 * h * options.scale;
-    int width = 16 * w * options.scale;
+    
+    
+    int height, width;
+    
+    width = options.columns * w * options.scale;
+    height = (int)ceil(256 / (float)options.columns) * h * options.scale;
 
     image = image::createImage(width, height, 8);
     if (options.direction == DirectionHorizontal) {
-        drawAllGlyphsHorizontaly(font, image, options.scale);
+        drawAllGlyphsHorizontaly(font, image, options);
     } else {
-        drawAllGlyphsVerticaly(font, image, options.scale);
+        drawAllGlyphsVerticaly(font, image, options);
     }
     
     return image;
@@ -782,7 +787,7 @@ void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_file
 
 
 
-image::TImage convertAdafruitFontToImage(const std::string &in_filename, const int glyphsPercolumn, const TOptions &options)
+image::TImage convertAdafruitFontToImage(const std::string &in_filename, const TOptions &options)
 {
     font::TAdafruitFont adafruitFont;
     
@@ -801,11 +806,11 @@ image::TImage convertAdafruitFontToImage(const std::string &in_filename, const i
     return createImageAdafruitFont(adafruitFont, options);
 }
 
-image::TImage convertCalcTypeFontToImage(const std::string &in_filename, const int glyphsPercolumn, const TOptions &options)
+image::TImage convertCalcTypeFontToImage(const std::string &in_filename, const TOptions &options)
 {
     calctype::TCalcTypeFont calcTypeFont;
     calctype::decodeFont(in_filename, calcTypeFont);
-    return createImageCalcTypeFont(calcTypeFont, glyphsPercolumn, options);
+    return createImageCalcTypeFont(calcTypeFont, options);
 }
 
 
@@ -826,11 +831,12 @@ int main(int argc, const char * argv[])
         .h = 8,
         .w = 8,
         .color = 1,
-        .scale = 1
+        .scale = 1,
+        .columns = 16
     };
     
     std::string in_filename, out_filename, name, prefix, sufix;
-    int columns = 16;
+   
     
     
     bool fixed = false;
@@ -905,8 +911,8 @@ int main(int argc, const char * argv[])
             
             if (args == "-c") {
                 if (++n > argc) error();
-                columns = parse_number(argv[n]);
-                if (columns < 1) columns = 1;
+                options.columns = parse_number(argv[n]);
+                if (options.columns < 1) options.columns = 1;
                 continue;
             }
             
@@ -1086,9 +1092,9 @@ int main(int argc, const char * argv[])
             image::TImage image;
             
             if (calctype::isCalcType(in_filename)) {
-                image = convertCalcTypeFontToImage(in_filename, columns, options);
+                image = convertCalcTypeFontToImage(in_filename, options);
             } else {
-                image = convertAdafruitFontToImage(in_filename, columns, options);
+                image = convertAdafruitFontToImage(in_filename, options);
             }
             
             saveImage(out_filename.c_str(), image);
@@ -1118,7 +1124,7 @@ int main(int argc, const char * argv[])
         }
         
         if (out_extension == ".bmp" || out_extension == ".png") {
-            image::TImage image = convertAdafruitFontToImage(in_filename, columns, options);
+            image::TImage image = convertAdafruitFontToImage(in_filename, options);
             if (!saveImage(out_filename.c_str(), image)) {
                 std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
                 return 0;

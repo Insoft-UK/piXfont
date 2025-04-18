@@ -54,11 +54,11 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/HD44780.bmp -f 32 -l 255 -w 5 -h 10 -F -i 3 -g v -H 1 -V 1 -x 1 -y 1"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/BBC.bmp -w 8 -h 16 -H 8 -F -u 0 -i 0"
-            isEnabled = "YES">
+            argument = "$(PROJECT_DIR)/examples/BBC.pbm -w 8 -h 16 -H 8 -F -u 0 -i 0"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/VGA.pbm -f 0 -l 255 -w 9 -h 16 -F -u 0 -s 9"
@@ -73,7 +73,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/ARCADE.bmp -f 32 -l 140 -w 8 -h 8 -F -u 0"
+            argument = "$(PROJECT_DIR)/examples/ARCADE.pbm -f 32 -l 140 -w 8 -h 8 -F -u 0"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -157,7 +157,11 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/BMP.h"
+            argument = "$(PROJECT_DIR)/examples/BBC.h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/ARCADE.h"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
