@@ -81,7 +81,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/HD44780.h -g v"
+            argument = "$(PROJECT_DIR)/examples/HD44780.h -g v -o $(PROJECT_DIR)/assets/HD44780.bmp"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
