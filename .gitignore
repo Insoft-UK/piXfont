@@ -3,11 +3,6 @@ xcuserdata/
 .DS_Store
 build
 other
-examples/debug
-examples/*.bmp
-examples/CASIO/*.h
-examples/CASIO/*.pbm
-examples/CASIO/*.bmp
 ignore
 *.zip
 *.psd
