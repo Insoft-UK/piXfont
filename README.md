@@ -5,38 +5,32 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 
 ## Fonts
 
-### HD44780
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/HD44780.bmp">
 
-[HD44780.h](https://github.com/Insoft-UK/piXfont/blob/main/examples/HD44780.h)
+### [HD44780](https://github.com/Insoft-UK/piXfont/blob/main/examples/HD44780.h)
 
-### BBC
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/BBC.bmp" >
 
-[BBC.h](https://github.com/Insoft-UK/piXfont/blob/main/examples/BBC.h)
+### [BBC](https://github.com/Insoft-UK/piXfont/blob/main/examples/BBC.h)
 
-### IBM CGA CP437 8x8
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/CGA.bmp" >
 
-[CGA.h](https://github.com/Insoft-UK/piXfont/blob/main/examples/CGA.h)
+### [IBM CGA CP437 8x8](https://github.com/Insoft-UK/piXfont/blob/main/examples/CGA.h)
 
-### IBM EGA CP437 8x14
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/EGA.bmp" >
 
-[EGA.h](https://github.com/Insoft-UK/piXfont/blob/main/examples/EGA.h)
+### [IBM EGA CP437 8x14](https://github.com/Insoft-UK/piXfont/blob/main/examples/EGA.h)
 
-### IBM VGA CP437 9x16
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/VGA.bmp" >
 
-[VGA.h](https://github.com/Insoft-UK/piXfont/blob/main/examples/VGA.h)
+### [IBM VGA CP437 9x16](https://github.com/Insoft-UK/piXfont/blob/main/examples/VGA.h)
 
-### ARCADE
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/ARCADE.bmp" >
 
-[ARCADE.h](https://github.com/Insoft-UK/piXfont/blob/main/examples/ARCADE.h)
+### [ARCADE](https://github.com/Insoft-UK/piXfont/blob/main/examples/ARCADE.h)
 
 e.g.
-### HD44780.h
+### HD44780
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/examples/HD44780.bmp">
 
 ```
