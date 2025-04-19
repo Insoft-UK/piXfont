@@ -29,6 +29,10 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 
 ### [ARCADE](https://github.com/Insoft-UK/piXfont/blob/main/examples/ARCADE.h)
 
+<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/Arial.bmp" >
+
+### [Arial](https://github.com/Insoft-UK/piXfont/blob/main/examples/subpixel/Arial.h)
+
 e.g.
 ### HD44780
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/examples/HD44780.bmp">
