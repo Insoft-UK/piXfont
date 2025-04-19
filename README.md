@@ -31,8 +31,8 @@ This utility tool provides the ability to generate an Adafruit_GFX `.h` format f
 
 <img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/Arial.bmp" >
 
-### [Arial](https://github.com/Insoft-UK/piXfont/blob/main/examples/subpixel/Arial.h)
-Sub-Pixel
+### [Arial (v0.1)](https://github.com/Insoft-UK/piXfont/blob/main/examples/subpixel/Arial.h)
+Sub-Pixel Atlas
 
 e.g.
 ### HD44780
