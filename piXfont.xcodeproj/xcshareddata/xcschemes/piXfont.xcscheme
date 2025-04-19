@@ -54,6 +54,14 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/subpixel/debug.pbm -o debug.bmp"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/subpixel/Arial.pbm -f 32 -w 57 -h 19 -s 57 -u 0"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/examples/subpixel/Arial.h --subpixel"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

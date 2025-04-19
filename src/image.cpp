@@ -153,9 +153,7 @@ bool image::saveImage(const char *filename, const image::TImage &image)
     }
     
     if (extension == ".png") {
-        
         TImage newImage = image;
-        convertIndexedToRGBA(newImage);
         
         png::TImage pngImage = {
             .width = image.width,

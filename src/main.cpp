@@ -108,7 +108,7 @@ void help(void) {
     << "  -u <value>         Cursor advance distance in the x-axis from the\n"
     << "                     right edge of the glyph (default: 1).\n"
     << "  -g <h/v>           Glyph layout direction, horizontal or vertical.\n"
-    << "  -s <value>         Cursor advance distance in the x-axis for ASCII\n"
+    << "  -s <value>         Cursor advance distance in the x-axis for ASCII 32(space)\n"
     << "                     character 32 (space), if not using fixed width.\n"
     << "  -H <value>         Horizontal padding in pixels between glyphs.\n"
     << "  -V <value>         Vertical padding in pixels between glyphs.\n"
@@ -1056,6 +1056,13 @@ int main(int argc, const char * argv[])
                 image = convertAdafruitFontToImage(in_filename, options);
             }
             
+            if (options.subpixel) {
+                if (image.width % 3 == 0) {
+                    image::binarizeImageByIndexWithValue(image, 1, 255);
+                    image::invertImage(image);
+                    image::convertSubpixel(image);
+                }
+            }
             saveImage(out_filename.c_str(), image);
             if (!filesize(out_filename.c_str())) {
                 std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
@@ -1110,20 +1117,6 @@ int main(int argc, const char * argv[])
                 return 0;
             }
             std::cout << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
-            return 0;
-        }
-        
-        // Debugging sub-pixel
-        if (out_extension == ".bmp") {
-            image::TImage image;
-            image = createImageSubTypeFont(in_filename, options);
-            saveImage(out_filename.c_str(), image);
-            if (!filesize(out_filename.c_str())) {
-                std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
-                return 0;
-            }
-            std::cout << "Bitmap Representation of Sub Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
-            
             return 0;
         }
         
