@@ -988,6 +988,10 @@ int main(int argc, const char * argv[])
      */
     info();
     
+    if (std::filesystem::path(in_filename).extension().empty()) {
+        in_filename.append(".h");
+    }
+    
     /*
      If no output file is specified, the program will use the input file’s name
      (excluding its extension) as the output file name.
