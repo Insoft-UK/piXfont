@@ -6,11 +6,16 @@ clear
 # Detect hardware architecture
 ARCH=$(uname -m)
 
-if [[ "$ARCH" == "x86_64" ]]; then
-    make -j$(sysctl -n hw.ncpu) x86_64
-else
-    make -j$(sysctl -n hw.ncpu) arm64
-fi
+#if [[ "$ARCH" == "x86_64" ]]; then
+#    make -j$(sysctl -n hw.ncpu) x86_64
+#else
+#    make -j$(sysctl -n hw.ncpu) arm64
+#fi
+
+make -j$(sysctl -n hw.ncpu) x86_64
+make -j$(sysctl -n hw.ncpu) arm64
+
+make -j$(sysctl -n hw.ncpu) universal
 
 read -p "Press Enter to exit!"
 
