@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2024-2025 Insoft. All rights reserved.
+// Copyright (c) 2024-2026 Insoft.
 // Originally created in 2023
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -234,6 +234,23 @@ void image::copyImage(const TImage &dst, int dx, int dy, const TImage &src, int 
     }
 }
 
+image::TImage image::extractImageSegment(const TImage &src, int x, int y, uint16_t w, uint16_t h)
+{
+    auto dst = createImage(w, h, src.bpp);
+    uint8_t *d = (uint8_t *)dst.bytes.data();
+    uint8_t *s = (uint8_t *)src.bytes.data();
+    
+    s += x + y * src.width;
+    while (h--) {
+        for (int i=0; i<w; i++) {
+            d[i] = s[i];
+        }
+        d += dst.width;
+        s += src.width;
+    }
+    return dst;
+}
+
 void image::convertMonochromeToIndexed(TImage &monochrome)
 {
     TImage image;
@@ -325,11 +342,11 @@ bool image::containsRegion(const TImage &image, uint16_t x, uint16_t y, uint16_t
 
 image::TImage image::cropToContent(const TImage &image)
 {
-    TImage extractedImage;
+    TImage cropedImage;
     
     int minX, maxX, minY, maxY;
     
-    if (image.bytes.empty()) return extractedImage;
+    if (image.bytes.empty()) return cropedImage;
     
     uint8_t *p = (uint8_t *)image.bytes.data();
     
@@ -349,17 +366,17 @@ image::TImage image::cropToContent(const TImage &image)
     }
     
     if (maxX < minX || maxY < minY)
-        return extractedImage;
+        return cropedImage;
     
     
     int width = maxX - minX + 1;
     int height = maxY - minY + 1;
     
-    extractedImage = createImage(width, height, image.bpp);
-    if (extractedImage.bytes.empty()) return extractedImage;
-    copyImage(extractedImage, 0, 0, image, minX, minY, width, height);
+    cropedImage = createImage(width, height, image.bpp);
+    if (cropedImage.bytes.empty()) return cropedImage;
+    copyImage(cropedImage, 0, 0, image, minX, minY, width, height);
     
-    return extractedImage;
+    return cropedImage;
 }
 
 void image::invertImage(TImage &image)

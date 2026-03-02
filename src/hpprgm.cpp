@@ -174,7 +174,7 @@ bool hpprgm::parseAdafruitFontFile(const std::string &filename, font::TAdafruitF
     }
 
     if (font.data.empty()) {
-        std::cout << "Failed to find <Bitmap Data>.\n";
+        std::cerr << "Failed to find <Bitmap Data>.\n";
         return false;
     }
     
@@ -194,7 +194,7 @@ bool hpprgm::parseAdafruitFontFile(const std::string &filename, font::TAdafruitF
         font.glyphs.push_back(glyph);
     }
     if (font.glyphs.empty()) {
-        std::cout << "Failed to find <Glyph Table>.\n";
+        std::cerr << "Failed to find <Glyph Table>.\n";
         return false;
     }
     

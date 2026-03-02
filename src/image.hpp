@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2024-2025 Insoft. All rights reserved.
+// Copyright (c) 2024-2026 Insoft.
 // Originally created in 2023
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -83,6 +83,8 @@ namespace image {
      @param h The height of the bitmap to be copied.
      */
     void copyImage(const TImage &dst, int dx, int dy, const TImage &src, int x, int y, uint16_t w, uint16_t h);
+    
+    TImage extractImageSegment(const TImage &src, int x, int y, uint16_t w, uint16_t h);
     
     /**
      @brief Converts a monochrome image to an 8-bit indexed image.

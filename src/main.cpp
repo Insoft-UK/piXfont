@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2024-2025 Insoft. All rights reserved.
+// Copyright (c) 2024-2026 Insoft. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@
 #include "png.hpp"
 #include "image.hpp"
 #include "font.hpp"
+#include "graphics.hpp"
 
 using namespace cmn;
 
@@ -68,27 +69,27 @@ typedef struct {
 
 // MARK: - Command Line
 void version(void) {
-    std::cout 
+    std::cerr 
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
-    << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n"
+    << "Copyright (C) 2024-" << YEAR << " Insoft.\n"
     << "Built on: " << DATE << "\n"
     << "Licence: MIT License\n\n"
     << "For more information, visit: http://www.insoft.uk\n";
 }
 
 void error(void) {
-    std::cout << COMMAND_NAME << ": try '" << COMMAND_NAME << " --help' for more information\n";
+    std::cerr << COMMAND_NAME << ": try '" << COMMAND_NAME << " --help' for more information\n";
     exit(0);
 }
 
 void info(void) {
-    std::cout 
+    std::cerr 
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n"
     << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n\n";
 }
 
 void help(void) {
-    std::cout 
+    std::cerr 
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
     << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n"
     << "\n"
@@ -96,6 +97,7 @@ void help(void) {
     << "\n"
     << "Options:\n"
     << "  -o <output-file>   Specify the filename for generated .bmp, .h or .hpprgm file.\n"
+    << "  --encoded          Bottom row encodes widths.\n"
     << "  -w <value>         Maximum glyph width in pixels.\n"
     << "  -h <value>         Maximum glyph height in pixels.\n"
     << "  -c <columns>       Number of glyphs per column when generating a glyph atlas.\n"
@@ -406,12 +408,12 @@ image::TImage createImageSubTypeFont(const std::string in_filename, const TOptio
     image = image::loadImage(in_filename.c_str());
     
     if (image.bytes.empty()) {
-        std::cout << "Error: Failed to load the monochrome bitmap file." << in_filename << ".\n";
+        std::cerr << "Error: Failed to load the monochrome bitmap file." << in_filename << ".\n";
         return image;
     }
     
     if (image.bpp != 1) {
-        std::cout << "Error: Not a monochrome image." << in_filename << ".\n";
+        std::cerr << "Error: Not a monochrome image." << in_filename << ".\n";
         return image;
     }
     
@@ -579,13 +581,109 @@ std::string buildHAdafruitFont(font::TAdafruitFont &adafruitFont,  std::string &
     return os.str();
 }
 
+std::vector<int> buildWidthsFromBottomRow(
+    const uint8_t* pixelData,
+    int width,
+    int height
+) {
+    if (!pixelData || width <= 0 || height <= 0)
+        throw std::invalid_argument("Invalid image data");
+
+    const uint8_t* bottomRow = pixelData + height * width - width;
+
+    std::vector<int> widths;
+    int runLength = 1;
+    uint8_t current = bottomRow[0];
+
+    for (int x = 1; x < width; ++x) {
+        uint8_t v = bottomRow[x];
+        if (v == current) {
+            runLength++;
+        } else {
+            widths.push_back(runLength);
+            current = v;
+            runLength = 1;
+        }
+    }
+
+    widths.push_back(runLength);
+    return widths;
+}
+
+bool createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, font::TAdafruitFont &adafruitFont, const TOptions &options)
+{
+    image::TImage image;
+    image = image::loadImage(in_filename.c_str());
+    
+    if (image.bytes.empty()) {
+        std::cerr << "Error: Failed to load the monochrome bitmap file." << in_filename << ".\n";
+        return false;
+    }
+    
+    image::convertMonochromeToIndexed(image);
+    image::binarizeImageByIndex(image, options.color);
+    
+    auto widths = buildWidthsFromBottomRow(image.bytes.data(), image.width, image.height);
+    
+    uint16_t bitmapOffset = 0;
+    
+    int x = 0, y = 0, w = 0, h = image.height - 1;
+    for (int index = 0; index < adafruitFont.last - adafruitFont.first + 1; index++) {
+        w = widths.at(index);
+        
+        auto extracted = image::extractImageSegment(image, x, y, w, h);
+        x += widths.at(index);
+        
+        if (!image::containsRegion(extracted, 0, 0, w, h)) {
+            /*
+             If the image does not contain a glyph for a character,
+             insert a blank entry with xAdvance set to the cell width.
+            */
+            font::TGlyph glyph = {0, 0, 0, static_cast<uint8_t>(widths.at(index)), 0, 0};
+            adafruitFont.glyphs.push_back(glyph);
+            continue;
+        }
+        
+        int top, left, bottom, right;
+        findImageBounds(top, left, bottom, right, extracted);
+        
+        font::TGlyph glyph = {
+            .bitmapOffset = 0,
+            .width = static_cast<uint8_t>(right - left + 1),
+            .height = static_cast<uint8_t>(bottom - top + 1),
+            .xAdvance = static_cast<uint8_t>(widths.at(index)),
+            .dX = static_cast<int8_t>(left),
+            .dY = static_cast<int8_t>(-extracted.height + top)
+        };
+        
+        extracted = image::cropToContent(extracted);
+        appendImageData(adafruitFont, extracted);
+        glyph.bitmapOffset = bitmapOffset;
+        bitmapOffset += (extracted.width * extracted.height + 7) / 8;
+        adafruitFont.glyphs.push_back(glyph);
+    }
+    
+    trimBlankGlyphs(adafruitFont);
+    
+    std::string str;
+    
+    if (std::filesystem::path(out_filename).extension() == ".hpprgm") {
+        str = hpprgm::buildHpprgmAdafruitFont(adafruitFont, name);
+        createUTF16LEFile(out_filename, str);
+        return true;
+    }
+    str = buildHAdafruitFont(adafruitFont, name);
+    createUTF8File(out_filename, str);
+    return true;
+}
+
 bool createNewFont(const std::string &in_filename, const std::string &out_filename, std::string &name, font::TAdafruitFont &adafruitFont, bool fixed, bool leftAlign, const TOptions &options)
 {
     image::TImage image;
     image = image::loadImage(in_filename.c_str());
     
     if (image.bytes.empty()) {
-        std::cout << "Error: Failed to load the monochrome bitmap file." << in_filename << ".\n";
+        std::cerr << "Error: Failed to load the monochrome bitmap file." << in_filename << ".\n";
         return false;
     }
     
@@ -596,7 +694,7 @@ bool createNewFont(const std::string &in_filename, const std::string &out_filena
 //    int rows = (image.height + options.VPadding) / (options.h + options.VPadding);
 
 //    if (adafruitFont.last - adafruitFont.first + 1 > cols * rows) {
-//        std::cout << "Error: The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
+//        std::cerr << "Error: The extraction of glyphs from the provided bitmap image exceeds what is possible based on the image dimensions.\n";
 //        return false;
 //    }
     
@@ -700,7 +798,7 @@ bool parseHAdafruitFont(const std::string &filename, font::TAdafruitFont &font)
             s = match.suffix().str();
         }
     } else {
-        std::cout << "Failed to find <Bitmap Data>.\n";
+        std::cerr << "Failed to find <Bitmap Data>.\n";
         return false;
     }
     
@@ -717,7 +815,7 @@ bool parseHAdafruitFont(const std::string &filename, font::TAdafruitFont &font)
         s = match.suffix().str();
     }
     if (font.glyphs.empty()) {
-        std::cout << "Failed to find <Glyph Table>.\n";
+        std::cerr << "Failed to find <Glyph Table>.\n";
         return false;
     }
     
@@ -726,7 +824,7 @@ bool parseHAdafruitFont(const std::string &filename, font::TAdafruitFont &font)
         font.last = parse_number(match.str(2));
         font.yAdvance = parse_number(match.str(3));
     } else {
-        std::cout << "Failed to find <Font>.\n";
+        std::cerr << "Failed to find <Font>.\n";
         return false;
     }
     
@@ -742,7 +840,7 @@ void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_file
     std::string str;
     
     if (!parseHAdafruitFont(in_filename, adafruitFont)) {
-        std::cout << "Failed to find valid Adafruit Font data.\n";
+        std::cerr << "Failed to find valid Adafruit Font data.\n";
         exit(2);
     }
 
@@ -758,12 +856,12 @@ image::TImage convertAdafruitFontToImage(const std::string &in_filename, const T
     
     if (std::filesystem::path(in_filename).extension() == ".hpprgm") {
         if (!hpprgm::parseAdafruitFontFile(in_filename, adafruitFont)) {
-            std::cout << "Failed to find valid Adafruit Font data.\n";
+            std::cerr << "Failed to find valid Adafruit Font data.\n";
             exit(2);
         }
     } else {
         if (!parseHAdafruitFont(in_filename, adafruitFont)) {
-            std::cout << "Failed to find valid Adafruit Font data.\n";
+            std::cerr << "Failed to find valid Adafruit Font data.\n";
             exit(2);
         }
     }
@@ -806,6 +904,7 @@ int main(int argc, const char * argv[])
     
     bool fixed = false;
     bool leftAlign = false;
+    bool encoded = false;
     
     font::TAdafruitFont adafruitFont = {
         .first = 0,
@@ -823,7 +922,7 @@ int main(int argc, const char * argv[])
                 continue;
             }
             
-            if (args == "-u") {
+            if (args == "-u" || args == "--cursor-advance") {
                 if (++n > argc) error();
                 options.cursorAdvance = parse_number(argv[n]);
                 if (options.cursorAdvance < 0) options.cursorAdvance = 1;
@@ -874,6 +973,11 @@ int main(int argc, const char * argv[])
                 continue;
             }
             
+            if (args == "--encoded") {
+                encoded = true;
+                continue;
+            }
+            
             if (args == "-c") {
                 if (++n > argc) error();
                 options.columns = parse_number(argv[n]);
@@ -918,8 +1022,6 @@ int main(int argc, const char * argv[])
                 if (options.scale < 2 || options.scale >= 10) options.scale = 1;
                 continue;
             }
-            
-           
             
             if (args == "-a") {
                 leftAlign = true;
@@ -1036,7 +1138,7 @@ int main(int argc, const char * argv[])
      process will be halted and an error message returned to the user.
      */
     if (in_filename == out_filename) {
-        std::cout << "Error: The output file must differ from the input file. Please specify a different output file name.\n";
+        std::cerr << "Error: The output file must differ from the input file. Please specify a different output file name.\n";
         return 0;
     }
     
@@ -1047,7 +1149,7 @@ int main(int argc, const char * argv[])
     if (in_extension == ".h") {
         if (out_extension == ".hpprgm") {
             convertAdafruitFontToHpprgm(in_filename, out_filename, name);
-            std::cout << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+            std::cerr << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
         }
         
@@ -1069,14 +1171,14 @@ int main(int argc, const char * argv[])
             }
             saveImage(out_filename.c_str(), image);
             if (!filesize(out_filename.c_str())) {
-                std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
+                std::cerr << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
                 return 0;
             }
-            std::cout << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+            std::cerr << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
         }
         
-        std::cout << "Error: For ‘." << in_extension << "’ input file, the output file must have a ‘.hpprgm’ or ‘.bmp’ extension. Please choose a valid output file type.\n";
+        std::cerr << "Error: For ‘." << in_extension << "’ input file, the output file must have a ‘.hpprgm’ or ‘.bmp’ extension. Please choose a valid output file type.\n";
         return 0;
     }
     
@@ -1089,21 +1191,21 @@ int main(int argc, const char * argv[])
             hpprgm::parseAdafruitFontFile(in_filename, adafruitFont);
             std::string utf8 = buildHAdafruitFont(adafruitFont, name);
             createUTF8File(out_filename, utf8);
-            std::cout << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+            std::cerr << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
         }
         
         if (out_extension == ".bmp" || out_extension == ".png") {
             image::TImage image = convertAdafruitFontToImage(in_filename, options);
             if (!saveImage(out_filename.c_str(), image)) {
-                std::cout << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
+                std::cerr << "Error: For ‘." << std::filesystem::path(out_filename).filename() << "’ output file, failed to output file.\n";
                 return 0;
             }
-            std::cout << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+            std::cerr << "Bitmap Representation of Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
         }
         
-        std::cout << "Error: For ‘" << in_extension << "’ input file, the output file must have a ‘.h’ or ‘.bmp’ extension. Please choose a valid output file type.\n";
+        std::cerr << "Error: For ‘" << in_extension << "’ input file, the output file must have a ‘.h’ or ‘.bmp’ extension. Please choose a valid output file type.\n";
         return 0;
     }
     
@@ -1113,22 +1215,28 @@ int main(int argc, const char * argv[])
      */
     if (in_extension == ".pbm" || in_extension == ".bmp" || in_extension == ".png") {
         if (out_extension == ".hpprgm" || out_extension == ".h") {
-            if (createNewFont(in_filename, out_filename, name, adafruitFont, fixed, leftAlign, options) == false) {
-                return 0;
+            if (encoded) {
+                if (createNewFont(in_filename, out_filename, name, adafruitFont, options) == false) {
+                    return 0;
+                }
+            } else {
+                if (createNewFont(in_filename, out_filename, name, adafruitFont, fixed, leftAlign, options) == false) {
+                    return 0;
+                }
             }
             if (out_extension == ".h") {
-                std::cout << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+                std::cerr << "Adafruit GFX Pixel Font " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
                 return 0;
             }
-            std::cout << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+            std::cerr << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
         }
         
-        std::cout << "Error: For ‘" << in_extension << "’ input file, the output file must have a ‘.h’ or ‘.hpprgm’ extension. Please choose a valid output file type.\n";
+        std::cerr << "Error: For ‘" << in_extension << "’ input file, the output file must have a ‘.h’ or ‘.hpprgm’ extension. Please choose a valid output file type.\n";
         return 0;
     }
     
-    std::cout << "Error: The specified input ‘" << std::filesystem::path(in_filename).filename() << "‘ file is invalid or not supported. Please ensure the file exists and has a valid format.\n";
+    std::cerr << "Error: The specified input ‘" << std::filesystem::path(in_filename).filename() << "‘ file is invalid or not supported. Please ensure the file exists and has a valid format.\n";
     
     return 0;
 }
