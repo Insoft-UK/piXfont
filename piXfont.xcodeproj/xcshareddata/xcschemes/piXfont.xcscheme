@@ -61,7 +61,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/Font8.bmp -f 28 --encoded -i 0"
+            argument = "$(PROJECT_DIR)/examples/Font10.bmp -f 28 --encoded -i 0"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
